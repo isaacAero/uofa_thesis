@@ -1,10 +1,34 @@
 \introduction
-\epigraph{Pure mathematics can be practically useful and applied mathematics can be artistically elegant}{\textit{Paul Halmos}}
+The art of mathematical biology is to capture a biological phenomenon with the simplest model possible. Another concern which appears in the connection between applied and pure mathematics, is that of ensuring the model that one selects is amenable to rigorous analysis. This further reinforces the requirement that the model be as simple as possible, but no simpler. Indeed, a model that is sufficiently crystallized so as to capture the essential details of a physical effect, will necessarily not capture everything observable, but has more chance to be useful, since it directs our thinking away from extraneous features.
+\\
+\\
+What is essential in the study of biological systems? One essential aspect is the phenomenon of growth. Growth, when seen on its own, without reference to biology, is simply ``change over time". The standard tool for this is calculus, which in its more developed form, is called differential geometry. A cell colony will be modelled here as a subset of $\mathbb{R}^n$ where $n = 1,2,3$. In order for that set to ``change over time", namely, for the cell to be parametrized by a real number $t \in \mathbb{R}_{\geq 0}$, the geometry of the colony needs to be represented by a finite list of parameters. The most simple way to do this, which comprises one of the models developed here, is to represent each cell as a disk in $\mathbb{R}^2$ with radius $r = r(t) \in \mathbb{R}_{\geq 0}$ centered at the position $(x(t),y(t)) \in \mathbb{R}^2$. The advantage to this approach is that it is more computationally efficient as compared to models which represent each cell as a deformable polygon, for instance.
+\\
+\\
+The question remains: how can cell division be achieved within mathematical growth models? It does not seem obvious except via the continual addition of new parameters, such as new cell radii and positions. As we will see, taking seriously the question of mitosis from a topological standpoint will yield a generalized model for systems in which geometric changes and topological changes can be captured simultaneously. Why is the topology important in the case of biological growth? 
+\\
+\\
+As a motivating example, consider the graph of the function $f(x) = x^2$. Now consider the time-dependent set given by $C(t) = f^{-1} (\{t\})$ where $t \in \mathbb{R}_{\geq 0}$ is a time parameter. When $t=0$, $C(0) = \{ 0\}$ (only one element), but when $t=1$, $C(1) = \{ -1, +1  \}$, which has two elements, and, likewise for $t=2$ where $C(t) = \{ -\sqrt{2}, +\sqrt{2}  \}$. This example shows that a catastrophic change (a bifurcation) can occur in $C(t)$ during a smooth change in $t$. A subtle modification to this model is to consider $f_t(x) = x^2-t$ and fix $C(t) = f^{-1}_t(\{0 \})$. That is, instead of sliding up the query point $t$, we slide down the whole smooth manifold given by $(x,f_t(x))$ such that $x \in \mathbb{R}$. The set $C(t)$ is actually called a level-$0$ set. We will just call this a level set of $f_t$.
+\\
+\\
+We can consider level sets of functions from $\mathbb{R}^n$ to $\mathbb{R}$ for $n = 2,3$ as well. In these cases, the level sets are, respectively, level curves and level surfaces. A analogous example for $n=2$, is the set of functions $f_t(x,y) = x^2+y^2-t$, the level curves of which look like circles centered at the origin of radius $\sqrt{t}$.
+\\
+\\
+This level of generalization will not be sufficient for our purposes, since the type of manifolds that we will be dealing with will not in general be representable as graphs of functions. To see this, consider the fact that a vertical line in the $xt$-plane is a perfectly reasonable representation of a stationary cell, and yet there's no function (of $x$) that has a vertical line graph. What is required is that $C(t) = \{ p \in M_t \ | \ \textrm{the last component of $p$ is $0$} \}$ where $M_t$ is a time dependent smooth manifold. The requirement that $M_t$ is smooth for all $t$ is imposed so that the theory of smooth manifolds can be brought to bear on the problem. What we will consider are smooth manifolds $M_t \subset \mathbb{R}^{n+1}$ where $n$ is the dimension in which the colony exists. For instance, a two-dimensional colony would be represented by
+\begin{equation}
+        C(t) = \{ p \in M_t \subset \mathbb{R}^3 \ | \ p_3 = 0  \}.
+\end{equation}
+A three-dimensional colony would be represented by
+\begin{equation}
+        C(t) = \{ p \in M_t \subset \mathbb{R}^4 \ | \ p_4 = 0  \}.
+\end{equation}
+
+
 At the beginning, we imagine a colony of yeast cells that is restricted to move along a straight line. The colony is therefore modeled as a set of real numbers $C \subset \mathbb{R}$. Like an archipelago of small islands, the colony as a whole is composed of closed sets, $C_j$ where $j \in \mathbb{N}$ indexes over the cells. Therefore, the colony is a disjoint union of these individual cells,
 \begin{equation*}
     C = \coprod_{j=1}^N C_j
 \end{equation*}
-and $N$ is the total cell count. Closed sets (in the standard topology on $\mathbb{R}$) are chosen to represent the cells for the technical reason that a point (singleton) may also constitute a cell. In fact, we further restrict each cell to an open interval $C_j = [a_j, b_j]$.
+and $N$ is the total cell count. Closed sets (in the standard topology on $\mathbb{R}$) are chosen to represent the cells for the technical reason that a point (singleton) may also constitute a cell. In fact, we further restrict each cell to a closed interval $C_j = [a_j, b_j]$.
 \\
 \\
 As we shall see in general, all we require is that each cell have no holes. Another way of saying this is that each cell is homeomorphic to a singleton (which works in $\mathbb{R}^2$ and $\mathbb{R}^3$ as well). Finally, the closed interval $[a_j,b_j]$ will be called a parametrization of the cell $C_j$: this is important to note for the generalization to $\mathbb{R}^2$ and $\mathbb{R}^3$, where parametrizations must also be constructed.
@@ -14,4 +38,65 @@ The mechanism of mitosis must account for the fact that several cells can underg
 \begin{equation*}
     l(C \cup \{x\} ) = l(C),
 \end{equation*}
-where $C \cup \{x\} $ is the colony after mitosis has occurred, since singletons have measure $0$.
+where $C \cup \{x\} $ is the colony after mitosis has occurred, since singletons have measure $0$. 
+\\
+\\
+Of course, some restrictions must be applied to the choice of $x \in \mathbb{R} \setminus C$. Since, we are always working in Euclidean spaces (for practical scenarios), we may as well require that $x$ is close to $C$ in the sense that for all $c \in C$ we have that $d(c,x) < \delta$ for some small positive amount $\delta$ where $d: \mathbb{R} \times \mathbb{R} \rightarrow \mathbb{R}_{\geq 0}$ is the Euclidean metric on $\mathbb{R}$ (which is easily generalized to higher dimensions). This parameter $\delta$ represents how the colony spreads out.
+\\
+\\
+A profitable aspect of this model for cell colonies is that it unifies the topological aspects of the colony (it is always homeomorphic to a finite set of points or the empty set), and the measure theoretic properties (one can speak of getting more cells without changing the total measure). This means we can separate the dynamics of cell division from the dynamics of the geometric growth of the cells, i.e. the change in $a_j$ and $b_j$. One simple way to do this is to supply an ordinary differential equation for the measure of the colony $V = l(C)$, and equip this with a discrete time update equation for number of cells. 
+\\
+\\
+To move us closer to a manageable computer implementation of cell colony growth, we consider the simple growth model given by,
+\begin{equation*}
+    \frac{dV(t)}{dt} = g(t),
+\end{equation*}
+\begin{equation*}
+    N_{n+1} = 2N_n,
+\end{equation*}
+where $g(t)$ is a growth function. Now we need apply some equation for how each cell grows. For sake of simplicity, say that for all cells $j$, the cell measure $V_j$ grows as
+\begin{equation*}
+    \frac{dV_j(t)}{dt} = g_j(t), \ \ t \geq m_j,
+\end{equation*}
+ where $g_j(t)$ is a cellular growth function such that $V_j(t) \rightarrow V_f$ is the final cellular volume, and $m_j$ is the birth time of the cell. This actually is not enough to specify the whole colony geometry. So how do we pin down the geometry?
+\\
+\\
+The geometry and how its dynamics evolve of course depends on the chosen parametrization of each cell. For our purposes, we will consider $C_j = \bar{B} (x_j, \varepsilon_j)$ where
+\begin{equation*}
+    \bar{B} (x_j, \varepsilon_j) = \{ x \in \mathbb{R} : d(x_j,x) \leq \varepsilon_j \},
+\end{equation*} 
+which is called the closed ball centered on $x_j$ of radius $\varepsilon_j$. That means $a_j = x_j-\varepsilon_j$, and $b_j = x_j+\varepsilon_j$. It is more convenient to use this parametrization since closed balls are defined in higher dimensions as well. Another important benefit to the closed ball is that whenever $\varepsilon_j = 0$, $\bar{B} (x_j, 0) = \{ x_j\}$. Also, the volume of each cell is simply $V_j = 2\varepsilon_j$ which tells us that the volume is completely independent of the cell center position $x_j$.
+\\
+\\
+Now we easily obtain a nice formula for $\varepsilon_j(t)$  defined for $t \geq m_j$ as
+\begin{equation*}
+    \varepsilon_j(t) = \frac{1}{2} \int_{m_j}^t g_j(s)ds.
+\end{equation*}
+But, recall, since the $C_j$ are each disjoint, $V$ is given by
+\begin{equation*}
+    V = l(C) = \sum_{j=1}^N l(C_j) = \sum_{j=1}^N V_j.
+\end{equation*}
+This applies to the time derivative too, yielding 
+\begin{equation*}
+    \frac{dV(t)}{dt} = \sum_{j=1}^N \frac{dV_j(t)}{dt}.
+\end{equation*}
+This means that the colony and cell growth functions must be related by the following,
+\begin{equation*}
+    g(t) = \sum_{j=1}^N g_j (t).
+\end{equation*}
+Our functions $g_j(t)$ were defined for $t \in [m_j, +\infty)$ which means they have different domains. To make the analysis easier, we build these functions by taking linear combinations of basis hat functions (defined for $t \in [0, +\infty)$). The basis functions have compact support and are given piecewise by,
+\begin{equation*}
+    \varphi_i(t) = \begin{cases} 
+      \frac{t-t_{i-1}}{h}, & t \in [t_{i-1}, t_i] \\
+      \frac{t_{i+1}-t}{h}, & t \in [t_{i}, t_{i+1}] \\
+      0, & \textrm{otherwise}, 
+   \end{cases}
+\end{equation*}
+where $h$ is the smallest time step, $t_0 = 0$ and $t_i = ih$ for $i \in \mathbb{N}$. Hence, each $g_j(t)$ can be extended to a definition on all of $\mathbb{R}_{\geq 0}$ by
+\begin{equation*}
+    \tilde{g}_j(t) = \sum_{i=1}^{\infty} g_j(t_i) \varphi_i(t) =\sum_{i=1}^{\infty} g_{ij} \varphi_i(t) .
+\end{equation*}
+Now that the $g_{ij}$ are defined on the same domain, we can further restrict to $i \leq T$ where $T$ is the total number of time steps. This means that the time dependence is now fixed by a finite number of parameters, $g_{ij}$. Summing over $j$, we get that
+\begin{equation*}
+    \tilde{g}(t) = \sum_{j=1}^N \sum_{i=1}^{T} g_{ij} \varphi_i(t).
+\end{equation*}
