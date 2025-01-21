@@ -18,6 +18,16 @@
 \usepackage{layouts}
 \usepackage{pdfpages}
 \usepackage{epigraph} 
+\usepackage{xcolor}
+\usepackage{listings}
+
+\usepackage{xparse}
+
+\NewDocumentCommand{\codeword}{v}{%
+\texttt{\textcolor{blue}{#1}}%
+}
+
+\lstset{language=C,keywordstyle={\bfseries \color{blue}}}
 \DeclareMathOperator{\sech}{sech}
 
 % SET MARGINS
