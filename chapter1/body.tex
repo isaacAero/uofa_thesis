@@ -122,7 +122,9 @@ where $\Psi \in [0,1]$ is $1$ for a perfect circle and can get to $0$ for highly
 \begin{figure}
     \centering
     \begin{tikzpicture}
-    % Coordinate axes
+
+
+    
     \draw[->] (0,0) -- (3,0) node[right] {$x$};
     \draw[->] (0,0) -- (0,3) node[above] {$y$};
     \draw (0,0) circle (0.2);
@@ -145,7 +147,7 @@ where $\Psi \in [0,1]$ is $1$ for a perfect circle and can get to $0$ for highly
 
 \end{tikzpicture}
     \caption{Shows a rod shaped backbone of an elliptical cell made from two masses $m_1 = m_2 = m$ connected by a massless rod of length $2d$}
-    \label{fig:enter-label}
+    \label{fig:rod}
 \end{figure}
 
 
@@ -160,34 +162,68 @@ where $\Psi \in [0,1]$ is $1$ for a perfect circle and can get to $0$ for highly
     \draw[thick] (0,0) circle (0.15); % Rotational point
 
     % Rod
-    \draw[thick] (1,1) -- (4,3);
+    \draw[thick]  (1,1) -- (4,3);
     
     % Points on the rod
     \fill (1,1) circle (0.07) node[below left] {1};
     \fill (4,3) circle (0.07) node[above right] {2};
+
+    
     
     % Center of mass
-    \draw[thick] (2.5,2) circle (0.15) node[right] {$O_C$};
+    \draw[thick] (2.5,2) circle (0.15) node[right] {$O_C$};x
+
+    %Center of action of force
+    \fill (3.25,2.5) circle (0.07) node[above right] {P};
 
     % Forces
-    \draw[->,thick] (4,3) -- ++(1,1) node[above right] {$F_t$};
-    \draw[->,thick] (2.5,2) -- ++(0,1.5) node[above] {$F$};
-    \draw[->,thick] (2.5,2) -- ++(-1.2,1.2) node[left] {$F_n$};
+    \draw[->,thick] (3.25,2.5) -- ++(1,0.66667) node[above right] {$F_t$};
+    \draw[->,thick] (3.25,2.5) -- ++(0,1.5) node[above] {$F$};
+    \draw[->,thick] (3.25,2.5) -- ++(-0.8,1.2) node[left] {$F_n$};
     
     % Tangent and normal directions
-    \draw[dashed] (4,3) -- ++(1.5,0.5) node[right] {$t$};
-    \draw[dashed] (2.5,2) -- ++(-1.5,1.5) node[left] {$n$};
+    \draw[dashed] (4,3) -- ++(3,2) node[right] {$t$};
+    \draw[dashed] (2.5,2) -- ++(-2,3) node[left] {$n$};
+
+    %extra line for angle
+    \draw[dashed] (1,1) -- ++(1.0,0)  node[right]{} ;
 
     % Angles
-    \draw[->] (1,1) ++(0.3,0.1) arc (0:30:0.3) node[right] {$\theta_C$};
-    \draw[->] (2.5,2) ++(0.3,0.1) arc (0:30:0.3) node[right] {$\theta_C$};
+    %\draw[->] (1,1) ++(0.3,0.1) arc (0:30:0.3) %node[right] {$\theta_C$};
+    %\draw[->] (2.5,2) ++(0.3,0.1) arc %(0:30:0.3) node[right] {$\theta_C$};
+
+    \coordinate (A) at (1,1);
+    \coordinate (B) at (1.5,1);
+    \coordinate (C) at (1.416,1.2774);
+
+    \draw pic["$\theta_C$",draw=green,<->,angle eccentricity=1.2,angle radius=1cm] {angle=B--A--C};
+
  
     \end{tikzpicture}
-    \caption{Shows a rod shaped backbone of an elliptical cell made from two masses $m_1 = m_2 = m$ connected by a massless rod of length $2d$}
-    \label{fig:enter-label}
+    \caption{Shows a rod shaped cell which is being impinged upon by a contact force $\vb{F}$ resolved into a tangential $F_t$ and normal component $F_n$.}
+    \label{fig:rod_force}
 \end{figure}
 
+Referring to the supplied figures, we see that a force is $\vb{F}$ in Figure \ref{fig:rod_force} can be a representation of an applied force from another cell acting on the current cell. We set out to find forces on the two point mass that will produce equivalent force balance in the $(t,n)$ coordinate system.
 
+We replace the force $\vb{F}$ with $\vb{F}_1$ and $\vb{F}_2$ acting on mass $1$ and $2$, respectively. From force balance
+\begin{equation*}
+ \vb{F}_1+  \vb{F}_2 = \vb{F}, 
+\end{equation*}
+and, from moment balance with anti-clockwise positive,
+\begin{equation*}
+ l_F F_n = d(F_{n,2} - F_{n,1}).
+\end{equation*}
+In our case, the impinging force will be from another cell, so we start by making the assumption that there is no tangential force, i.e. frictionless slipping. With this we can
+derive simultaneous equations for $F_{1,n}$ and $F_{2,n}$ which have the solution
+\begin{equation*}
+    F_{n,1} =  \left( \frac{d-l_F}{2d} \right) F_n,
+\end{equation*}
+
+\begin{equation*}
+    F_{n,2} =  \left( \frac{d+l_F}{2d} \right) F_n.
+\end{equation*}
+Assuming, once again, that $F_{t,1} = F_{t,2} = F_t = 0$ we can obtain the $(x,y)$ components by doing a coordinate rotation.
 
 Add in a flow chart ??? Diagrammatic representation of the code. 
 
