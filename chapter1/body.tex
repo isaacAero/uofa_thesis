@@ -1,6 +1,9 @@
-% \published{statement_of_authorship.jpg}
 \chapter{ Description of the model \label{ch:numero_uno}}
-\section{An invitation to implicit curve modeling}
+\section{An invitation to Signed Distance Fields}
+The use of signed distance fields (SDFs) to model organic sufaces is a time honoured graphical technique used by Pixar Animation Studios to model hair 
+in The Incredibles for instance (see \cite{petrovic2005volumetric}). The idea is to define a a function which represents the closest distance
+from the query point to a point on the surface of the object that is to be represented. If the query point is outside, the SDF is positive,
+ the SDF is zero on the surface and negative inside.
 To motivate the primary mechanism by which cells will undergo mitosis in this thesis, we consider a toy example in which the equations for two spheres undergo a catastrophic topological change as one parameter changes.
 
 We start by considering the equations for two spheres which begin as coincident and move apart as the parameter $a$ becomes larger. In order to combine the first equation
