@@ -1,26 +1,34 @@
 \chapter{ Description of the model \label{ch:numero_uno}}
 \section{An invitation to Signed Distance Fields}
-The use of signed distance fields (SDFs) to model organic sufaces is a time honoured graphical technique used by Pixar Animation Studios to model hair 
-in The Incredibles for instance (see \cite{petrovic2005volumetric}). The idea is to define a a function which represents the closest distance
+The use of signed distance fields (SDFs) to model organic sufaces is a time honoured graphical technique used, for example, by Pixar Animation Studios to model hair 
+in \textit{The Incredibles} (see \cite{petrovic2005volumetric}). The idea is to define a function which represents the closest distance
 from the query point to a point on the surface of the object that is to be represented. If the query point is outside, the SDF is positive,
- the SDF is zero on the surface and negative inside.
-To motivate the primary mechanism by which cells will undergo mitosis in this thesis, we consider a toy example in which the equations for two spheres undergo a catastrophic topological change as one parameter changes.
-
-We start by considering the equations for two spheres which begin as coincident and move apart as the parameter $a$ becomes larger. In order to combine the first equation
+ the SDF is zero on the surface and negative inside. SDFs can be rendered within traditional graphics pipelines (such as OpenGL or Vulkan) using raymarching, 
+ a method that takes place within shader programs and is therefore meshless. The formulae defining SDFs for common 2D and 3D shapes are easy to find online, see
+ \cite{key}. Whilst the simulations herein are done using 2D SDFs, a quick 3D primer is given below.
+ 
+ To motivate the primary mechanism by which cells will undergo mitosis in this thesis, we consider a toy example in which the equations for two spheres undergo a catastrophic topological change as one parameter changes. 
+ We start by considering the equations for two spheres which begin as coincident and move apart as the parameter $a$ becomes larger. In order to combine the first equation
 \begin{equation*}
-f_1(x,y,z) = R^2 - \left[ (z+a)^2+y^2+z^2 \right],
+f_1(x,y,z) =  \sqrt{ (x+a)^2+y^2+z^2 } -R,
 \end{equation*}
 with the second equation
 \begin{equation*}
-f_2(x,y,z) = R^2 - \left[ (z-a)^2+y^2+z^2 \right],
+f_2(x,y,z) =  \sqrt{(x-a)^2+y^2+z^2 } - R,
 \end{equation*}
-we require a smooth combination function. We construct the combined implicit curve as
+we require a smooth combination function. We construct the combined SDF using what is called a ``union" in the graphics community (see \cite{fusekvisualization}).
+This is the pointwise minimum 
 \begin{equation*}
-f(x,y,z) = \frac{1}{k}\ln{ \left( e^{k f_1(x,y,z)}+ e^{k f_2(x,y,z)} \right) }.
+f_{\textrm{union}}(x,y,z) = \min(f_1(x,y,z), f_2(x,y,z)).   % \frac{1}{k}\ln{ \left( e^{k f_1(x,y,z)}+ e^{k f_2(x,y,z)} \right) }.
 \end{equation*}
-As shown in Figure \ref{fig:ToyMitosis}, we have a smooth splitting of a cell as the parameter $a$ ranges from $0.0$ to $5.0$. Note that $R$ is the nominal sphere radii, and $k$ is a smoothing parameter. The smaller $k$ is, the more smoothly the two curves cling to each other. 
-
-In order to visualize the curves, we plot the level-$0$ curve using MATLAB's \codeword{isosurface} function. As we will see, for the purpose of the thesis
+In reality, it may be nicer to have a smooth transition between the cells at a given point of time. That is why we use 
+$\textrm{smoothmin}$ which is defined by a smoothness parameter $k$, as in
+\begin{equation}
+    \textrm{smoothmin}(x_1, x_2) = -k \log(e^{-x_1/k} + e^{-x_2/k}).
+\end{equation}
+As shown in Figure \ref{fig:ToyMitosis}, we have a smooth splitting of a cell as the parameter $a$ ranges from $0.0$ to $5.0$.
+Note that $R$ is the nominal sphere radii, and $k$ is a smoothing parameter. The larger $k$ is, the more smoothly the two curves cling to each other. 
+We plot the level-$0$ surface of the smooth union SDF using MATLAB's \codeword{isosurface} function. 
 
 \begin{figure}[h]
 \centering
@@ -30,9 +38,49 @@ In order to visualize the curves, we plot the level-$0$ curve using MATLAB's \co
 \end{figure}
 \filbreak
 
-As will be discussed in the next section, for the purpose of this thesis, we will be modeling growing geometry using level ``sections" of implicit curves in 2D.
+It is also possible to get the intersection of two SDFs using a $\textrm{smoothmax}$ function.
 
 \section{Modeling growing geometry }
+Cell colonies can be built up by combining the SDFs of the individual cells using a cumulative $\textrm{smoothmin}$. We employ
+the main aspect of $\textrm{smoothmin}$, which is that 
+\begin{equation}
+    \textrm{smoothmin}(f_3, \textrm{smoothmin}(f_1,f_2)) = -k \log( \sum_{j=1}^3 e^{-f_j/k}),
+\end{equation}
+therefore we can accumulate smoothmins easily using
+\begin{equation}
+    \textrm{smoothmin}(f_1, \ldots, f_N) = -k \log( \sum_{j=1}^N e^{-f_j/k}),
+\end{equation}
+
+The individual cells are modelled using the approximate signed distance field for an ellipse which is given at 
+\url{https://www.shadertoy.com/view/4XfBDl}. I have provided the vectorized MATLAB implementation below,
+
+\begin{lstlisting}[style=Matlab-editor]
+    function sdf = ellisoid_sdf(x, y, theta, r, X, Y)
+        semi_minor_axis = min(r);
+        semi_major_axis = max(r);
+        c = sqrt(semi_major_axis^2 - semi_minor_axis^2);
+        %Geometrical parameter
+        center = [x,y]';
+        query_point = [X(:), Y(:)]';
+        R_z = rotation_matrix(theta);
+        l1 = vecnorm(pagemtimes(R_z , query_point - center) - [c;0], 2, 1);
+        l2 = vecnorm(pagemtimes(R_z , query_point - center) + [c;0], 2, 1);
+        l = mean([l1', l2'],2);
+        sdf = reshape(l', size(X)) - semi_major_axis;
+    end 
+\end{lstlisting}
+Note that I multiply each local coordinate \codeword{query_point - center} by the rotation matrix \codeword{R_z} in order
+to rotate the cell counter-clockwise by $\theta$ radians. The rotation matrix $R_z$ is given by
+\begin{equation}
+    R_z = \begin{bmatrix}
+            \cos{(\theta)} & \sin{(\theta)}\\
+            -\sin{(\theta)} & \cos{(\theta)} 
+        \end{bmatrix} ,
+\end{equation}
+which is a so-called passive rotation matrix because we are rotating the coordinate system by $\theta$ CW which has the effect 
+of rotating the ellipse by $\theta$ CCW.
+
+
 Cell colonies are modeled using level-sections of implicit curves in two dimensions. For example, a circle can be modeled as the level-0 set of the following equation
 \begin{equation*}
     f(x,y) =R^2-( x^2 + y^2),
@@ -48,7 +96,9 @@ where $R_j$ is the radius of the $j$-th cell. We will discuss how multiple cells
 \begin{equation*}
     \tilde{\Phi}(x,y;t) = \frac{1}{k}\ln{ \left[ \frac{1}{N} \sum_{j=1}^N{ e^{k f_j(x,y;t)}} \right]},
 \end{equation*}
-where $\tilde{\Phi}(x,y;t) $ is related to the colony microscopic density, $k$ is a parameter related to the level of smoothing between the curves, $N$ is the total number of cells. If all of the $f_j(x,y;t) =0$ then we recover that $\tilde{\Phi}(x,y;t) =0$. Of course, we don't yet have the actual colony microscopic density, because the numerical values taken by $\tilde{\Phi}(x,y;t) $ are essentially meaningless. The microscopic density $\Phi(x,y;t)$ is obtained by translating and scaling $\tilde{\Phi}(x,y;t) $ such that $\Phi(x,y;t) $ takes values on the interval $[0,1]$. We then interpret $1$ as the maximum biomass density of the cell at each cell center.
+where $\tilde{\Phi}(x,y;t) $ is related to the colony microscopic density, $k$ is a 
+parameter related to the level of smoothing between the curves, $N$ is the total number of cells. 
+If all of the $f_j(x,y;t) =0$ then we recover that $\tilde{\Phi}(x,y;t) =0$. Of course, we don't yet have the actual colony microscopic density, because the numerical values taken by $\tilde{\Phi}(x,y;t) $ are essentially meaningless. The microscopic density $\Phi(x,y;t)$ is obtained by translating and scaling $\tilde{\Phi}(x,y;t) $ such that $\Phi(x,y;t) $ takes values on the interval $[0,1]$. We then interpret $1$ as the maximum biomass density of the cell at each cell center.
 
 \section{Mitosis: new cells from old}
 The addition of new cells can be easily achieved by incorporating additional implicit curves and, hence, modifying the colony microscopic density $\Phi(x,y;t) $. In the case of circular cells which undergo effectively symmetric mitosis, it is necessary to add a cells at a slight offset so that contact forces (explained in the following section) can take effect. In order to store the data associated with each cell, a final number of cells $N_f$ is designated as a constant maximum number of cells which allows for the preallocation of the data associated with the cell centers and other state information (if necessary). 
