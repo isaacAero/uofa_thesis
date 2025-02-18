@@ -212,21 +212,90 @@ We replace the force $\vb{F}$ with $\vb{F}_1$ and $\vb{F}_2$ acting on mass $1$ 
 \end{equation*}
 and, from moment balance with anti-clockwise positive,
 \begin{equation*}
- l_F F_n = d(F_{n,2} - F_{n,1}).
+ l_F F_n = d(F_{2,n} - F_{1,n}).
 \end{equation*}
 In our case, the impinging force will be from another cell, so we start by making the assumption that there is no tangential force, i.e. frictionless slipping. With this we can
 derive simultaneous equations for $F_{1,n}$ and $F_{2,n}$ which have the solution
 \begin{equation*}
-    F_{n,1} =  \left( \frac{d-l_F}{2d} \right) F_n,
+    F_{1,n} =  \left( \frac{d-l_F}{2d} \right) F_n,
 \end{equation*}
 
 \begin{equation*}
-    F_{n,2} =  \left( \frac{d+l_F}{2d} \right) F_n.
+    F_{2,n} =  \left( \frac{d+l_F}{2d} \right) F_n.
 \end{equation*}
-Assuming, once again, that $F_{t,1} = F_{t,2} = F_t = 0$ we can obtain the $(x,y)$ components by doing a coordinate rotation.
+Assuming, once again, that $F_{1,t} = F_{2,t} = F_t = 0$ we can obtain the $(x,y)$ components by doing a coordinate transformation by the angle $-\theta_C = - \arctan{\left( y_2-y_1, x_2-x_1  \right)}$ where $(x_1,y_1)$ and $(x_2,y_2)$ are the mass positions, respectively. So, we have that the components of the force are given by 
+\begin{equation*}
+    \begin{bmatrix}
+    F_{1,x} \\
+    F_{1,y} 
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \cos{(-\theta_C)} & -\sin{(-\theta_C)}\\
+    \sin{(-\theta_C)} & \cos{(-\theta_C)} 
+    \end{bmatrix}
+    \begin{bmatrix}
+    -F_{1,n} \\
+    0 
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \cos{\theta_C} & \sin{\theta_C}\\
+    -\sin{\theta_C} & \cos{\theta_C} 
+    \end{bmatrix}
+    \begin{bmatrix}
+    -\left( \frac{d-l_F}{2d} \right) F_n \\
+    0 
+    \end{bmatrix},   
+\end{equation*}
 
-Add in a flow chart ??? Diagrammatic representation of the code. 
 
+
+\begin{equation*}
+    \begin{bmatrix}
+    F_{2,x} \\
+    F_{2,y} 
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \cos{(-\theta_C)} & -\sin{(-\theta_C)}\\
+    \sin{(-\theta_C)} & \cos{(-\theta_C)} 
+    \end{bmatrix}
+    \begin{bmatrix}
+    F_{2,n} \\
+    0 
+    \end{bmatrix}
+    =
+    \begin{bmatrix}
+    \cos{\theta_C} & \sin{\theta_C}\\
+    -\sin{\theta_C} & \cos{\theta_C} 
+    \end{bmatrix}
+    \begin{bmatrix}
+    \left( \frac{d+l_F}{2d} \right) F_n \\
+    0 
+    \end{bmatrix}.    
+\end{equation*}
+We solve this as
+\begin{equation*}
+  \vb{F}_1 =  - \left(\frac{d-l_F}{2d} \right)  F_n \cos{\theta_C} \hat{\vb{i}} + \left(\frac{d-l_F}{2d} \right)  F_n \sin{\theta_C} \hat{\vb{j}},
+\end{equation*}
+
+\begin{equation*}
+  \vb{F}_2 =   \left(\frac{d+l_F}{2d} \right)  F_n \cos{\theta_C} \hat{\vb{i}} - \left(\frac{d+l_F}{2d} \right)  F_n \sin{\theta_C} \hat{\vb{j}},
+\end{equation*}
+
+\section{Approximate Bayesian Computation (ABC) for the inverse problem}
+The traditional statement of Bayes' Theorem goes like
+\begin{equation}
+    P(A | B) = \frac{P(B|A) P(A)}{P(B)},
+\end{equation}
+where $A$ and $B$ are outcomes and the terms are given by
+\begin{itemize}
+    \item $P(A | B)$ is the posterior probability; the probability of $A$ given $B$,
+    \item $P(B|A)$ is the conditional probability
+    \item $P(A)$ is the prior probability; probability of observing event $A$
+    \item $P(B)$ is the marginal probability; probability of observing event $B$
+\end{itemize}
 
 
 
