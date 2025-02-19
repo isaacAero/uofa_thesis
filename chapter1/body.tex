@@ -159,19 +159,88 @@ where $D$ is the entire domain of the pertri dish.
 
 
 \begin{equation*}\
-\pdv{C(\vb{q})}{\vb{q}} = \frac{ \sum_{j=1}^N \pdv{f_j(\vb{q})}{\vb{q}}e^{f_j(\vb{q})/k}}{ \sum_{j=1}^N e^{f_j(\vb{q})/k}}.
+\pdv{f_{\textrm{intersect}}(x,y,\vb{q})}{\vb{q}} = \frac{ \sum_{j=1}^N \pdv{f_j(x,y,\vb{q})}{\vb{q}}e^{f_j(x,y,\vb{q})/k}}{ \sum_{j=1}^N e^{f_j(x,y,\vb{q})/k}}.
 \end{equation*}
 Conveniently, computing the Jacobian, has turned into $N$ problems that are easier to solve individually. Namely computing $\pdv{f_j(\vb{q})}{\vb{q}}$.
 This requires us to express the SDF for an ellipse in terms of the query point $(x,y)$, the center of the cell $(x_j,y_j)$, and its orientation $\theta_j$. This
-is given in terms of $l_j^-(\vb{q}, x, y)$ and $l_j^+(\vb{q}, x, y)$ which are given by 
+is given in terms of $l_j^-(\vb{q}, x, y)$ and $l_j^+(\vb{q}, x, y)$ which are given in the ellipse formula. We use MATLAB's symbolic toolbox to compute the
+ellipse Jacobian $\pdv{f_j(x,y,\vb{q})}{\vb{q}}$ and return a function that can take numerical inputs using \codeword{matlabFunction(J,"File","ellipseJacobian")}.
+With that we can compute Jacobian of the constraint using
+\begin{equation} 
+    \pdv{C(\vb{q})}{\vb{q}} = -\frac{1}{2K} \int \int_D \left[ 1- \tanh[2]( -\frac{f_{\textrm{intersect}}(x,y,\vb{q})}{K}) \right] \pdv{f_{\textrm{intersect}}(x,y,\vb{q})}{\vb{q}} dx dy.
+\end{equation}
+Now that all the derivatives have been computed analytically, we can carry out the computation of the integral over $x$ and $y$ using a numerical integral in MATLAB.
+From now we use $f$ instead of $f_{\textrm{intersect}}$ for brevity, and we pass to index notation, instead expression the $\beta$-th component of $J$ as 
+\begin{equation}
+J_{\beta} = -\frac{1}{2K} \int \int_D \left[ 1- \tanh[2]( -\frac{f(x,y,\vb{q})}{K}) \right] \pdv{f(x,y,\vb{q})}{q_{\beta}} dx dy.
+\end{equation}
+For the computation of constraint forces, we need to further compute the total derivative of the Jacobian with respect to time. This turns 
+out to be realted to the Hessian matrix of $C(\vb{q})$ (for no explicit time dependence), as 
 \begin{equation*}
-\l_j^{\pm} = 
+    \dot{J}_{\beta} = \sum_{\alpha = 1}^{5N} \dot{q}_{\alpha} \frac{\partial^2 C}{ \partial q_{\alpha} \partial q_{\beta}} = \sum_{\alpha = 1}^{5N} \dot{q}_{\alpha} H_{\alpha, \beta},
+\end{equation*}
+We need to compute how the Hessian of $C$ can be written in terms of the Hessian and Jacobian of $f$.
+\begin{equation}
+    \frac{\partial^2 C}{ \partial q_{\alpha} \partial q_{\beta}} = \frac{\partial }{\partial q_{\alpha}} J_{\beta}
+\end{equation}
+Crunching the calculuations we get
+\begin{equation}
+ \frac{\partial }{\partial q_{\alpha}} J_{\beta} = -\frac{1}{4 K^2} \int \int_D \left[ 1- \tanh[2]( -\frac{f}{K}) \right] \left[\tanh(-\frac{f}{K})\pdv{f}{q_{\alpha}}\pdv{f}{q_{\beta}} + K \frac{\partial^2 f}{ \partial q_{\alpha} \partial q_{\beta}}\right]  dx dy
+\end{equation}
+Luckily, the Hessian is built into MATLAB's symbolic toolbox, so we can just call \codeword{matlabFunction(H,"File","ellipseHessian")} and the function to compute
+the Hessian is saved into our working directory. Note that the function \codeword{ellipseHessian} computes a $5 \times 5 \times N_{\textrm{grid}} \times N_{\textrm{grid}}$ matrix. 
+We call it for each cell $j \in \{1, \ldots, N\}$ but recall that for a given value of $\vb{q}$, the Hessian still has $(x,y)$ as free field variables. In order to integrate
+the field data, we use the cell-wise Jacobian field $J_{\beta}^j (x,y)$ and the cell-wise Hessian field $H_{\alpha, \beta}^j (x,y)$ to calculate the overall Hessian field for $f$
+\begin{equation*}
+    \frac{\partial^2 f}{ \partial q_{\alpha} \partial q_{\beta}} = \left(\frac{1}{k}\right) \left[ \frac{\left(\sum_{j=1}^N E_j\right) \left( \sum_{j=1}^N E_j (k H_{\alpha, \beta}^j + J_{\alpha}^j J_{\beta}^j)\right) - \left(\sum_{j=1}^N E_j J_\alpha^j \right) \left(\sum_{j=1}^N E_j J_\beta^j \right)}{\left(\sum_{j=1}^N E_j\right)^2} \right],
+\end{equation*}
+where $E_j = e^{f_j/k}$ is used for short. To actually compute the overall integrals for $\pdv{C}{q_{\beta}}$ and $\frac{\partial^2 C}{ \partial q_\alpha \partial q_\beta }$
+we use MATLAB's \codeword{trapz} function the following way
+\begin{lstlisting}[style=Matlab-editor]
+    trapz(y_lin,trapz(x_lin,integrandJacobian,3),2);
+\end{lstlisting}
+or, in the case of the Hessian,
+\begin{lstlisting}[style=Matlab-editor]
+    trapz(y_lin,trapz(x_lin,integrandHessian,4), 3);
+\end{lstlisting}
+where the integrand in the Jacobian cas is given by
+\begin{equation*}
+    F_{\beta}(x,y) = \left(\frac{T^2-1}{2K} \right)\frac{ \sum_{j=1}^N J_\beta^j E_j}{ \sum_{j=1}^N E_j},
+\end{equation*}
+where $T = \tanh( -\frac{f(x,y,\vb{q})}{K})$ and, in the case of the Hessian
+\begin{equation*}
+    G_{\alpha, \beta}(x,y) = 
+\left(\frac{T^2-1}{4K^2} \right) \left(T \left(\frac{ \sum_{j=1}^N J_\alpha^j E_j}{ \sum_{j=1}^N E_j}\right) \left(\frac{ \sum_{j=1}^N J_\beta^j E_j}{ \sum_{j=1}^N E_j}\right) + K \frac{\partial^2 f}{ \partial q_{\alpha} \partial q_{\beta}} \right),
+\end{equation*}
+which, after some serious simplification becomes
+\begin{equation*}
+    G_{\alpha, \beta}(x,y) = \frac{T^2-1}{4Kk \left(\sum_{j=1}^N E_j\right)^2} \sum_{n=1}^N \sum_{m=1}^N E_n E_m \bigg[ \left( \frac{kT-K}{K}\right) J_\alpha^n J_\beta^m +J_\alpha^m J_\beta^m +k H_{\alpha, \beta}^m \bigg]
+\end{equation*}
+To make things neat we replace $B = \frac{T^2-1}{4K^2}$, $\hat{E} = \sum_{j=1}^N E_j$ and we subsitute the ratio of the smoothstep and smoothmax parameters
+$S = K/k$ to attain,
+\begin{equation*}
+    G_{\alpha, \beta}(x,y) = \frac{B}{\hat{E}^2} \sum_{n=1}^N \sum_{m=1}^N E_n E_m \bigg[   S(k H_{\alpha, \beta}^m +J_\alpha^m J_\beta^m )+ (T-S)J_\alpha^n J_\beta^m\bigg],
+\end{equation*}
+Thus we can write 
+\begin{equation*}
+    J_\beta =  \int \int_D F_{\beta}(x,y) dx dy,
+\end{equation*}
+\begin{equation*}
+    \dot{J}_\beta =\sum_{\alpha=1}^{5N}\dot{q}_\alpha \int \int_D G_{\alpha, \beta}(x,y) dx dy,
+\end{equation*}
+Now we subsitute to obtain the final integral formulae:
+\begin{equation*}
+    J_\beta =  \int \int_D \frac{B}{\hat{E}S} \sum_{j=1}^N J_\beta^j E_j dx dy,
+\end{equation*}
+\begin{equation*}
+    \dot{J}_\beta = \int \int_D \frac{B}{\hat{E}^2}  \sum_{\alpha=1}^{5N}  \sum_{n=1}^N \sum_{m=1}^N \dot{q}_\alpha E_n E_m \bigg[   S(k H_{\alpha, \beta}^m +J_\alpha^m J_\beta^m )+ (T-S)J_\alpha^n J_\beta^m\bigg] dx dy.
+\end{equation*}
+We set out to calculate the following scalar $A = JWJ^t$ where $W = M^{-1}$ is the inverse mass matrix of our dynmical system. Note, that since we have 
+only one constraint our goal is to solve for one Lagrange multiplier $\lambda$ which is given as 
+\begin{equation*}
+A \lambda = - \sum_{\beta =1 }^{5N }\dot{J}_\beta \dot{q}_\beta - JWQ -k_s C -k_d \dot{C},
 \end{equation*}
 
-Cell colonies are modeled using level-sections of implicit curves in two dimensions. For example, a circle can be modeled as the level-0 set of the following equation
-\begin{equation*}
-    f(x,y) =R^2-( x^2 + y^2),
-\end{equation*}
 where $R$ is the radius of the circle. If the filled in circle, the disk, is required, then producing a surf plot of the function in the region where $f(x,y) \geq 0$ is sufficient. This can be achieved by modifying the value of $f(x,y)$ to be \codeword{nan} wherever $f(x,y)<0$ so that MATLAB's \codeword{surf} function does not plot it.
 \\
 \\
