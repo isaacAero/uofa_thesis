@@ -81,6 +81,93 @@ which is a so-called passive rotation matrix because we are rotating the coordin
 of rotating the ellipse by $\theta$ CCW.
 
 
+\section{Cell-cell collisions with constrained dynamics}
+Earlier, it was mentioned that the intersection of cells could be found by taking a smoothmax. To find the overlapping area
+the sum of the grid points in the intersection can be taken and then multiplied by the grid square area $h_x h_y$. Whilst
+it is more or less trivial to calculate the overlapping area, ensuring that this area remains zero throughout the simulation
+is more involved. We employ the technique explained by \cite{witkin1997introduction} based on constrained
+dynamics. The constraint in this case is that the area $C$ remains $0$ for all times,
+\begin{equation}
+    C(\vb{q}) = 0,
+\end{equation}
+where $\vb{q}$ is the concatenated state vector of the system. One should be aware that, if we have multiple colonies, it will
+be required to have pairwise constraints forcing no overlap between each of the constitiuent colonies. For the purpose of simplicity
+our state vector $\vb{q}$ will just take into account position and orientation and not size of cells. Later on, this will be generalized.
+Therefore $\vb{q}$ is produced by concatenating over $\vb{q}_j$ into one $3N \times 1$ column vector, where
+\begin{equation}
+\vb{q}_j = \begin{bmatrix}
+                x_j \\
+                y_j \\
+                \theta_j
+            \end{bmatrix}.
+\end{equation}
+Of course, the number of variables per cell can be larger but this comes at a cost in computational time. Recall that the 
+intersecting area is secretly a function of the cell state coordinates $\vb{q}_j$ since we are taking a smoothmax of the SDFs 
+of each cell. In other words,
+\begin{equation*}
+f_{\textrm{intersect}}(x,y,\vb{q}) = \textrm{smoothmax}(f_1(x,y,\vb{q}) , \ldots, f_N(x,y,\vb{q}) ),
+\end{equation*}
+
+for concreteness, we write out the formula for smoothmax which is the negative smoothmin of the negatives of the SDFs or
+\begin{equation*}
+    f_{\textrm{intersect}}(x,y,\vb{q}) = -\textrm{smoothmin}(-f_1(x,y,\vb{q}) , \ldots, -f_N(x,y,\vb{q}) ).
+\end{equation*}
+In full this boils down to,
+\begin{equation*}
+    f_{\textrm{intersect}}(x,y,\vb{q}) = k \log( \sum_{j=1}^N e^{f_j(x,y,\vb{q})/k}).
+\end{equation*}
+Now we assume the state is given by five variables for full generality:
+\begin{equation}
+\vb{q}_j(t) = 
+\begin{bmatrix}
+    x_j (t) \\
+    y_j(t) \\
+    \theta_j(t) \\
+    b_j(t) \\
+    R_j(t)
+\end{bmatrix},
+\end{equation}
+where $b(t)$ is the semi-major axis length and $R_j(t) \in (0,1]$ is the aspect ratio of the elliptical cell so the semi-minor axis is given by $a_j(t) = R_j(t) b_j(t)$. 
+Why are we going to the effort to write out $C(\vb{q})$ in full? Because we need to compute the Jacobian of $C(\vb{q})$ with
+respect to $\vb{q}$ in order to carry out the constrained dynamics algorithm. The upshot is that smoothmax is differentiable
+whereas maximum is not differentiable. 
+
+We define the region in $\mathbb{R}^2$ to integrate over by 
+\begin{equation}
+    \Omega(\vb{q}) = \{ (x,y) \in \mathbb{R}^2 \ | \ f_{\textrm{intersect}}(x,y,\vb{q}) \leq 0 \},
+\end{equation}
+so that the area of the overlapping region is simply a two-dimensional integral over $\Omega(\vb{q})$ of $1$,
+\begin{equation}
+    C(\vb{q}) = \int\int_{\Omega(\vb{q})} dxdy.
+\end{equation}
+Now we break up the integral into a sum over simply connected components (SCC) so that we can safely apply Leibniz's rule
+\begin{equation}
+    C(\vb{q}) = \sum_{i \in SCC(\vb{q})}\int\int_{\Omega_i(\vb{q})} dxdy.
+\end{equation}
+Leibniz's rule tells us how to carry out a total derivative of $\int\int_{\Omega_i(\vb{q})} dxdy$ with respect to $t$ which determines $\vb{q}$. Let's take that total
+derivative now to attain
+\begin{equation}
+   \frac{d}{dt}\int\int_{\Omega_i(\vb{q})} dxdy = \int\int_{\Omega_i(\vb{q})} \pdv{(1)}{t} dxdy + 
+   \int_{\partial \Omega_i(\vb{q})} (1) \vb{v}_{\partial \Omega_i(\vb{q})} \cdot \hat{\vb{n}} dl,
+\end{equation}
+where $\vb{v}_{\partial \Omega_i(\vb{q})}$ is the ``Eulerian'' velocity of the boundary of the $i$-th SCC. All of this can be avoided if we integrate over a smoothstep
+which is defined in our region.
+\begin{equation}
+    C(\vb{q}) = \int\int_{D} \left[ \frac{1}{2} +\frac{1}{2} \tanh{ \left(- \frac{1}{K}f_{\textrm{intersect}}(x,y,\vb{q}) \right)}\right]dxdy,
+\end{equation}
+where $D$ is the entire domain of the pertri dish.
+
+
+\begin{equation*}\
+\pdv{C(\vb{q})}{\vb{q}} = \frac{ \sum_{j=1}^N \pdv{f_j(\vb{q})}{\vb{q}}e^{f_j(\vb{q})/k}}{ \sum_{j=1}^N e^{f_j(\vb{q})/k}}.
+\end{equation*}
+Conveniently, computing the Jacobian, has turned into $N$ problems that are easier to solve individually. Namely computing $\pdv{f_j(\vb{q})}{\vb{q}}$.
+This requires us to express the SDF for an ellipse in terms of the query point $(x,y)$, the center of the cell $(x_j,y_j)$, and its orientation $\theta_j$. This
+is given in terms of $l_j^-(\vb{q}, x, y)$ and $l_j^+(\vb{q}, x, y)$ which are given by 
+\begin{equation*}
+\l_j^{\pm} = 
+\end{equation*}
+
 Cell colonies are modeled using level-sections of implicit curves in two dimensions. For example, a circle can be modeled as the level-0 set of the following equation
 \begin{equation*}
     f(x,y) =R^2-( x^2 + y^2),
