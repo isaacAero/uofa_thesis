@@ -64,8 +64,43 @@ Stage 1 is $a= 0.0$, Stage 2 is $a= 1.67$, Stage 3 is $a=3.33$, Stage 4 is $a = 
 It is also possible to get the intersection of two SDFs using a $\textrm{smoothmax}$ function.
 
 \section{Modeling yeast cells with ellipses}
-
-\\
+A signed distance field for the ellipse is used to model Baker's yeast cells.
+An ellipse centered at the origin with semi-major dimension $a$ (the $x$ intercept) and
+semi-minor dimension $b$ (the $y$ intercept) has an SDF given by
+\begin{equation*}
+    f(x,y) = \sqrt{ \left( \frac{x}{a} \right)^2 + \left( \frac{y}{b} \right)^2 } - 1.
+\end{equation*}
+This is not really a \textit{distance} field because it is 
+dimensionless but it will still be called an SDF since it produces the 
+elliptical shape all the same. Here is our ellipse.
+\begin{figure}[h]
+\centering
+\includegraphics[width=0.5\textwidth]{chapter1/figures/ellipse_origin.jpg}
+\caption{An ellipse centered at the origin with $a = 2$ and $b=1$.}
+\label{fig:Ellipse_Centered}
+\end{figure}
+We can also translate and rotate the ellipse, using
+\begin{equation*} 
+    \Delta \vb{x}' = 
+    \begin{bmatrix}
+        \cos{\theta} & \sin{\theta} \\
+        -\sin{\theta} & \cos{\theta} 
+    \end{bmatrix}
+    \Delta \vb{x},
+\end{equation*}
+where $\Delta \vb{x} = (x-x_0) \hat{\vb{i}} + (y-y_0)\hat{\vb{j}} $ and $(x_0,y_0)$ is the
+center of the ellipse. We call the components of $\Delta \vb{x} = \Delta x \hat{\vb{i}} +
+\Delta y \hat{\vb{j}} $ and develop the following formula
+\begin{equation*}
+    f(x,y) = \sqrt{ \left[\frac{ (x-x_0)\cos{\theta} + (y-y_0) \sin{\theta}}{a} \right]^2 
+            +       \left[ \frac{-(x-x_0)\sin{\theta} +(y-y_0) \cos{\theta}}{b} \right]^2 } - 1.
+\end{equation*}
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=0.5\textwidth]{chapter1/figures/ellipse_translated_rotated.jpg}
+    \caption{An ellipse centered at $(0.5, 0.8)$ with $a = 2$, $b=1$ and $\theta = 15^{\circ}$.}
+    \label{fig:Ellipse_Centered}
+    \end{figure}
 \\
 Cell colonies can be built up by combining the SDFs of the individual cells 
 using a cumulative $\textrm{smoothmin}$. We employ the main aspect of 
@@ -77,54 +112,68 @@ therefore we can accumulate smoothmins easily using
 \begin{equation}
     \textrm{smoothmin}(f_1, \ldots, f_N) = -k \log( \sum_{j=1}^N e^{-f_j/k}),
 \end{equation}
-The individual cells are modelled using the approximate signed distance field for an ellipse which is given at 
-\url{https://www.shadertoy.com/view/4XfBDl}. I have provided the vectorized MATLAB implementation below,
-
-\begin{lstlisting}[style=Matlab-editor]
-    function sdf = ellisoid_sdf(x, y, theta, r, X, Y)
-        semi_minor_axis = min(r);
-        semi_major_axis = max(r);
-        c = sqrt(semi_major_axis^2 - semi_minor_axis^2);
-        %Geometrical parameter
-        center = [x,y]';
-        query_point = [X(:), Y(:)]';
-        R_z = rotation_matrix(theta);
-        l1 = vecnorm(pagemtimes(R_z , query_point - center) - [c;0], 2, 1);
-        l2 = vecnorm(pagemtimes(R_z , query_point - center) + [c;0], 2, 1);
-        l = mean([l1', l2'],2);
-        sdf = reshape(l', size(X)) - semi_major_axis;
-    end 
-\end{lstlisting}
-Note that I multiply each local coordinate \codeword{query_point - center} by the rotation matrix \codeword{R_z} in order
-to rotate the cell counter-clockwise by $\theta$ radians. The rotation matrix $R_z$ is given by
-\begin{equation}
-    R_z = \begin{bmatrix}
-            \cos{(\theta)} & \sin{(\theta)}\\
-            -\sin{(\theta)} & \cos{(\theta)} 
-        \end{bmatrix} ,
-\end{equation}
-which is a so-called passive rotation matrix because we are rotating the coordinate system by $\theta$ CW which has the effect 
-of rotating the ellipse by $\theta$ CCW.
+\begin{figure}[h]
+\centering
+\includegraphics[width=1\textwidth]{chapter1/figures/ellipse_SDFs_blended.jpg}
+\caption{Two ellipses blended with various values of $k$. 
+Top left: $k= 0.005$, Top right: $k=0.2$, Bottom left: $k = 0.5$, Bottom right: $k=1.0$}
+\label{fig:Ellipse_Centered}
+\end{figure}
 
 
-
-where $R$ is the radius of the circle. If the filled in circle, the disk, is required, then producing a surf plot of the function in the region where $f(x,y) \geq 0$ is sufficient. This can be achieved by modifying the value of $f(x,y)$ to be \codeword{nan} wherever $f(x,y)<0$ so that MATLAB's \codeword{surf} function does not plot it.
-\\
-\\
-For approximately circular cells, each individual cell is modeled via the equation of a circle centered at position $(x_j(t),y_j(t))$ where $j$ indexes over the current total number of cells. The equation for a single cell is therefore given by
+\section{Cell colony as dynamical system}
+Each cell indexed $j \in \{1, \ldots N\}$ has five pieces of data which are enough to define globally the 
+SDF of the cell, namely, the center coordinates $(x_j,y_j)$, the angle of orientation $\theta_j$, 
+and the semi axes dimensions $a_j, b_j$. Each piece of data will be a function of time $t$. For 
+the purpose of simplicity, we model each cell as two point masses $m_1 = m_2 = m$ connected by a spring 
+with stiffness $K$. The point masses are located at $\vb{r}_j^{(1)}$ and $\vb{r}_j^{(2)}$ inside the ellipse 
+along the major axis and symmetrically about the ellipse center. This means that the center is given by 
 \begin{equation*}
-    f_j(x,y;t) =R_j^2- \left[ (x-x_j(t))^2 + (y-y_j(t))^2\right],
+    \vb{x}_j = \frac{1}{2} \left(\vb{r}_j^{(1)} + \vb{r}_j^{(2)}\right).
 \end{equation*}
-where $R_j$ is the radius of the $j$-th cell. We will discuss how multiple cells can be blended together into one colony level implicit curve. Given the implicit curve for cell $1$ to cell $N = N(t)$, respectively $f_1(x,y;t), \cdots, f_N(x,y; t)$, we blend them with the following transformation
+Fixing the semi-minor axis $b_j$, we give the semi-major axis $a_j$ by 
 \begin{equation*}
-    \tilde{\Phi}(x,y;t) = \frac{1}{k}\ln{ \left[ \frac{1}{N} \sum_{j=1}^N{ e^{k f_j(x,y;t)}} \right]},
+    a_j = a_0||\vb{r}_j^{(1)} - \vb{r}_j^{(2)}||.
 \end{equation*}
-where $\tilde{\Phi}(x,y;t) $ is related to the colony microscopic density, $k$ is a 
-parameter related to the level of smoothing between the curves, $N$ is the total number of cells. 
-If all of the $f_j(x,y;t) =0$ then we recover that $\tilde{\Phi}(x,y;t) =0$. Of course, we don't yet have the actual colony microscopic density, because the numerical values taken by $\tilde{\Phi}(x,y;t) $ are essentially meaningless. The microscopic density $\Phi(x,y;t)$ is obtained by translating and scaling $\tilde{\Phi}(x,y;t) $ such that $\Phi(x,y;t) $ takes values on the interval $[0,1]$. We then interpret $1$ as the maximum biomass density of the cell at each cell center.
+We extract the orientation angle using a two argument inverse tangent function,
+\begin{equation*}
+    \theta_j = \arctan(y_j^{(2)} - y_j^{(1)},x_j^{(2)} - x_j^{(1)} )
+\end{equation*}
+
+When the number of cells is fixed, the colony dynamics is modelled
+using first order EOMs with two primary forces: intracellular spring force and
+and intercellular contact force to void overlap. We take the assumption that 
+many authors make (include reference here) which is that inertia is negligible
+due to drag effects (more on this). That is the velocity is directly
+proportional to the force
+\begin{equation*}
+\vb{v}_j^{(i)} = \frac{1}{\eta} \vb{F}_j^{(i)},
+\end{equation*}
+where $i \in \{1,2\}$ and $j \in \{1, \ldots, N\}$ where $\eta$ is an expression for
+the drag and $\vb{F}_j^{(i)}$ is the sum of the forces acting on the $i$-th particle of
+the $j$-th cell. Overall, the simulation will be begun with $V$ vertices where $V$ is a
+positive power of $2$. We map from local indices $(i,j)$ to a global index $n$ using
+\begin{equation*}
+    n = 2(j-1) +i,
+\end{equation*}
+which is called ``row major order''. We then flatten the list of $x$-coordinates and 
+$y$-coordinates into one state vector $\vb{X}(t)$ given by
+\begin{equation*}
+    \vb{X}(t) = [x_1(t), \ldots, x_V(t), y_1(t), \ldots, y_V(t)]^T,
+\end{equation*}
+where $(x_n,y_n)$ is the coordinate of the $n$-th vertex for $n \in \{1,\ldots,V\}$.
+Note that the change in the number of cells is simulated by removing constraints
+between the vertices. At the beginning of the simulation $x_1 = \cdots = x_n$ and
+$y_1 = \cdots = y_n$. The first order ordinary differential equation is phrased
+in terms of a mass matrix and a force function,
+\begin{equation*}
+    M(t,\vb{X})\frac{d \vb{X} (t)}{dt} = f(t,\vb{X})
+\end{equation*}
+
 
 \section{Mitosis: new cells from old}
-The addition of new cells can be easily achieved by incorporating additional implicit curves and, hence, modifying the colony microscopic density $\Phi(x,y;t) $. In the case of circular cells which undergo effectively symmetric mitosis, it is necessary to add a cells at a slight offset so that contact forces (explained in the following section) can take effect. In order to store the data associated with each cell, a final number of cells $N_f$ is designated as a constant maximum number of cells which allows for the preallocation of the data associated with the cell centers and other state information (if necessary). 
+
+The addition of new cells is achieved by incorporating additional implicit curves and, hence, modifying the colony microscopic density $\Phi(x,y;t) $. In the case of circular cells which undergo effectively symmetric mitosis, it is necessary to add a cells at a slight offset so that contact forces (explained in the following section) can take effect. In order to store the data associated with each cell, a final number of cells $N_f$ is designated as a constant maximum number of cells which allows for the preallocation of the data associated with the cell centers and other state information (if necessary). 
 \\
 \\
 One of the desired features of the model, was to achieve cell division (which can be thought of as a catastrophic change in the colony topology)  without sacrificing the smoothness of $\Phi(x,y;t) $. This has been achieved by starting the new cell at a vanishingly close distance to its parent cell, and recovering smoothness through the blending of implicit curves imposed in the construction of $\Phi(x,y;t)$. This is possibly a new idea in the field of agent based models, where the addition of daughter cells is usually not even continuous (for example, in some off-lattice ABMs new cells simply appear beside old ones). Here, the two daughter cells move apart via contact forces between the cell centers and the smooth division follows.
