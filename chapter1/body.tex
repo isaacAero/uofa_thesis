@@ -163,13 +163,49 @@ $y$-coordinates into one state vector $\vb{X}(t)$ given by
 \end{equation*}
 where $(x_n,y_n)$ is the coordinate of the $n$-th vertex for $n \in \{1,\ldots,V\}$.
 Note that the change in the number of cells is simulated by removing constraints
-between the vertices. At the beginning of the simulation $x_1 = \cdots = x_n$ and
-$y_1 = \cdots = y_n$. The first order ordinary differential equation is phrased
+between the vertices. At the beginning of the simulation $x_1 = \cdots = x_V$ and
+$y_1 = \cdots = y_V$. The first order ordinary differential equation is phrased
 in terms of a mass matrix and a force function,
 \begin{equation*}
     M(t,\vb{X})\frac{d \vb{X} (t)}{dt} = f(t,\vb{X})
 \end{equation*}
-
+We start by considering the spring force acting on the $n$-th particle due to the $m$-th 
+particle given $n$ and $m$ are connected by springs. This is given by $\vb{F}_{nm}^{\textrm{spring}}$ as
+\begin{equation*}
+    \vb{F}_{nm}^{\textrm{spring}} = 
+    K(|| \vb{x}_m - \vb{x}_n|| - L_{nm}) \frac{\vb{x}_m - \vb{x}_n}{|| \vb{x}_m - \vb{x}_n||},
+\end{equation*}
+where $K$ is a spring constant meant to represent cell elasticity, and $L_{nm}$ is the nominal length
+of the spring connecting them. There are three situations regarding edge between vertex $n$ and $m$:
+either they are connected by a spring with $L_{nm}>0$, they are collocated by an equality constraint
+or they are disconnected. If the two masses are collocated by an equality constraint, then the 
+spring force is undefined so we must omit this. We must also omit the contact force because this 
+has no sense for collocated vertices. The contact force between two disconnected vertices is given as
+\begin{equation*}
+    \vb{F}_{nm}^{\textrm{contact}} =
+    \begin{cases} 
+        C\frac{\vb{x}_m - \vb{x}_n}{|| \vb{x}_m - \vb{x}_n||}, \ \textrm{if} \ || \vb{x}_m - \vb{x}_n|| \leq d \\
+        \vb{0}, \ \textrm{if} \ || \vb{x}_m - \vb{x}_n|| > d,
+    \end{cases}
+\end{equation*}
+which is used to ensure that vertices do not overlap past a threshold distance $d$. In terms of the 
+connectivity, we can encode the fact that two vertices are connected (by a spring) in an adjacency matrix
+$A_{nm}$ which is equal to $1$ if they are connected and $0$ otherwise. We also introduce a second matrix
+$B_{nm}$ which represents when two vertices are disconnected, i.e., $B_{nm} = 1 - A_{nm}$. A third matrix 
+is introduced for collocation $C_{nm} = 1$ if $n \neq m$ and $n$ and $m$ are collocated and $0$ otherwise.
+This matrix (in fact $\tilde{C}_{nm} = \sim C_{nm}$) will be used as a logical mask to filter out 
+\codeword{nan} values from the force matrices. 
+\\
+\\
+We can think of the forces (whether elastic or contact) as pairs of matrices $(F_x)_{nm}^{\textrm{spring}}$ and 
+$(F_y)_{nm}^{\textrm{spring}}$ and similarly for the contact forces. We construct the $x$-component of 
+the overall force vector
+\begin{equation*}
+    (f_x)_n(t,\vb{X}(t)) = 
+    \sum_{m=1}^V((F_x)^{\textrm{spring}}(A {\&}  \tilde{C}))_{nm} + 
+    \sum_{m=1}^V((F_x)^{\textrm{contact}}( B  {\&}  \tilde{C}))_{nm} ,
+\end{equation*}
+Where $A  {\&}  \tilde{C}$ are mask matrices that ensure both $A$ and not $C$ are satisfied.
 
 \section{Mitosis: new cells from old}
 
