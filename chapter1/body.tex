@@ -201,11 +201,75 @@ We can think of the forces (whether elastic or contact) as pairs of matrices $(F
 $(F_y)_{nm}^{\textrm{spring}}$ and similarly for the contact forces. We construct the $x$-component of 
 the overall force vector
 \begin{equation*}
-    (f_x)_n(t,\vb{X}(t)) = 
+    (f_x)_n = 
     \sum_{m=1}^V((F_x)^{\textrm{spring}}(A {\&}  \tilde{C}))_{nm} + 
     \sum_{m=1}^V((F_x)^{\textrm{contact}}( B  {\&}  \tilde{C}))_{nm} ,
 \end{equation*}
-Where $A  {\&}  \tilde{C}$ are mask matrices that ensure both $A$ and not $C$ are satisfied.
+where $A  {\&}  \tilde{C}$ are mask matrices that ensure both $A$ and not $C$ are satisfied. Similarly for the 
+$y$-component,
+\begin{equation*}
+    (f_y)_n = 
+    \sum_{m=1}^V((F_y)^{\textrm{spring}}(A {\&}  \tilde{C}))_{nm} + 
+    \sum_{m=1}^V((F_y)^{\textrm{contact}}( B  {\&}  \tilde{C}))_{nm}.
+\end{equation*}
+The question remains: how are the mask matrices $A$, $B$ and $C$ made to change over time? Here we will do
+a small illustrative example with $N=4$ cells and $V=2N = 8$ vertices. 
+\\
+\\
+Initially all the vertices will be
+collocated at the same position $(x_0,y_0)$. This means that the force vector should come out to zero because
+we essentially have one particle not interacting with anything. Let us check that $A  {\&}  \tilde{C}$ and 
+$B  {\&}  \tilde{C}$ both vanish. $C$ is given directly as a matrix of all ones, which says that each vertex
+is constrained to every other vertex. Thus $\tilde{C} = O$ where $O$ is a  $8 \times 8$ zero matrix. 
+Initially, say $A = O$ (the zero matrix) because there are no springs. Note that this immediately says that 
+$B$ is a matrix of all ones. In any case, both $A  {\&}  \tilde{C} = B  {\&}  \tilde{C} = O$.
+\\
+\\
+At some point, the effectively single particle starts growing away from its initial position. This is 
+achieved by parcelling half of the vertices into one set of collocated points, and the other half
+into another set of collocated points. Programmatically, we select half of the points
+and translate them to a random nearby position to $(x_0,y_0)$ and modify the $C$ matrix to remove
+the constraints between the first and second set,
+\begin{equation*}
+    C = 
+    \begin{bmatrix}
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 
+    \end{bmatrix}
+\end{equation*}
+At this point, we should also set the nominal length of the springs as $L_0$ and the corresponding
+matrix of lengths $L_{mn} = L_0$ (the constant matrix with value $L_0$). As it turns out, the action
+of the spring pressing the vertices apart will model the geometric growth of each elliptical cell.
+The $A$ matrix will be given by
+\begin{equation*}
+    A = 
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 
+    \end{bmatrix}
+\end{equation*}
+Now let's suppose that the vertices in one set undergo another mitosis event, splitting half of the particles
+off into a third set. The new $C$ matrix, called $C'$ must reflect this change. We call 
+$C(\alpha_1, \ldots, \alpha_M) = \textrm{diag}(\vb{1}_{V/2^{\alpha_1}}, \ldots,\vb{1}_{V/2^{\alpha_M}} )$ where $\vb{1}_{V/2^{\alpha_q}}$
+is an all $1$'s matrix of dimension $V/2^{\alpha_q} \times V/2^{\alpha_q}$ where $q$ indexes over the powers 
+of two and represents the accumulation of division events. During a mitosis event in which the $\alpha_q$-th vertex set
+splits, $C(\alpha_1, \alpha_2, \ldots, \alpha_M) \rightarrow 
+C(\alpha_1, \ldots, \alpha_q+1,\alpha_q+1 , \ldots\alpha_M)$. In other words, the $\alpha_q$-th matrix splits into
+two matrices of half the size. In our $8 \times 8$ case, we want
+
+
 
 \section{Mitosis: new cells from old}
 
