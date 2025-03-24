@@ -267,21 +267,127 @@ is an all $1$'s matrix of dimension $V/2^{\alpha_q} \times V/2^{\alpha_q}$ where
 of two and represents the accumulation of division events. During a mitosis event in which the $\alpha_q$-th vertex set
 splits, $C(\alpha_1, \alpha_2, \ldots, \alpha_M) \rightarrow 
 C(\alpha_1, \ldots, \alpha_q+1,\alpha_q+1 , \ldots\alpha_M)$. In other words, the $\alpha_q$-th matrix splits into
-two matrices of half the size. In our $8 \times 8$ case, we want
+two matrices of half the size. In our $8 \times 8$ case, in which we divide the second vertex set, this results
+in the following
+\begin{equation*}
+    C = 
+    \begin{bmatrix}
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 
+    \end{bmatrix}
+\end{equation*}
+The new matrix $A$ is got by adding a connections between the left over smaller matrices, which
+is best understood by visualising the matrix as
+\begin{equation*}
+    A = 
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    0 & 1 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 
+    \end{bmatrix}
+\end{equation*}
+Taking another division event on the second block, we get
+\begin{equation*}
+    C = 
+    \begin{bmatrix}
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 
+    \end{bmatrix}
+\end{equation*}
+and 
+\begin{equation*}
+    A = 
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    1 & 0 & 0 & 0 & 0 & 1 & 1 & 0 \\
+    0 & 1 & 0 & 0 & 1 & 0 & 0 & 1 \\
+    0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 
+    \end{bmatrix}
+\end{equation*}
 
 
 
 \section{Mitosis: new cells from old}
-
-The addition of new cells is achieved by incorporating additional implicit curves and, hence, modifying the colony microscopic density $\Phi(x,y;t) $. In the case of circular cells which undergo effectively symmetric mitosis, it is necessary to add a cells at a slight offset so that contact forces (explained in the following section) can take effect. In order to store the data associated with each cell, a final number of cells $N_f$ is designated as a constant maximum number of cells which allows for the preallocation of the data associated with the cell centers and other state information (if necessary). 
+In summary, the mechanism of mitosis is a slight of hand, in the sense that
+each of the nodes (two nodes per cell) are already there at the simulation
+outset. The appearance of growth of the colony coincides with the nodes' progressive
+dislodgement from their equality constraints with one another. Of course,
+there is no reason why the model could not be modified to add nodes
+that were not there to begin with, though such a model would yield
+equivalent results.
 \\
+To interpret the model mathematically, we recall that it was desireable to have
+a time parameter $t$ over which the state of the colony could vary. The main 
+goal of the thesis was to demonstrate that a system, in this case a yeast colony,
+which appears to acquire more dynamical variables (new coordinates for new cells for example)
+could be represented by a model with a fixed number of variables which are
+initially coincident.
 \\
-One of the desired features of the model, was to achieve cell division (which can be thought of as a catastrophic change in the colony topology)  without sacrificing the smoothness of $\Phi(x,y;t) $. This has been achieved by starting the new cell at a vanishingly close distance to its parent cell, and recovering smoothness through the blending of implicit curves imposed in the construction of $\Phi(x,y;t)$. This is possibly a new idea in the field of agent based models, where the addition of daughter cells is usually not even continuous (for example, in some off-lattice ABMs new cells simply appear beside old ones). Here, the two daughter cells move apart via contact forces between the cell centers and the smooth division follows.
+Philosophically, however, the model has some limitations. In reality, we know the growth
+of fungal species such as Baker's yeast, is strongly dependent on factors such as temperature
+and the environmental conditions that the colony is subjected to. This means 
+that the dynamics of cell growth (the collision and interaction as well as the morphology) in 
+any large colony system cannot be intrinsically defined. To put it succinctly, the dynamics of 
+the colony is strongly coupled to the local environmental conditions.
+\\
+Does this mean that we can only model biological systems completely if all the conditions 
+are incorporated? As per the discussion in the introduction about mathematical modelling,
+we aim to consider the simplest viable model. This, in the case of the current work, 
+is a model that has two components: a cell colony as discussed in the preceeding section, and 
+a nutrient field. Indeed, their coupling determines the dynamics. 
+\\
+In the discussion, I will suggest ways to relax these limiting assumptions that
+are outside the scope of the current work but are nonetheless interesting to consider.
+\\
+This model, in which the colony appears as the ``unfolding" of a network of nodes
+follows on somewhat naturally from the theory of $L$-systems, in which the underlying 
+discrete structure of a system is allowed to evolve deterministically based on rules
+analogous to cellular automata. A criticism which has been leveled 
+(find relevant paper that I read a while ago) at $L$-systems and other deterministic models
+of plants for example, is what I call their intrinsic nature. That is, they effectively
+rely on the assumption that a biological system's rules for developement are somehow contained
+within it's structure (for instance, DNA). It is more fashionable nowadays, and indeed more 
+scientifically accurate, to think of a biological system as part of a complex network 
+of other organisms and environmental conditions which determine its morphology.
+\\
+Consider a minimalistic example of modelling the motion of a spherical ball rolling around on a table.
+Two spatial paramters $x$ and $y$, together as a tuple are enough to say where it is. However, 
+if the ball unexpectately falls from the table, then you would suddenly require
+another parameter to describe the state of the system. The value of this classical example
+is to demonstrate for $N$ particles and $M$ constraints that may suddenly change, 
+we can derive rich and unexpected dynamics.
+\\
+The best we can hope for is that our parametrisation is somehow dense in the space
+of all possible cell colony configurations that we see experimentally. There are even
+some exotic cases of cellular sytems in which a single cell can have nontrivial topologies (ask Ed 
+about the slime cells which optimise their topology based on nutrient). Therefore, future work 
+should focus on representations of dynamic cell geometries that are as free of assumptions as
+is conceivable. Once an abstract enough representation of a biological system and its environment
+becomes available in the theory, one can use it to study and predict novel morphologies that appear 
+in nature. Hopefully it is clear that the present work is just a suggestion of the numerous possibilities
+in the area of biolgical morphology viewed in the framework of ``growing geometry''.
 
-\section{Modeling interactions between cells}
-In standard particle dynamic simulations, say gravitational models, the particle positions are modeled using Newton's second law. This means the state of an $N$ particle simulation in $2D$ requires $2N$ positions and $2N$ velocity values. In overdamped, low-inertia regime, which is often used in cell off-lattice ABMs, it is sufficient to ignore changes in the velocity and only construct equations for the change in position over time. 
-
-\section{Tuning the model parameters}
 
 \begin{figure}[h]
 \centering
@@ -301,7 +407,14 @@ In standard particle dynamic simulations, say gravitational models, the particle
 \filbreak
 
 \section{Adding in a nutrient field}
-
+The nutrient field is some form of glucose mixture (agar) that is assumed to be given by a reaction-diffusion 
+partial differential equation. That is, the nutrient concetration $u(x,y,t)$ is given by
+\begin{equation}
+    \pdv{u(x,y,t)}{t} = D \left( \frac{\partial^2 u(x,y,t)}{\partial x^2} + 
+                          \frac{\partial^2 u(x,y,t)}{\partial y^2} \right) - r u(x,y,t) f(x,y,t)
+\end{equation}
+where $f(x,y,t)$ is the microscopic biomass density of the cell coloy, $D$ is a diffusion
+coefficient and $r$ is a constant measuring the rate at which the cells consume nutrient.
 
 \begin{figure}[h]
 \centering
