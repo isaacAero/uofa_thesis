@@ -408,13 +408,39 @@ in the area of biolgical morphology viewed in the framework of ``growing geometr
 
 \section{Adding in a nutrient field}
 The nutrient field is some form of glucose mixture (agar) that is assumed to be given by a reaction-diffusion 
-partial differential equation. That is, the nutrient concetration $u(x,y,t)$ is given by
+partial differential equation. That is, the nutrient concentration $u(x,y,t)$ is given by
 \begin{equation}
     \pdv{u(x,y,t)}{t} = D \left( \frac{\partial^2 u(x,y,t)}{\partial x^2} + 
                           \frac{\partial^2 u(x,y,t)}{\partial y^2} \right) - r u(x,y,t) f(x,y,t)
 \end{equation}
-where $f(x,y,t)$ is the microscopic biomass density of the cell coloy, $D$ is a diffusion
+where $f(x,y,t)$ is the microscopic biomass density of the cell colony, $D$ is a diffusion
 coefficient and $r$ is a constant measuring the rate at which the cells consume nutrient.
+The PDE is subjected to a Dirichlet condition, i.e
+that the nutrient density vanishes at the boundary. In order to simulate the nutrient field
+numerically we use a finite difference on the square grid covering the domain. This is implemented 
+using a $5$-point stencil for space and a forward Euler method for time.
+\begin{equation}
+    \frac{u_{i,j}^{n+1} - u_{i,j}^n}{\Delta t} = 
+    D \left( \frac{u_{i+1,j}^{n} - 2 u_{i,j}^n +u_{i-1,j}^n}{h^2} +
+             \frac{u_{i,j+1}^{n} - 2 u_{i,j}^n +u_{i,j-1}^n}{h^2} \right)-
+             r u_{i,j}^n f_{i,j}^n,
+\end{equation}
+where $i,j$ take on values in the interior grid points, $n$ is a positive integer time index, 
+$h$ is the spatial step (same in $x$ and $y$ directions) and $\Delta t$ is the time increment. See the
+figure below for an initial condition set to a sine wave product which vanishes on the boundaries.
+
+
+\begin{figure}[h]
+    \centering
+    \includegraphics[width=1\textwidth]{chapter1/figures/sine_wave_nutrient_field.png}
+    \caption{The configuration after $200$ time units shows the movement of the cell colony
+     into areas of higher nutrient. In the top left we have a diagram of the underlying
+     node network of the colony overlayed on the nutrient field, top right we have the 
+     biomass density shown without the nutrient field for clarity, bottom we have the graph 
+     of the compactness metric over time}
+    \label{fig:sine_wave_start}
+    \end{figure}
+\filbreak
 
 \begin{figure}[h]
 \centering
@@ -433,10 +459,6 @@ coefficient and $r$ is a constant measuring the rate at which the cells consume 
 \end{figure}
 \filbreak
 
-\section{Simulating $N > 1000$ cells with a nutrient field}
-
-Explain how I have used hash mapping to deal with cell collisions.
-
 \begin{figure}[!htb] %Change this to [p] maybe ?
 \centering
 \includegraphics[width=1\textwidth]{chapter1/figures/ColonySimulationDemoNutrientField_N_1065.pdf}
@@ -445,15 +467,22 @@ Explain how I have used hash mapping to deal with cell collisions.
 \end{figure}
 \filbreak
 
-
-
 \section{Calculating the compactness metric}
-A fully grown colony will in general not be perfectly circular in shape. In order to measure the roundness of the colony we use the metric used for roundness in image processing
+A fully grown colony will in general not be perfectly circular in shape.
+ In order to measure the roundness of the colony we use the compactness metric used for 
+ roundness in image processing (quote Kai use of this metric)
 \begin{equation}
-    \Psi = \frac{P^2}{4 \pi A},
+  C = \frac{P^2}{4 \pi A},
 \end{equation}
-where $\Psi \in [0,1]$ is $1$ for a perfect circle and can get to $0$ for highly non-round shapes, $A$ is the colony area, and $P$ is the colony perimeter. When the cells are undergoing mitosis, we are left with the issue of calculating roundness of the blended ``pill" shape geometry of two cells right before splitting. In affect, it will be necessary to calculate the length of 
-
+where $C \in [1, \infty)$ is $1$ for a circle and can get to large numbers for 
+highly branching shapes, $A$ is the colony area, and $P$ is the colony perimeter. 
+Both of these are calculated from the formula for the microscopic cell
+density which is always given by when $f(x,y,t)$ changes sign. A black and white image 
+is produced at each time step using Matlab's function \codeword{bwboundaries} as per
+Kai's suggestion. The area then is given by summing up the grid squares that are
+inside the implicit shape givcen by $f$ and multiplying by $h^2$. The perimeter
+is got by using \codeword{bwboundaries}, which outputs an array of points on the boundary
+from which the Euclidean distance between neighbouring points is found and then summed over.
 
 \section{Collision Detection}
 

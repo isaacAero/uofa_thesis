@@ -1,5 +1,54 @@
 
 \chapter{Applying the model}
+\section{Non-dimensionalising the equations of motion}
+When the number of cells is fixed at $N \geq 1$ we have the following equations of motion,
+which consist of the equations of motion for the biomass node network (governed by forces) and 
+the reaction diffusion PDE of the nutrient field. Let the spring connectivity
+be given by the matrix $A_{ij}$ where $i$ and $j$ index over the number of cells and $A_{ij}$
+is $1$ if node $i$ is connected to node $j$ by an edge and $0$ otherwise.
+\begin{equation*}
+    \frac{d \vb{x}_i }{dt} = 
+    \frac{1}{\eta} \left[\sum_{i = 1, i \neq j}^N   \left(A_{ij} \vb{F}_{\textrm{spring},ij} + 
+     \vb{F}_{\textrm{contact},ij} \right) +\vb{F}_{\textrm{chemo},i}  \right] ,
+    \ \textrm{for} \ i = 1, ... , N.
+\end{equation*}
+\begin{equation*}
+    \pdv{c}{t} = D \left(\pdv[2]{c}{x} + \pdv[2]{c}{y} \right) - r c b,
+\end{equation*}
+where the biomass field $b$ is given by 
+\begin{equation*}
+b(x,y,t) = \begin{cases}
+            -\beta g(x,y,t), & \ \textrm{if} \ g(x,y,t) \leq 0, \\
+                0, &    \ \textrm{otherwise},
+           \end{cases}
+\end{equation*}
+where the field $g(x,y,t) =\textrm{smoothmin}(f_1(x,y,t), ...,f_N(x,y,t) )$ where 
+$f_i(x,y,t)$ is the signed distance field for the $i$-th cell.
+Here the spring force is given by 
+\begin{equation}
+    \vb{F}_{\textrm{spring},ij} = -\left( ||\vb{x}_i - \vb{x}_j|| - L_0\right) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||},
+\end{equation}
+the contact force is given by 
+\begin{equation}
+    \vb{F}_{\textrm{contact},ij} = F H(R - ||\vb{x}_i - \vb{x}_j||) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||} ,
+\end{equation}
+and the force of chemotaxis is given by 
+\begin{equation*}
+    \vb{F}_{\textrm{chemo},i} = \gamma \nabla c (\vb{x}_i, t),
+\end{equation*}
+
+\section{From qualitative to quantitative}
+The model developed thus far is a numerical framwork for simulating growing cell colonies.
+There is an element of randomness in the model: when two nodes are dislodged from the 
+same point there is initially no preferred direction to move in so one must be chosen randomly
+before other forces can take effect. For this reason, every seperate run of the model 
+starting with identical initial conditions will look very different after time has passed. 
+It is expected however that some ``averaged''
+quantity will stabilise so long as the model is simulated over a fairly large number of runs.
+Seperate runs of the model belong to a set called an ensemble.
+We will start with a relatively straightforward metric, the number of cells at time
+$T = 500$ steps. 
+
 
 
 
