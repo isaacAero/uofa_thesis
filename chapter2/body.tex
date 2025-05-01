@@ -342,10 +342,95 @@ $T = 500$ steps.
              $\lambda_3 = 1.0$, 
              $\lambda_4 = 1.0$, 
              $\lambda_5 = 1.0$, 
-             $\lambda_6 = 0.6$}
+             $\lambda_6 = 3.0$, 
+             $\lambda_7 = 0.6$}
     \label{fig:ColonySimulationNutrientFieldN210}
     \end{figure}
     \filbreak
+
+
+    \begin{figure}[h] %Change this to [p] maybe ?
+        \centering
+        \includegraphics[width= 1\textwidth]{
+            chapter2/figures/SpecificGrowthRatePlot.png}
+        \caption{The colony average specific growth rate for different values of $\lambda_5$
+                 is measured and plotted over time for ensemble size $1$. The rest of the parameters 
+                 took the values:
+                 $\lambda_1 = 0.1$,  
+                 $\lambda_2 = 1.0$, 
+                 $\lambda_3 = 1.0$, 
+                 $\lambda_4 = 1.0$, 
+                 $\lambda_5$ (variable), 
+                 $\lambda_6 = 0.5$, 
+                 $\lambda_7 = 0.7$.
+                 Remarkably, when $\lambda_5 \geq 5.0$ there is an interesting dynamic that 
+                 occurs based on the compettition between nutrient consumption rate ($\lambda_6$)
+                 and the mobility ($\lambda_5$). For small values of mobility,
+                 the cells are not able to move enough into areas where the nutrient has not 
+                 decayed.}
+        \label{fig:ColonySimulationNutrientFieldN210}
+        \end{figure}
+        \filbreak
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \draw[rotate=45] (-0.5*4.243cm,0) ellipse (0.5*4.243cm and 0.6cm);
+        \draw[rotate=-45] (0.5* 4.243,0) ellipse (0.5*4.243cm and 0.6cm);
+        \draw[rotate=0] (0.0,0.5* 4.243)  ellipse (0.6cm and 0.5*4.243cm);
+        
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (a) at (-3,-3)  {1};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (b) at (0,  0)  {2};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (c) at (3, -3)  {3};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (d) at (0,4.243){4};
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (a) -- (b);
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (c);  
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (d); 
+
+        \draw[dashed, color=red]   (a)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (b)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (c)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (d)  ellipse (1.0cm and 1.0cm);
+    \end{tikzpicture}
+    \caption{A diagram of three elliptical cells with internal springs to represent biomass 
+             elasticity ($\lambda_2 = \frac{K}{\eta \mu}$). The nodes are positioned at the ends of the major dimension
+             of each ellipse and there are two nodes per cell. The force acting on 
+             node $2$ for instance would be due to the forces from nodes $1$, $3$ and $4$.
+             The dashed red circles represent the activation radius ($ \lambda_4 = R/L_0$) 
+             of the contact force between the nodes.}
+\end{figure}
+
+
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \draw[rotate=45] (-0.5*4.243cm,0) ellipse (0.5*4.243cm and 0.6cm);
+        \draw[rotate=-45] (0.5* 4.243,0) ellipse (0.5*4.243cm and 0.6cm);
+        \draw[rotate=0] (0.0,0.5* 4.243)  ellipse (0.6cm and 0.5*4.243cm);
+        \draw[rotate=0] (4.0,-3.0)  ellipse (1.2cm and 0.5cm);
+
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (a) at (-3,-3)  {1};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (b) at (0,  0)  {2};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (c) at (3, -3)  {3};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (d) at (0,4.243){4};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (e) at (5,-3){5};
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (a) -- (b);
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (c);  
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (d); 
+        \draw[decoration={aspect=0.3, segment length=0.6mm, amplitude=3mm,coil},decorate] (c) -- (e); 
+
+        \draw[dashed, color=red]   (a)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (b)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (c)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (d)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (e)  ellipse (1.0cm and 1.0cm);
+    \end{tikzpicture}
+    \caption{A mitosis event occurs via the addition of new nodes connected to old nodes.
+             The nodes are added very close (distance $\delta \ll 1$) by the original nodes (exaggerated here)
+             so that the spring force can be defined. After this point, 
+             the initially compressed cell ``grows" outwards to achieve its nominal length, under 
+             the influence of elasticity, contact and chemotactic forces.}
+\end{figure}
 
 
 
