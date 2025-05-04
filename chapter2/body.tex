@@ -1,5 +1,9 @@
 
 \chapter{Applying the model}
+
+
+
+
 \section{Non-dimensionalising the equations of motion}
 When the number of cells is fixed at $N \geq 1$ we have the following equations of motion,
 which consist of the equations of motion for the biomass node network (governed by forces) and 
@@ -330,8 +334,6 @@ Seperate runs of the model belong to a set called an ensemble.
 We will start with a relatively straightforward metric, the number of cells at time
 $T = 500$ steps.
 
-\section{Results over time}
-
 \begin{figure}[h] %Change this to [p] maybe ?
     \centering
     \includegraphics[width= 1\textwidth]{
@@ -433,6 +435,58 @@ $T = 500$ steps.
 \end{figure}
 
 
+\section{Updating the nutrient field in time}
+In order to advance the nutrient field in time, an efficient and stable numerical solver
+was required. Because of the fact that the nutrient field $\hat{c}(\hat{x},\hat{y},\hat{t})$ is coupled 
+to the biomass field which is dependent on a discrete network that changes in connectivity and 
+node count, it was necessary to implement the method in-house, as opposed to 
+using a pre-existing MATLAB boundary value solver for instance. The Crank-Nicolson method (\cite{crank1947practical}) was 
+chosen for the practical reason that it led to faster simulations overall since a larger
+time step could be used as opposed to the explicit forward in time central in space (FTCS) scheme. This 
+is a direct consequence of the fact that the (implicit) Crank-Nicholson scheme is unconditionally numerically 
+stable. Let us begin by verifying this fact using the what is
+known as Von Neumann stability analysis (\cite{charney1950numerical}).
+\\
+\\
+
+From this point we drop the hat on the PDE variables. Firstly, we 
+define the nutrient field as $c_{i,j}^{n} = c(x_i, y_j, t_n)$ and similarly for $b_{i,j}^{n}$,
+the biomass. The values  $c_{i,j}^{n}$ precisely satisfy the discretised equations which follow.
+Let  $\bar{c}_{i,j}^{n}$ be the solution achieved with finite precison arithmetic 
+operations which does not necessarily satisfy the equations, up to some error term,
+\begin{equation*}
+    \epsilon_{i,j}^n = \bar{c}_{i,j}^{n} - c_{i,j}^{n}.
+\end{equation*}
+Carrying out the Crank-Nicolson discretisation with the values $c_{i,j}^{n}$, we derive
+\begin{equation*}
+    \frac{c_{i,j}^{n+1} - c_{i,j}^{n}}{\Delta t} =
+    \frac{\lambda_1}{2} \left( \nabla^2 c_{i,j}^{n+1} + \nabla^2 c_{i,j}^{n} \right) -
+     \frac{1}{2} b_{i,j}^{n} (c_{i,j}^{n+1} + c_{i,j}^{n}),
+\end{equation*}
+
+
+\begin{equation*}
+    \begin{split}
+        \frac{c_{i,j}^{n+1} - c_{i,j}^{n}}{\Delta t} &=
+        \frac{\lambda_1}{2}  \left( \frac{c_{i+1,j}^{n+1} - 2 c_{i,j}^{n+1} + c_{i-1,j}^{n+1} }{h^2} + 
+                                    \frac{c_{i,j+1}^{n+1} - 2 c_{i,j}^{n+1} + c_{i,j-1}^{n+1} }{h^2} \right)  \\
+                                   & +\frac{\lambda_1}{2} \left( \frac{c_{i+1,j}^{n} - 2 c_{i,j}^{n} + c_{i-1,j}^{n} }{h^2} + 
+                                    \frac{c_{i,j+1}^{n} - 2 c_{i,j}^{n} + c_{i,j-1}^{n} }{h^2} \right) \\
+                                   &-\frac{1}{2} b_{i,j}^{n} (c_{i,j}^{n+1} + c_{i,j}^{n}).
+    \end{split}
+\end{equation*}
+To evaluate the numerical stability, we introduce a constant $\alpha = \frac{ \lambda_1 \Delta t }{h^2}$.
+With this constant in place, we continue with
+\begin{equation*}
+    \begin{split}
+        c_{i,j}^{n+1} - c_{i,j}^{n} &=
+       \frac{\alpha}{2}  \left( c_{i+1,j}^{n+1} + c_{i-1,j}^{n+1} + 
+                       c_{i,j+1}^{n+1} + c_{i,j-1}^{n+1}  \right) - 2 c_{i,j}^{n+1}  \\
+                                   & +\frac{\alpha}{2} \left( c_{i+1,j}^{n}+ c_{i-1,j}^{n} + 
+                                    c_{i,j+1}^{n} + c_{i,j-1}^{n}  \right) - 2 c_{i,j}^{n} \\
+                                   &-\frac{\Delta t}{2} b_{i,j}^{n} (c_{i,j}^{n+1} + c_{i,j}^{n}).
+    \end{split}
+\end{equation*}
 
 
 
