@@ -450,43 +450,111 @@ known as Von Neumann stability analysis (\cite{charney1950numerical}).
 \\
 
 From this point we drop the hat on the PDE variables. Firstly, we 
-define the nutrient field as $c_{i,j}^{n} = c(x_i, y_j, t_n)$ and similarly for $b_{i,j}^{n}$,
+define the nutrient field as $c_{j,k}^{n} = c(x_j, y_k, t_n)$ and similarly for $b_{j,k}^{n}$,
 the biomass. The values  $c_{i,j}^{n}$ precisely satisfy the discretised equations which follow.
-Let  $\bar{c}_{i,j}^{n}$ be the solution achieved with finite precison arithmetic 
+Let  $\bar{c}_{j,k}^{n}$ be the solution achieved with finite precison arithmetic 
 operations which does not necessarily satisfy the equations, up to some error term,
 \begin{equation*}
-    \epsilon_{i,j}^n = \bar{c}_{i,j}^{n} - c_{i,j}^{n}.
+    \epsilon_{j,k}^n = \bar{c}_{j,k}^{n} - c_{j,k}^{n}.
 \end{equation*}
-Carrying out the Crank-Nicolson discretisation with the values $c_{i,j}^{n}$, we derive
+Carrying out the Crank-Nicolson discretisation with the values $c_{j,k}^{n}$, we derive
 \begin{equation*}
-    \frac{c_{i,j}^{n+1} - c_{i,j}^{n}}{\Delta t} =
-    \frac{\lambda_1}{2} \left( \nabla^2 c_{i,j}^{n+1} + \nabla^2 c_{i,j}^{n} \right) -
-     \frac{1}{2} b_{i,j}^{n} (c_{i,j}^{n+1} + c_{i,j}^{n}),
+    \frac{c_{j,k}^{n+1} - c_{j,k}^{n}}{\Delta t} =
+    \frac{\lambda_1}{2} \left( \nabla^2 c_{j,k}^{n+1} + \nabla^2 c_{j,k}^{n} \right) -
+     \frac{1}{2} b_{j,k}^{n} (c_{j,k}^{n+1} + c_{j,k}^{n}),
 \end{equation*}
 
 
 \begin{equation*}
     \begin{split}
-        \frac{c_{i,j}^{n+1} - c_{i,j}^{n}}{\Delta t} &=
-        \frac{\lambda_1}{2}  \left( \frac{c_{i+1,j}^{n+1} - 2 c_{i,j}^{n+1} + c_{i-1,j}^{n+1} }{h^2} + 
-                                    \frac{c_{i,j+1}^{n+1} - 2 c_{i,j}^{n+1} + c_{i,j-1}^{n+1} }{h^2} \right)  \\
-                                   & +\frac{\lambda_1}{2} \left( \frac{c_{i+1,j}^{n} - 2 c_{i,j}^{n} + c_{i-1,j}^{n} }{h^2} + 
-                                    \frac{c_{i,j+1}^{n} - 2 c_{i,j}^{n} + c_{i,j-1}^{n} }{h^2} \right) \\
-                                   &-\frac{1}{2} b_{i,j}^{n} (c_{i,j}^{n+1} + c_{i,j}^{n}).
+        \frac{c_{j,k}^{n+1} - c_{j,k}^{n}}{\Delta t} &=
+        \frac{\lambda_1}{2}  \left( \frac{c_{j+1,k}^{n+1} - 2 c_{j,k}^{n+1} + c_{j-1,k}^{n+1} }{h^2} + 
+                                    \frac{c_{j,k+1}^{n+1} - 2 c_{j,k}^{n+1} + c_{j,k-1}^{n+1} }{h^2} \right)  \\
+                                   & +\frac{\lambda_1}{2} \left( \frac{c_{j+1,k}^{n} - 2 c_{j,k}^{n} + c_{j-1,k}^{n} }{h^2} + 
+                                    \frac{c_{j,k+1}^{n} - 2 c_{j,k}^{n} + c_{j,k-1}^{n} }{h^2} \right) \\
+                                   &-\frac{1}{2} b_{j,k}^{n} (c_{j,k}^{n+1} + c_{j,k}^{n}).
     \end{split}
 \end{equation*}
 To evaluate the numerical stability, we introduce a constant $\alpha = \frac{ \lambda_1 \Delta t }{h^2}$.
 With this constant in place, we continue with
 \begin{equation*}
     \begin{split}
-        c_{i,j}^{n+1} - c_{i,j}^{n} &=
-       \frac{\alpha}{2}  \left( c_{i+1,j}^{n+1} + c_{i-1,j}^{n+1} + 
-                       c_{i,j+1}^{n+1} + c_{i,j-1}^{n+1}  \right) - 2 c_{i,j}^{n+1}  \\
-                                   & +\frac{\alpha}{2} \left( c_{i+1,j}^{n}+ c_{i-1,j}^{n} + 
-                                    c_{i,j+1}^{n} + c_{i,j-1}^{n}  \right) - 2 c_{i,j}^{n} \\
-                                   &-\frac{\Delta t}{2} b_{i,j}^{n} (c_{i,j}^{n+1} + c_{i,j}^{n}).
+        c_{j,k}^{n+1} - c_{j,k}^{n} &=
+       \frac{\alpha}{2}  \left( c_{j+1,k}^{n+1} + c_{j-1,k}^{n+1} + 
+                       c_{i,j+1}^{n+1} + c_{j,k-1}^{n+1}  \right) - 2 c_{j,k}^{n+1}  \\
+                                   & +\frac{\alpha}{2} \left( c_{j+1,k}^{n}+ c_{j-1,k}^{n} + 
+                                    c_{j,k+1}^{n} + c_{j,k-1}^{n}  \right) - 2 c_{j,k}^{n} \\
+                                   &-\frac{\Delta t}{2} b_{j,k}^{n} (c_{j,k}^{n+1} + c_{j,k}^{n}).
     \end{split}
 \end{equation*}
+Since the discretised equations are linear in $c_{j,k}^{n}$ (taking $b_{j,k}^{n}$ to be slowly varying)
+and since $\bar{c}_{j,k}^n$ also form a solution, the $\epsilon_{j,k}^n$ are also 
+a solution.
+\begin{equation*}
+    \begin{split}
+        \epsilon_{j,k}^{n+1} - \epsilon_{j,k}^{n} &=
+       \frac{\alpha}{2}  \left( \epsilon_{j+1,k}^{n+1} + \epsilon_{j-1,k}^{n+1} + 
+                                \epsilon_{j,k+1}^{n+1} + \epsilon_{j,k-1}^{n+1}  \right) - 2 \epsilon_{j,k}^{n+1}  \\
+                                   & +\frac{\alpha}{2} \left( \epsilon_{j+1,k}^{n}+ \epsilon_{j-1,k}^{n} + 
+                                   \epsilon_{j,k+1}^{n} + \epsilon_{j,k-1}^{n}  \right) - 2 \epsilon_{j,k}^{n} \\
+                                   &-\frac{\Delta t}{2} b_{j,k}^{n} (\epsilon_{j,k}^{n+1} + \epsilon_{j,k}^{n}).
+    \end{split}
+\end{equation*}
+We subsitute in an ansatz for the error term which is standard in Von Neumann stability analysis, namely
+\begin{equation*}
+    \epsilon_{j,k}^n = \xi^n e^{i \nu_x j h} e^{i \nu_y k h},
+\end{equation*}
+where $\nu_x$ and $\nu_y$ are wavenumbers and $h$ is the spatial step. Note that $i = \sqrt{-1}$. In order for the numerical
+method to be stable, we require that $|\xi| < 1$ for all values of the wavenumbers $\nu_x, \nu_y$.
+Substituting this expression into the discretised equation for the error, we get,
+\begin{equation*}
+    \begin{split}
+        \xi^{n+1} e^{i \nu_x j h} e^{i \nu_y k h} - \xi^{n} e^{i \nu_x j h} e^{i \nu_y k h} &=
+       \frac{\alpha}{2}  \left( \xi^{n+1} e^{i \nu_x (j+1) h} e^{i \nu_y k h} + \xi^{n+1} e^{i \nu_x (j-1) h} e^{i \nu_y k h} \right) \\
+       &+ \frac{\alpha}{2}\left( \xi^{n+1} e^{i \nu_x j h} e^{i \nu_y (k+1) h} + \xi^{n+1} e^{i \nu_x j h} e^{i \nu_y (k-1) h}  \right) \\
+       &-2 \xi^{n+1} e^{i \nu_x j h} e^{i \nu_y k h}  \\
+       &+\frac{\alpha}{2} \left( \xi^{n} e^{i \nu_x (j+1) h} e^{i \nu_y k h}+ \xi^{n} e^{i \nu_x (j-1) h} e^{i \nu_y k h}\right) \\
+       &+ \frac{\alpha}{2}\left(\xi^{n} e^{i \nu_x j h} e^{i \nu_y (k+1) h} + \xi^{n} e^{i \nu_x j h} e^{i \nu_y (k-1) h}  \right) \\
+       &-2 \xi^{n} e^{i \nu_x j h} e^{i \nu_y k h}\\
+       &-\frac{\Delta t}{2} b_{j,k}^{n} (\xi^{n+1} e^{i \nu_x j h} e^{i \nu_y k h} + \xi^{n} e^{i \nu_x j h} e^{i \nu_y k h}).
+    \end{split}
+\end{equation*}
+Dividing through by $\xi^{n} e^{i \nu_x j h} e^{i \nu_y k h}$, we attain,
+\begin{equation*}
+    \begin{split}
+        \xi - 1 &=
+       \frac{\alpha}{2}  \left( \xi e^{i \nu_x h}+ \xi e^{-i \nu_x h} \right) 
+       + \frac{\alpha}{2}\left( \xi  e^{i \nu_y h} + \xi  e^{-i \nu_y h}  \right) 
+       -2 \xi   \\
+       &+\frac{\alpha}{2} \left(  e^{i \nu_x  h}+  e^{-i \nu_x h}\right)
+       + \frac{\alpha}{2}\left(   e^{i \nu_y h} +   e^{-i \nu_y  h}  \right) 
+       -2
+       -\frac{\Delta t}{2} b_{j,k}^{n} (\xi + 1).
+    \end{split}
+\end{equation*}
+Using the fact that $ \frac{e^{i \nu_x h}+  e^{-i \nu_x h}}{2} = \cos(\nu_x h)$ and similarly for
+the other terms, we have,
+\begin{equation*}
+    \begin{split}
+        \xi - 1 &=
+         \alpha \xi \cos(\nu_x h) 
+       + \alpha \xi \cos(\nu_y h) 
+       -2 \xi   \\
+       &+\alpha \cos(\nu_x h) 
+       + \alpha \cos(\nu_y h) 
+       -2
+       -\frac{\Delta t}{2} b_{j,k}^{n} (\xi + 1).
+    \end{split}
+\end{equation*}
+Finally, solving for $\xi$, we have,
+\begin{equation*}
+    
+\end{equation*}
+
+
+\section{ Fast computational software in MATLAB }
+The software developed for the computational modelling is recquired
+to be fast, accurate and easy to understand.
 
 
 
