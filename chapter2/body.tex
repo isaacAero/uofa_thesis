@@ -481,9 +481,9 @@ With this constant in place, we continue with
     \begin{split}
         c_{j,k}^{n+1} - c_{j,k}^{n} &=
        \frac{\alpha}{2}  \left( c_{j+1,k}^{n+1} + c_{j-1,k}^{n+1} + 
-                       c_{i,j+1}^{n+1} + c_{j,k-1}^{n+1}  \right) - 2 c_{j,k}^{n+1}  \\
+                       c_{i,j+1}^{n+1} + c_{j,k-1}^{n+1}  \right) - 2 \alpha c_{j,k}^{n+1}  \\
                                    & +\frac{\alpha}{2} \left( c_{j+1,k}^{n}+ c_{j-1,k}^{n} + 
-                                    c_{j,k+1}^{n} + c_{j,k-1}^{n}  \right) - 2 c_{j,k}^{n} \\
+                                    c_{j,k+1}^{n} + c_{j,k-1}^{n}  \right) - 2 \alpha c_{j,k}^{n} \\
                                    &-\frac{\Delta t}{2} b_{j,k}^{n} (c_{j,k}^{n+1} + c_{j,k}^{n}).
     \end{split}
 \end{equation*}
@@ -494,9 +494,9 @@ a solution.
     \begin{split}
         \epsilon_{j,k}^{n+1} - \epsilon_{j,k}^{n} &=
        \frac{\alpha}{2}  \left( \epsilon_{j+1,k}^{n+1} + \epsilon_{j-1,k}^{n+1} + 
-                                \epsilon_{j,k+1}^{n+1} + \epsilon_{j,k-1}^{n+1}  \right) - 2 \epsilon_{j,k}^{n+1}  \\
+                                \epsilon_{j,k+1}^{n+1} + \epsilon_{j,k-1}^{n+1}  \right) - 2 \alpha \epsilon_{j,k}^{n+1}  \\
                                    & +\frac{\alpha}{2} \left( \epsilon_{j+1,k}^{n}+ \epsilon_{j-1,k}^{n} + 
-                                   \epsilon_{j,k+1}^{n} + \epsilon_{j,k-1}^{n}  \right) - 2 \epsilon_{j,k}^{n} \\
+                                   \epsilon_{j,k+1}^{n} + \epsilon_{j,k-1}^{n}  \right) - 2 \alpha \epsilon_{j,k}^{n} \\
                                    &-\frac{\Delta t}{2} b_{j,k}^{n} (\epsilon_{j,k}^{n+1} + \epsilon_{j,k}^{n}).
     \end{split}
 \end{equation*}
@@ -505,17 +505,17 @@ We subsitute in an ansatz for the error term which is standard in Von Neumann st
     \epsilon_{j,k}^n = \xi^n e^{i \nu_x j h} e^{i \nu_y k h},
 \end{equation*}
 where $\nu_x$ and $\nu_y$ are wavenumbers and $h$ is the spatial step. Note that $i = \sqrt{-1}$. In order for the numerical
-method to be stable, we require that $|\xi| < 1$ for all values of the wavenumbers $\nu_x, \nu_y$.
+method to be stable, we require that $|\xi| \leq 1$ for all values of the wavenumbers $\nu_x, \nu_y$.
 Substituting this expression into the discretised equation for the error, we get,
 \begin{equation*}
     \begin{split}
         \xi^{n+1} e^{i \nu_x j h} e^{i \nu_y k h} - \xi^{n} e^{i \nu_x j h} e^{i \nu_y k h} &=
        \frac{\alpha}{2}  \left( \xi^{n+1} e^{i \nu_x (j+1) h} e^{i \nu_y k h} + \xi^{n+1} e^{i \nu_x (j-1) h} e^{i \nu_y k h} \right) \\
        &+ \frac{\alpha}{2}\left( \xi^{n+1} e^{i \nu_x j h} e^{i \nu_y (k+1) h} + \xi^{n+1} e^{i \nu_x j h} e^{i \nu_y (k-1) h}  \right) \\
-       &-2 \xi^{n+1} e^{i \nu_x j h} e^{i \nu_y k h}  \\
+       &-2 \alpha\xi^{n+1} e^{i \nu_x j h} e^{i \nu_y k h}  \\
        &+\frac{\alpha}{2} \left( \xi^{n} e^{i \nu_x (j+1) h} e^{i \nu_y k h}+ \xi^{n} e^{i \nu_x (j-1) h} e^{i \nu_y k h}\right) \\
        &+ \frac{\alpha}{2}\left(\xi^{n} e^{i \nu_x j h} e^{i \nu_y (k+1) h} + \xi^{n} e^{i \nu_x j h} e^{i \nu_y (k-1) h}  \right) \\
-       &-2 \xi^{n} e^{i \nu_x j h} e^{i \nu_y k h}\\
+       &-2 \alpha \xi^{n} e^{i \nu_x j h} e^{i \nu_y k h}\\
        &-\frac{\Delta t}{2} b_{j,k}^{n} (\xi^{n+1} e^{i \nu_x j h} e^{i \nu_y k h} + \xi^{n} e^{i \nu_x j h} e^{i \nu_y k h}).
     \end{split}
 \end{equation*}
@@ -525,10 +525,10 @@ Dividing through by $\xi^{n} e^{i \nu_x j h} e^{i \nu_y k h}$, we attain,
         \xi - 1 &=
        \frac{\alpha}{2}  \left( \xi e^{i \nu_x h}+ \xi e^{-i \nu_x h} \right) 
        + \frac{\alpha}{2}\left( \xi  e^{i \nu_y h} + \xi  e^{-i \nu_y h}  \right) 
-       -2 \xi   \\
+       -2 \xi \alpha  \\
        &+\frac{\alpha}{2} \left(  e^{i \nu_x  h}+  e^{-i \nu_x h}\right)
        + \frac{\alpha}{2}\left(   e^{i \nu_y h} +   e^{-i \nu_y  h}  \right) 
-       -2
+       -2 \alpha
        -\frac{\Delta t}{2} b_{j,k}^{n} (\xi + 1).
     \end{split}
 \end{equation*}
@@ -539,18 +539,34 @@ the other terms, we have,
         \xi - 1 &=
          \alpha \xi \cos(\nu_x h) 
        + \alpha \xi \cos(\nu_y h) 
-       -2 \xi   \\
+       -2 \alpha \xi   \\
        &+\alpha \cos(\nu_x h) 
        + \alpha \cos(\nu_y h) 
-       -2
+       -2 \alpha
        -\frac{\Delta t}{2} b_{j,k}^{n} (\xi + 1).
     \end{split}
 \end{equation*}
-Finally, solving for $\xi$, we have,
+Finally, solving for $\xi$, and taking its absolute value we have,
 \begin{equation*}
-    
+    |\xi| = \left| \frac{1 + \alpha \left[ \cos(\nu_x h) + \cos(\nu_y h) \right] - 2 \alpha -\frac{1}{2} \Delta t b_{j,k}^{n} }
+                        {1 -\alpha \left[ \cos(\nu_x h) + \cos(\nu_y h) \right]  + 2 \alpha +\frac{1}{2} \Delta t b_{j,k}^{n}} \right|.
 \end{equation*}
-
+In order to complete the analysis, consider when biomass is $b_{j,k}^{n} = 0$. We have the simplified
+equation,
+\begin{equation*}
+    |\xi| = \left| \frac{1 -\alpha(2 - \left[ \cos(\nu_x h) + \cos(\nu_y h) \right]) }
+                        {1 +\alpha(2 - \left[ \cos(\nu_x h) + \cos(\nu_y h)\right])} \right|,
+\end{equation*}
+Which has a numerator less than or equal to $1$ because $\alpha > 0$ and 
+$0 \leq 2 - \left[ \cos(\nu_x h) + \cos(\nu_y h) \right] \leq 4$. The denominator is 
+always greater than or equal to $1$, which is enough to prove that
+the Crank-Nicolson scheme for the standard heat equation is numerically stable.
+\\
+\\
+Whether this generalises to non-zero $b_{j,k}^{n}$ is determined by numerical experiments, and 
+indeed for $\alpha = \frac{\lambda_1 \Delta t}{h^2} = \frac{(0.1) (0.01)}{(0.1)^2} = 0.1$, the scheme 
+was not found to be unstable. However, for higher values of $\alpha$ it was possible to see spurious 
+oscillations in the solution field for $c$ which obviously suggests some form of instability.
 
 \section{ Fast computational software in MATLAB }
 The software developed for the computational modelling is recquired
