@@ -573,6 +573,55 @@ The software developed for the computational modelling is recquired
 to be fast, accurate and easy to understand.
 
 
+\begin{figure}
+
+\begin{tikzpicture}[every text node part/.style={align=center}, 
+                    node distance=2cm]
+    \node (start) [startstop] {\codeword{Master.m}};
+    \node (in1) [io, below of=start] { Model parameters: $\lambda_1, ... , \lambda_7$ \\
+                                       Numerical parameters: $h$, $\Delta t$ \\
+                                       Run parameters: \codeword{ensembleSize}, \codeword{sampleTimes}};
+    \node (pro1) [process, below of=in1] {\codeword{runSimulation.m}};
+    \node (pro2) [process, below of=pro1] {\codeword{ellipse.m}};
+    \node (pro3) [process, below of=pro2] {\codeword{updateFood.m}};
+    \node (dec1) [decision, below of=pro3, yshift=-1.5cm] {Mitosis Condition};
+    \node (pro4) [process, below of=dec1, yshift=-1.5cm] {\codeword{addCell.m}};
+    \node (proNothing) [process, right of=dec1, xshift=3cm] {Proceed};
+    \node (pro5) [process, below of=pro4] {\codeword{updateNodes.m}};
+    %\node (pro5) [process, right of=dec1, xshift=2cm] {Process 2b};
+    \node (out1) [io, below of=pro5] {Run Statistics at \codeword{sampleTimes}: \\
+                                      \codeword{compactness},
+                                      \codeword{averageRadius},
+                                      \codeword{cellCount},
+                                      $\bar{\mu}$};
+    \node (stop) [startstop, below of=out1] {Plot ensemble averaged results};
+    \node (for) [process, left of=dec1, xshift=-3cm] {Loop over ensemble};
+
+    \draw [arrow] (start) -- (in1);
+    \draw [arrow] (in1) -- (pro1);
+    \draw [arrow] (pro1) -- (pro2);
+    \draw [arrow] (pro2) -- (pro3);
+    \draw [arrow] (pro3) -- (dec1);
+    \draw [arrow] (dec1) -- node[anchor=south]{else} (proNothing);
+    \draw [arrow] (proNothing) |- node[anchor=south]{} (pro5);
+    \draw [arrow] (dec1) -- node[anchor=east]{if}(pro4);
+    \draw [arrow] (pro4) -- (pro5);
+    \draw [arrow] (pro5) -- (out1);
+    \draw [arrow] (out1) -- (stop);
+    \draw [arrow] (pro1) -| node[anchor=south]{} (for);
+    \draw [arrow] (for)  |- node[anchor=south]{} (out1);
+    
+    %\draw [arrow] (pro2a) -- (out1);
+    %\draw [arrow] (out1) -- (stop);
+
+    
+
+
+\end{tikzpicture}
+
+\caption{A flow chart of \textbf{CellColonySimulator} software package. }
+
+\end{figure}
 
 
 
