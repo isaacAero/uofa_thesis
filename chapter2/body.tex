@@ -574,6 +574,7 @@ to be fast, accurate and easy to understand.
 
 
 \begin{figure}
+    \centering
 
 \begin{tikzpicture}[every text node part/.style={align=center}, 
                     node distance=2cm]
@@ -586,7 +587,7 @@ to be fast, accurate and easy to understand.
     \node (pro3) [process, below of=pro2] {\codeword{updateFood.m}};
     \node (dec1) [decision, below of=pro3, yshift=-1.5cm] {Mitosis Condition};
     \node (pro4) [process, below of=dec1, yshift=-1.5cm] {\codeword{addCell.m}};
-    \node (proNothing) [process, right of=dec1, xshift=3cm] {Proceed};
+    \node (proNothing) [process, left of=pro4, xshift=-1.5cm] {Proceed};
     \node (pro5) [process, below of=pro4] {\codeword{updateNodes.m}};
     %\node (pro5) [process, right of=dec1, xshift=2cm] {Process 2b};
     \node (out1) [io, below of=pro5] {Run Statistics at \codeword{sampleTimes}: \\
@@ -595,21 +596,24 @@ to be fast, accurate and easy to understand.
                                       \codeword{cellCount},
                                       $\bar{\mu}$};
     \node (stop) [startstop, below of=out1] {Plot ensemble averaged results};
-    \node (for) [process, left of=dec1, xshift=-3cm] {Loop over ensemble};
+    \node (for) [process, left of=pro3, xshift=-3.5cm] {Loop over ensemble};
+    \node (forTime) [process, right of=pro3,  xshift=3.0cm] {Loop over time};
 
     \draw [arrow] (start) -- (in1);
     \draw [arrow] (in1) -- (pro1);
     \draw [arrow] (pro1) -- (pro2);
     \draw [arrow] (pro2) -- (pro3);
     \draw [arrow] (pro3) -- (dec1);
-    \draw [arrow] (dec1) -- node[anchor=south]{else} (proNothing);
+    \draw [arrow] (dec1) -| node[anchor=south]{else} (proNothing);
     \draw [arrow] (proNothing) |- node[anchor=south]{} (pro5);
     \draw [arrow] (dec1) -- node[anchor=east]{if}(pro4);
     \draw [arrow] (pro4) -- (pro5);
     \draw [arrow] (pro5) -- (out1);
     \draw [arrow] (out1) -- (stop);
-    \draw [arrow] (pro1) -| node[anchor=south]{} (for);
+    \draw [arrow] (in1) -| node[anchor=south]{} (for);
     \draw [arrow] (for)  |- node[anchor=south]{} (out1);
+    \draw [arrow] (pro1)  -| node[anchor=south]{} (forTime);
+    \draw [arrow] (forTime)  |- node[anchor=south]{} (pro5);
     
     %\draw [arrow] (pro2a) -- (out1);
     %\draw [arrow] (out1) -- (stop);
@@ -619,9 +623,74 @@ to be fast, accurate and easy to understand.
 
 \end{tikzpicture}
 
-\caption{A flow chart of \textbf{CellColonySimulator} software package. }
+\caption{A flow chart of \textbf{CellColonySimulator} software package in MATLAB. }
 
 \end{figure}
+
+
+\begin{tikzpicture}
+    \pgfplotsset{every tick label/.append style={font=\scriptsize}}
+ 
+    \begin{axis}[view = {50}{50},
+        width=\textwidth,
+        xmax = 10,
+        xmin = -10,
+        ymax = 10, 
+        ymin = -10, 
+        zmax = 10, 
+        zmin = 0,
+        xtick=\empty,
+        ytick=\empty,
+        ztick=\empty,
+        grid,
+        grid style={dashed,gray!40},
+        3d box=background]
+     
+        \addplot3[mark=*,black,mark options={blue},point meta=explicit symbolic,nodes near coords] 
+        coordinates 
+        {
+            (0,0,0) [$c_{j,k}^n$]
+            (-8,0,0)[$c_{j-1,k}^n$]
+            (0,0,0)
+            (8,0,0)[$c_{j+1,k}^n$]
+            (0,0,0)
+            (0,8,0)[$c_{j,k+1}^n$]
+            (0,0,0)
+            (0,-8,0)[$c_{j-1,k}^n$]
+            (0,0,0)
+            (0,0,10)[$c_{j,k}^{n+1}$]
+            (-8,0,10)[$c_{j-1,k}^{n+1}$]
+            (0,0,10)
+            (8,0,10)[$c_{j+1,k}^{n+1}$]
+            (0,0,10)
+            (0,8,10)[$c_{j+1,k}^{n+1}$]
+            (0,0,10)
+            (0,-8,10)[$c_{j-1,k}^{n+1}$]
+        };
+
+        \addplot3 [
+        domain = -8:8,
+        domain y = -8:8,
+        samples = 2,
+        samples y = 2,
+        surf,
+        fill opacity=0.1,
+        shader = interp] {0};
+
+        \addplot3 [
+        domain = -8:8,
+        domain y = -8:8,
+        samples = 2,
+        samples y = 2,
+        surf,
+        fill opacity=0.1,
+        color=red,
+        shader = interp] {10};
+     
+    \end{axis}
+     
+\end{tikzpicture}
+    
 
 
 
