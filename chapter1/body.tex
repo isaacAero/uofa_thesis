@@ -53,12 +53,12 @@ is, the more smoothly the two curves cling to each other. We plot the
 level-$0$ surface of the smooth union SDF using MATLAB's 
 \codeword{isosurface} function. 
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=1\textwidth]{chapter1/figures/CellDivisionDemo.pdf}
-\caption{A toy example of mitosis using implicit equations for spheres in 3D. 
-Stage 1 is $a= 0.0$, Stage 2 is $a= 1.67$, Stage 3 is $a=3.33$, Stage 4 is $a = 5.0$}
-\label{fig:ToyMitosis}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{chapter1/figures/mitosisPlot.pdf}
+    \caption{The separation $d$ between two ellipse shapes with $s = 0.5$ and 
+    an aspect ratio of $0.9$}
+    \label{fig:mitosisplot}
 \end{figure}
 \filbreak
 It is also possible to get the intersection of two SDFs using a $\textrm{smoothmax}$ function.
@@ -100,7 +100,7 @@ center of the ellipse. We call the components of $\Delta \vb{x} = \Delta x \hat{
     \includegraphics[width=0.5\textwidth]{chapter1/figures/ellipse_translated_rotated.jpg}
     \caption{An ellipse centered at $(0.5, 0.8)$ with $a = 2$, $b=1$ and $\theta = 15^{\circ}$.}
     \label{fig:Ellipse_Centered}
-    \end{figure}
+\end{figure}
 \\
 Cell colonies can be built up by combining the SDFs of the individual cells 
 using a cumulative $\textrm{smoothmin}$. We employ the main aspect of 
@@ -112,12 +112,14 @@ therefore we can accumulate smoothmins easily using
 \begin{equation}
     \textrm{smoothmin}(f_1, \ldots, f_N) = -k \log( \sum_{j=1}^N e^{-f_j/k}),
 \end{equation}
-\begin{figure}[h]
+
+\begin{figure}[!htb]
 \centering
-\includegraphics[width=1\textwidth]{chapter1/figures/ellipse_SDFs_blended.jpg}
-\caption{Two ellipses blended with various values of $k$. 
-Top left: $k= 0.005$, Top right: $k=0.2$, Bottom left: $k = 0.5$, Bottom right: $k=1.0$}
-\label{fig:Ellipse_Centered}
+\includegraphics[width=\textwidth]{chapter1/figures/compareSmoothness.pdf}
+\caption{Two ellipses blended with various values of smoothness $s$. The bottom right 
+         figure is computed using standard minimum instead of smoothmin. Indeed,
+         as $s \rightarrow 0$, the plot looks less smoothed across.}
+\label{fig:compareSmoothness}
 \end{figure}
 
 
@@ -389,23 +391,6 @@ in nature. Hopefully it is clear that the present work is just a suggestion of t
 in the area of biolgical morphology viewed in the framework of ``growing geometry''.
 
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=1\textwidth]{chapter1/figures/ColonySimulationDemo_N_1.pdf}
-\caption{A starting configuration consisting of a cell with radius $1$ unit equals $3.5 \mu m$}
-\label{fig:ColonySimulationStartingCell}
-\end{figure}
-\filbreak
-
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=1\textwidth]{chapter1/figures/ColonySimulationDemo_N_210.pdf}
-\caption{The same colony at 210 cells}
-\label{fig:ColonySimulationN210}
-\end{figure}
-\filbreak
-
 \section{Adding in a nutrient field}
 The nutrient field is some form of glucose mixture (agar) that is assumed to be given by a reaction-diffusion 
 partial differential equation. That is, the nutrient concentration $u(x,y,t)$ is given by
@@ -430,42 +415,7 @@ $h$ is the spatial step (same in $x$ and $y$ directions) and $\Delta t$ is the t
 figure below for an initial condition set to a sine wave product which vanishes on the boundaries.
 
 
-\begin{figure}[h]
-    \centering
-    \includegraphics[width=1\textwidth]{chapter1/figures/sine_wave_nutrient_field.png}
-    \caption{The configuration after $200$ time units shows the movement of the cell colony
-     into areas of higher nutrient. In the top left we have a diagram of the underlying
-     node network of the colony overlayed on the nutrient field, top right we have the 
-     biomass density shown without the nutrient field for clarity, bottom we have the graph 
-     of the compactness metric over time}
-    \label{fig:sine_wave_start}
-    \end{figure}
-\filbreak
 
-\begin{figure}[h]
-\centering
-\includegraphics[width=1\textwidth]{chapter1/figures/ColonySimulationDemoNutrientField_N_1.pdf}
-\caption{A starting configuration consisting of a cell with radius $1$ unit equals $3.5 \mu m$}
-\label{fig:ColonySimulationStartingCellNutrientField}
-\end{figure}
-\filbreak
-
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=1\textwidth]{chapter1/figures/ColonySimulationDemoNutrientField_N_210.pdf}
-\caption{The same colony at 210 cells}
-\label{fig:ColonySimulationNutrientFieldN210}
-\end{figure}
-\filbreak
-
-\begin{figure}[!htb] %Change this to [p] maybe ?
-\centering
-\includegraphics[width=1\textwidth]{chapter1/figures/ColonySimulationDemoNutrientField_N_1065.pdf}
-\caption{A cell colony with 1065 cells }
-\label{fig:ColonySimulationNutrientFieldN210}
-\end{figure}
-\filbreak
 
 \section{Calculating the compactness metric}
 A fully grown colony will in general not be perfectly circular in shape.
@@ -484,190 +434,9 @@ inside the implicit shape givcen by $f$ and multiplying by $h^2$. The perimeter
 is got by using \codeword{bwboundaries}, which outputs an array of points on the boundary
 from which the Euclidean distance between neighbouring points is found and then summed over.
 
-\section{Collision Detection}
-
-\begin{figure}
+\begin{figure}[h]
     \centering
-    \begin{tikzpicture}
-
-
-    
-    \draw[->] (0,0) -- (3,0) node[right] {$x$};
-    \draw[->] (0,0) -- (0,3) node[above] {$y$};
-    \draw (0,0) circle (0.2);
-
-    % Mass points and rod
-    \draw[thick] (4,1) -- (8,2);
-
-    % Mass m1
-    \fill (4,1) circle (2pt) node[left] {$m_1$};
-    % Mass m2
-    \fill (8,2) circle (2pt) node[right] {$m_2$};
-
-    % Center of mass
-    \draw[fill=none] (6,1.5) circle (3pt);
-    \node at (6.3,1) {$O_C$};
-
-    % Distance markers
-    \draw[<->] (4,1.2) -- (6,1.7) node[midway, above] {$d$};
-    \draw[<->] (6,1.7) -- (8,2.2) node[midway, above] {$d$};
-
-\end{tikzpicture}
-    \caption{Shows a rod shaped backbone of an elliptical cell made from two masses $m_1 = m_2 = m$ connected by a massless rod of length $2d$}
-    \label{fig:rod}
+    \includegraphics[width=\textwidth]{chapter1/figures/compareCompactness.pdf}
+    \caption{A comparsion of high and low compactness}
+    \label{fig:compatness_comparison}
 \end{figure}
-
-
-
-\begin{figure}
-    \centering
-    \begin{tikzpicture}
-    
-    % Axes
-    \draw[thick,->] (-1,0) -- (5,0) node[right] {$x$};
-    \draw[thick,->] (0,-1) -- (0,5) node[above] {$y$};
-    \draw[thick] (0,0) circle (0.15); % Rotational point
-
-    % Rod
-    \draw[thick]  (1,1) -- (4,3);
-    
-    % Points on the rod
-    \fill (1,1) circle (0.07) node[below left] {1};
-    \fill (4,3) circle (0.07) node[above right] {2};
-
-    
-    
-    % Center of mass
-    \draw[thick] (2.5,2) circle (0.15) node[right] {$O_C$};x
-
-    %Center of action of force
-    \fill (3.25,2.5) circle (0.07) node[above right] {P};
-
-    % Forces
-    \draw[->,thick] (3.25,2.5) -- ++(1,0.66667) node[above right] {$F_t$};
-    \draw[->,thick] (3.25,2.5) -- ++(0,1.5) node[above] {$F$};
-    \draw[->,thick] (3.25,2.5) -- ++(-0.8,1.2) node[left] {$F_n$};
-    
-    % Tangent and normal directions
-    \draw[dashed] (4,3) -- ++(3,2) node[right] {$t$};
-    \draw[dashed] (2.5,2) -- ++(-2,3) node[left] {$n$};
-
-    %extra line for angle
-    \draw[dashed] (1,1) -- ++(1.0,0)  node[right]{} ;
-
-    % Angles
-    %\draw[->] (1,1) ++(0.3,0.1) arc (0:30:0.3) %node[right] {$\theta_C$};
-    %\draw[->] (2.5,2) ++(0.3,0.1) arc %(0:30:0.3) node[right] {$\theta_C$};
-
-    \coordinate (A) at (1,1);
-    \coordinate (B) at (1.5,1);
-    \coordinate (C) at (1.416,1.2774);
-
-    \draw pic["$\theta_C$",draw=green,<->,angle eccentricity=1.2,angle radius=1cm] {angle=B--A--C};
-
- 
-    \end{tikzpicture}
-    \caption{Shows a rod shaped cell which is being impinged upon by a contact force $\vb{F}$ resolved into a tangential $F_t$ and normal component $F_n$.}
-    \label{fig:rod_force}
-\end{figure}
-
-Referring to the supplied figures, we see that a force is $\vb{F}$ in Figure \ref{fig:rod_force} can be a representation of an applied force from another cell acting on the current cell. We set out to find forces on the two point mass that will produce equivalent force balance in the $(t,n)$ coordinate system.
-
-We replace the force $\vb{F}$ with $\vb{F}_1$ and $\vb{F}_2$ acting on mass $1$ and $2$, respectively. From force balance
-\begin{equation*}
- \vb{F}_1+  \vb{F}_2 = \vb{F}, 
-\end{equation*}
-and, from moment balance with anti-clockwise positive,
-\begin{equation*}
- l_F F_n = d(F_{2,n} - F_{1,n}).
-\end{equation*}
-In our case, the impinging force will be from another cell, so we start by making the assumption that there is no tangential force, i.e. frictionless slipping. With this we can
-derive simultaneous equations for $F_{1,n}$ and $F_{2,n}$ which have the solution
-\begin{equation*}
-    F_{1,n} =  \left( \frac{d-l_F}{2d} \right) F_n,
-\end{equation*}
-
-\begin{equation*}
-    F_{2,n} =  \left( \frac{d+l_F}{2d} \right) F_n.
-\end{equation*}
-Assuming, once again, that $F_{1,t} = F_{2,t} = F_t = 0$ we can obtain the $(x,y)$ components by doing a coordinate transformation by the angle $-\theta_C = - \arctan{\left( y_2-y_1, x_2-x_1  \right)}$ where $(x_1,y_1)$ and $(x_2,y_2)$ are the mass positions, respectively. So, we have that the components of the force are given by 
-\begin{equation*}
-    \begin{bmatrix}
-    F_{1,x} \\
-    F_{1,y} 
-    \end{bmatrix}
-    =
-    \begin{bmatrix}
-    \cos{(-\theta_C)} & -\sin{(-\theta_C)}\\
-    \sin{(-\theta_C)} & \cos{(-\theta_C)} 
-    \end{bmatrix}
-    \begin{bmatrix}
-    -F_{1,n} \\
-    0 
-    \end{bmatrix}
-    =
-    \begin{bmatrix}
-    \cos{\theta_C} & \sin{\theta_C}\\
-    -\sin{\theta_C} & \cos{\theta_C} 
-    \end{bmatrix}
-    \begin{bmatrix}
-    -\left( \frac{d-l_F}{2d} \right) F_n \\
-    0 
-    \end{bmatrix},   
-\end{equation*}
-
-
-
-\begin{equation*}
-    \begin{bmatrix}
-    F_{2,x} \\
-    F_{2,y} 
-    \end{bmatrix}
-    =
-    \begin{bmatrix}
-    \cos{(-\theta_C)} & -\sin{(-\theta_C)}\\
-    \sin{(-\theta_C)} & \cos{(-\theta_C)} 
-    \end{bmatrix}
-    \begin{bmatrix}
-    F_{2,n} \\
-    0 
-    \end{bmatrix}
-    =
-    \begin{bmatrix}
-    \cos{\theta_C} & \sin{\theta_C}\\
-    -\sin{\theta_C} & \cos{\theta_C} 
-    \end{bmatrix}
-    \begin{bmatrix}
-    \left( \frac{d+l_F}{2d} \right) F_n \\
-    0 
-    \end{bmatrix}.    
-\end{equation*}
-We solve this as
-\begin{equation*}
-  \vb{F}_1 =  - \left(\frac{d-l_F}{2d} \right)  F_n \cos{\theta_C} \hat{\vb{i}} + \left(\frac{d-l_F}{2d} \right)  F_n \sin{\theta_C} \hat{\vb{j}},
-\end{equation*}
-
-\begin{equation*}
-  \vb{F}_2 =   \left(\frac{d+l_F}{2d} \right)  F_n \cos{\theta_C} \hat{\vb{i}} - \left(\frac{d+l_F}{2d} \right)  F_n \sin{\theta_C} \hat{\vb{j}},
-\end{equation*}
-
-\section{Approximate Bayesian Computation (ABC) for the inverse problem}
-The traditional statement of Bayes' Theorem goes like
-\begin{equation}
-    P(A | B) = \frac{P(B|A) P(A)}{P(B)},
-\end{equation}
-where $A$ and $B$ are outcomes and the terms are given by
-\begin{itemize}
-    \item $P(A | B)$ is the posterior probability; the probability of $A$ given $B$,
-    \item $P(B|A)$ is the conditional probability
-    \item $P(A)$ is the prior probability; probability of observing event $A$
-    \item $P(B)$ is the marginal probability; probability of observing event $B$
-\end{itemize}
-
-
-
-
-
-
-
-
