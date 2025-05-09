@@ -57,6 +57,15 @@
 }
 
 
+\usepackage[titletoc,toc,page]{appendix}
+\usepackage{lipsum}
+\renewcommand{\appendixpagename}{\appendixname}
+
+\renewcommand{\appendixtocname}{\appendixname}
+
+\noappendicestocpagenum
+
+
 
 % SET MARGINS
 \geometry{outer=20mm,inner=35mm}
@@ -104,10 +113,11 @@
 \include{chapter3/body}
 \include{conclusions}
 
-\appendix
-\cleardoublepage
-% Import the appendices 
-\input{chapter1/appendix} 
+
+\begin{appendices}
+\renewcommand{\thesection}{A.\arabic{section}}
+\input{appendix} 
+\end{appendices}
 
 \backmatter
 % Add the bibliography to the table of contents

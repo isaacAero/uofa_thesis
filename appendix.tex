@@ -1,8 +1,212 @@
-\chapter{My appendices from chapter 1 \label{app:chapter_1}}
-% I like to do a seperate appendix file for each chapter and save it in the appropriate folder
+\section{Collocation algorithm with mask matrices}
+Each cell indexed $j \in \{1, \ldots N\}$ has five pieces of data which are enough to define globally the 
+SDF of the cell, namely, the center coordinates $(x_j,y_j)$, the angle of orientation $\theta_j$, 
+and the semi axes dimensions $a_j, b_j$. Each piece of data will be a function of time $t$. For 
+the purpose of simplicity, we model each cell as two point masses $m_1 = m_2 = m$ connected by a spring 
+with stiffness $K$. The point masses are located at $\vb{r}_j^{(1)}$ and $\vb{r}_j^{(2)}$ inside the ellipse 
+along the major axis and symmetrically about the ellipse center. This means that the center is given by 
+\begin{equation*}
+    \vb{x}_j = \frac{1}{2} \left(\vb{r}_j^{(1)} + \vb{r}_j^{(2)}\right).
+\end{equation*}
+Fixing the semi-minor axis $b_j$, we give the semi-major axis $a_j$ by 
+\begin{equation*}
+    a_j = a_0||\vb{r}_j^{(1)} - \vb{r}_j^{(2)}||.
+\end{equation*}
+We extract the orientation angle using a two argument inverse tangent function,
+\begin{equation*}
+    \theta_j = \arctan(y_j^{(2)} - y_j^{(1)},x_j^{(2)} - x_j^{(1)} )
+\end{equation*}
 
-\section{First appendix section}
-\section{Cell-cell collisions with constrained dynamics}
+When the number of cells is fixed, the colony dynamics is modelled
+using first order EOMs with two primary forces: intracellular spring force and
+and intercellular contact force to void overlap. We take the assumption that 
+many authors make (include reference here) which is that inertia is negligible
+due to drag effects (more on this). That is the velocity is directly
+proportional to the force
+\begin{equation*}
+\vb{v}_j^{(i)} = \frac{1}{\eta} \vb{F}_j^{(i)},
+\end{equation*}
+where $i \in \{1,2\}$ and $j \in \{1, \ldots, N\}$ where $\eta$ is an expression for
+the drag and $\vb{F}_j^{(i)}$ is the sum of the forces acting on the $i$-th particle of
+the $j$-th cell. Overall, the simulation will be begun with $V$ vertices where $V$ is a
+positive power of $2$. We map from local indices $(i,j)$ to a global index $n$ using
+\begin{equation*}
+    n = 2(j-1) +i,
+\end{equation*}
+which is called ``row major order''. We then flatten the list of $x$-coordinates and 
+$y$-coordinates into one state vector $\vb{X}(t)$ given by
+\begin{equation*}
+    \vb{X}(t) = [x_1(t), \ldots, x_V(t), y_1(t), \ldots, y_V(t)]^T,
+\end{equation*}
+where $(x_n,y_n)$ is the coordinate of the $n$-th vertex for $n \in \{1,\ldots,V\}$.
+Note that the change in the number of cells is simulated by removing constraints
+between the vertices. At the beginning of the simulation $x_1 = \cdots = x_V$ and
+$y_1 = \cdots = y_V$. The first order ordinary differential equation is phrased
+in terms of a mass matrix and a force function,
+\begin{equation*}
+    M(t,\vb{X})\frac{d \vb{X} (t)}{dt} = f(t,\vb{X})
+\end{equation*}
+We start by considering the spring force acting on the $n$-th particle due to the $m$-th 
+particle given $n$ and $m$ are connected by springs. This is given by $\vb{F}_{nm}^{\textrm{spring}}$ as
+\begin{equation*}
+    \vb{F}_{nm}^{\textrm{spring}} = 
+    K(|| \vb{x}_m - \vb{x}_n|| - L_{nm}) \frac{\vb{x}_m - \vb{x}_n}{|| \vb{x}_m - \vb{x}_n||},
+\end{equation*}
+where $K$ is a spring constant meant to represent cell elasticity, and $L_{nm}$ is the nominal length
+of the spring connecting them. There are three situations regarding edge between vertex $n$ and $m$:
+either they are connected by a spring with $L_{nm}>0$, they are collocated by an equality constraint
+or they are disconnected. If the two masses are collocated by an equality constraint, then the 
+spring force is undefined so we must omit this. We must also omit the contact force because this 
+has no sense for collocated vertices. The contact force between two disconnected vertices is given as
+\begin{equation*}
+    \vb{F}_{nm}^{\textrm{contact}} =
+    \begin{cases} 
+        C\frac{\vb{x}_m - \vb{x}_n}{|| \vb{x}_m - \vb{x}_n||}, \ \textrm{if} \ || \vb{x}_m - \vb{x}_n|| \leq d \\
+        \vb{0}, \ \textrm{if} \ || \vb{x}_m - \vb{x}_n|| > d,
+    \end{cases}
+\end{equation*}
+which is used to ensure that vertices do not overlap past a threshold distance $d$. In terms of the 
+connectivity, we can encode the fact that two vertices are connected (by a spring) in an adjacency matrix
+$A_{nm}$ which is equal to $1$ if they are connected and $0$ otherwise. We also introduce a second matrix
+$B_{nm}$ which represents when two vertices are disconnected, i.e., $B_{nm} = 1 - A_{nm}$. A third matrix 
+is introduced for collocation $C_{nm} = 1$ if $n \neq m$ and $n$ and $m$ are collocated and $0$ otherwise.
+This matrix (in fact $\tilde{C}_{nm} = \sim C_{nm}$) will be used as a logical mask to filter out 
+\codeword{nan} values from the force matrices. 
+\\
+\\
+We can think of the forces (whether elastic or contact) as pairs of matrices $(F_x)_{nm}^{\textrm{spring}}$ and 
+$(F_y)_{nm}^{\textrm{spring}}$ and similarly for the contact forces. We construct the $x$-component of 
+the overall force vector
+\begin{equation*}
+    (f_x)_n = 
+    \sum_{m=1}^V((F_x)^{\textrm{spring}}(A {\&}  \tilde{C}))_{nm} + 
+    \sum_{m=1}^V((F_x)^{\textrm{contact}}( B  {\&}  \tilde{C}))_{nm} ,
+\end{equation*}
+where $A  {\&}  \tilde{C}$ are mask matrices that ensure both $A$ and not $C$ are satisfied. Similarly for the 
+$y$-component,
+\begin{equation*}
+    (f_y)_n = 
+    \sum_{m=1}^V((F_y)^{\textrm{spring}}(A {\&}  \tilde{C}))_{nm} + 
+    \sum_{m=1}^V((F_y)^{\textrm{contact}}( B  {\&}  \tilde{C}))_{nm}.
+\end{equation*}
+The question remains: how are the mask matrices $A$, $B$ and $C$ made to change over time? Here we will do
+a small illustrative example with $N=4$ cells and $V=2N = 8$ vertices. 
+\\
+\\
+Initially all the vertices will be
+collocated at the same position $(x_0,y_0)$. This means that the force vector should come out to zero because
+we essentially have one particle not interacting with anything. Let us check that $A  {\&}  \tilde{C}$ and 
+$B  {\&}  \tilde{C}$ both vanish. $C$ is given directly as a matrix of all ones, which says that each vertex
+is constrained to every other vertex. Thus $\tilde{C} = O$ where $O$ is a  $8 \times 8$ zero matrix. 
+Initially, say $A = O$ (the zero matrix) because there are no springs. Note that this immediately says that 
+$B$ is a matrix of all ones. In any case, both $A  {\&}  \tilde{C} = B  {\&}  \tilde{C} = O$.
+\\
+\\
+At some point, the effectively single particle starts growing away from its initial position. This is 
+achieved by parcelling half of the vertices into one set of collocated points, and the other half
+into another set of collocated points. Programmatically, we select half of the points
+and translate them to a random nearby position to $(x_0,y_0)$ and modify the $C$ matrix to remove
+the constraints between the first and second set,
+\begin{equation*}
+    C = 
+    \begin{bmatrix}
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 1 & 1 
+    \end{bmatrix}
+\end{equation*}
+At this point, we should also set the nominal length of the springs as $L_0$ and the corresponding
+matrix of lengths $L_{mn} = L_0$ (the constant matrix with value $L_0$). As it turns out, the action
+of the spring pressing the vertices apart will model the geometric growth of each elliptical cell.
+The $A$ matrix will be given by
+\begin{equation*}
+    A = 
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    1 & 0 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 1 & 0 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 1 & 0 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 & 0 & 0 & 0 & 0 
+    \end{bmatrix}
+\end{equation*}
+Now let's suppose that the vertices in one set undergo another mitosis event, splitting half of the particles
+off into a third set. The new $C$ matrix, called $C'$ must reflect this change. We call 
+$C(\alpha_1, \ldots, \alpha_M) = \textrm{diag}(\vb{1}_{V/2^{\alpha_1}}, \ldots,\vb{1}_{V/2^{\alpha_M}} )$ where $\vb{1}_{V/2^{\alpha_q}}$
+is an all $1$'s matrix of dimension $V/2^{\alpha_q} \times V/2^{\alpha_q}$ where $q$ indexes over the powers 
+of two and represents the accumulation of division events. During a mitosis event in which the $\alpha_q$-th vertex set
+splits, $C(\alpha_1, \alpha_2, \ldots, \alpha_M) \rightarrow 
+C(\alpha_1, \ldots, \alpha_q+1,\alpha_q+1 , \ldots\alpha_M)$. In other words, the $\alpha_q$-th matrix splits into
+two matrices of half the size. In our $8 \times 8$ case, in which we divide the second vertex set, this results
+in the following
+\begin{equation*}
+    C = 
+    \begin{bmatrix}
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 
+    \end{bmatrix}
+\end{equation*}
+The new matrix $A$ is got by adding a connections between the left over smaller matrices, which
+is best understood by visualising the matrix as
+\begin{equation*}
+    A = 
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    1 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    0 & 1 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 
+    \end{bmatrix}
+\end{equation*}
+Taking another division event on the second block, we get
+\begin{equation*}
+    C = 
+    \begin{bmatrix}
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    1 & 1 & 1 & 1 & 0 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 1 
+    \end{bmatrix}
+\end{equation*}
+and 
+\begin{equation*}
+    A = 
+    \begin{bmatrix}
+    0 & 0 & 0 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 1 & 0 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 1 & 0 \\
+    0 & 0 & 0 & 0 & 0 & 0 & 0 & 1 \\
+    1 & 0 & 0 & 0 & 0 & 1 & 1 & 0 \\
+    0 & 1 & 0 & 0 & 1 & 0 & 0 & 1 \\
+    0 & 0 & 1 & 0 & 1 & 0 & 0 & 0 \\
+    0 & 0 & 0 & 1 & 0 & 1 & 0 & 0 
+    \end{bmatrix}
+\end{equation*}
+
+\newpage
+
+
+\section{Cell-cell collisions with constrained dynamics} \label{collisionModel}
 Earlier, it was mentioned that the intersection of cells could be found by taking a smoothmax. To find the overlapping area
 the sum of the grid points in the intersection can be taken and then multiplied by the grid square area $h_x h_y$. Whilst
 it is more or less trivial to calculate the overlapping area, ensuring that this area remains zero throughout the simulation
