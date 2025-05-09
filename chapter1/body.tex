@@ -51,7 +51,19 @@ the $\textrm{smoothmin}$ which is defined by a smoothness parameter $s$, as in
 \begin{equation*}
     \textrm{smoothmin}(f_1(x,y,z), f_2(x,y,z); s) = -s \log(e^{-f_1(x,y,z)/s} + e^{-f_2(x,y,z)/s}).
 \end{equation*}
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{chapter1/figures/compareSmoothness.pdf}
+    \caption{Two ellipses blended with various values of smoothness $s$. The bottom right 
+             figure is computed using standard minimum instead of smoothmin. Indeed,
+             as $s \rightarrow 0$, the plot looks less smoothed across.}
+    \label{fig:compareSmoothness}
+\end{figure}
+Figure \ref{fig:compareSmoothness} shows the effect of using different values of smoothness
+$s$. Ultimately, using smoothmin was abandoned in favour or the computationally quicker \codeword{min},
+which does not require the costly evaluation of the natural log and exponential functions.
 \\
+
 As shown in figure \ref{fig:mitosisplot}, we have a smooth splitting of a 
 cell as the parameter $d$ ranges from $0.0$ to $9.1 \ \mu m$. Here $s$ is the 
 smoothing parameter. In order to ensure that only the interior
@@ -94,31 +106,41 @@ elliptical shape all the same. We can also translate and rotate the ellipse, usi
 where $\Delta \vb{x} = (x-x_c) \hat{\vb{i}} + (y-y_c)\hat{\vb{j}} $ and $(x_c,y_c)$ is the
 center of the ellipse. We call the components of $\Delta \vb{x} = \Delta x \hat{\vb{i}} +
 \Delta y \hat{\vb{j}} $. The above trasnformation is a passive rotation because 
-it roatates the whole SDF. The following equation
+it rotates the whole SDF. The following equation
 \begin{equation*}
     f(x,y) = \left[\frac{ (x-x_c)\cos{\theta} + (y-y_c) \sin{\theta}}{p} \right]^2 
         + \left[ \frac{-(x-x_c)\sin{\theta} +(y-y_c) \cos{\theta}}{q} \right]^2 - 1.
 \end{equation*}
-is used in the custom MATLAB function \codeword{ellipse.m} devloped here.
-Cell colonies can be built up by combining the SDFs of the individual cells 
-using a cumulative $\textrm{smoothmin}$. We employ the main aspect of 
-$\textrm{smoothmin}$, which is that 
-\begin{equation}
-    \textrm{smoothmin}(f_3, \textrm{smoothmin}(f_1,f_2)) = -k \log( \sum_{j=1}^3 e^{-f_j/k}),
-\end{equation}
-therefore we can accumulate smoothmins easily using
-\begin{equation}
-    \textrm{smoothmin}(f_1, \ldots, f_N) = -k \log( \sum_{j=1}^N e^{-f_j/k}),
-\end{equation}
+is used in the custom MATLAB function \codeword{ellipse.m} devloped here. Each individual 
+cell has a unique value of $(x_c,y_c,p,q,\theta)$ which we index by $k$. Bringing them all 
+together in one function using \codeword{min}, we have the colony SDF given by,
+\begin{equation*}
+    g(x,y) = \min_{k \in \{1, ..., N_{\textrm{cells}}\}} f_k(x,y),
+\end{equation*}
+where the individual SDF for each cell is given by 
+\begin{equation*}
+    f_k(x,y) = \left[\frac{ (x-x_{c,k})\cos{\theta_k} + (y-y_{c,k}) \sin{\theta_k}}{p_k} \right]^2 
+        + \left[ \frac{-(x-x_{c,k})\sin{\theta_k} +(y-y_{c,k}) \cos{\theta_k}}{q_k} \right]^2 - 1.
+\end{equation*}
+Cell colonies can also be built up by combining the SDFs of the individual cells 
+using a cumulative $\textrm{smoothmin}$.
+\\
 
-\begin{figure}[!htb]
-\centering
-\includegraphics[width=\textwidth]{chapter1/figures/compareSmoothness.pdf}
-\caption{Two ellipses blended with various values of smoothness $s$. The bottom right 
-         figure is computed using standard minimum instead of smoothmin. Indeed,
-         as $s \rightarrow 0$, the plot looks less smoothed across.}
-\label{fig:compareSmoothness}
-\end{figure}
+Some significant optimsations were made to make sure that the evalution of 
+the colony SDF (evaluated via calling \codeword{ellipse}) was as fast as 
+possible within the capabilities of MATLAB. These 
+optimisations, which were crucial because \codeword{ellipse} is called per time step, 
+are commented on in Chapter 2.
+
+\section{Cell colony dynamics with an underlying discrete network}
+Now that we have introduced a robust mechanism to represent cell colony 
+shape, the question naturally arises about how to represent the time dependence of this 
+morphology. To represent the branching dynamics of pseudo-hyphal yeast growth, 
+an underlying discrete network which could change node count has been developed.
+In order to address the concern of simplicity of 
+
+
+
 
 
 
