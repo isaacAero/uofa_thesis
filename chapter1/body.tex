@@ -129,18 +129,28 @@ using a cumulative $\textrm{smoothmin}$.
 \\
 
 Some significant optimsations were made to make sure that the evalution of 
-the colony SDF (evaluated via calling \codeword{ellipse}) was as fast as 
+the colony SDF (evaluated via calling \codeword{ellipse.m}) was as fast as 
 possible within the capabilities of MATLAB. These 
-optimisations, which were crucial because \codeword{ellipse} is called per time step, 
+optimisations, which were crucial because \codeword{ellipse.m} is called per time step, 
 are commented on in Chapter 2.
 
 \section{Cell colony dynamics with an underlying discrete network}
 Now that we have introduced a robust mechanism to represent cell colony 
 shape, the question naturally arises about how to represent the time dependence of this 
-morphology. To represent the branching dynamics of pseudo-hyphal yeast growth, 
+morphology. Baker's yeast grows via budding,
+as shown in figure \ref{fig:yeastMicrograph}.
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=0.8\textwidth]{chapter1/figures/yeastMicrograph.png}
+    \caption{Micrographs of a translucent yeast strain studied
+             in \cite{ebrahimi2020yeast}.}
+    \label{fig:yeastMicrograph}
+\end{figure}
+To represent the branching dynamics of pseudo-hyphal yeast growth, 
 an underlying discrete network which can change node count has been developed.
 A colony for which the node count $N_{\textrm{nodes}}$ remains fixed is given 
-by a undirected graph with adjacency matrix $A_{ij}$.
+by a undirected graph with adjacency matrix $A_{ij}$ where the edges are symbolically
+represented by springs which model the elasticity of the cells.
 \\
 
 
@@ -151,18 +161,18 @@ by a undirected graph with adjacency matrix $A_{ij}$.
         \draw[rotate=-45] (0.5* 4.243,0) ellipse (0.5*4.243cm and 0.6cm);
         \draw[rotate=0] (0.0,0.5* 4.243)  ellipse (0.6cm and 0.5*4.243cm);
         
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (a) at (-3,-3)  {1};
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (b) at (0,  0)  {2};
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (c) at (3, -3)  {3};
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (d) at (0,4.243){4};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (a) at (-3,-3)  {1};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (b) at (0,  0)  {2};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (c) at (3, -3)  {3};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (d) at (0,4.243){4};
         \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (a) -- (b);
         \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (c);  
         \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (d); 
 
-        \draw[dashed, color=red]   (a)  ellipse (1.0cm and 1.0cm);
-        \draw[dashed, color=red]   (b)  ellipse (1.0cm and 1.0cm);
-        \draw[dashed, color=red]   (c)  ellipse (1.0cm and 1.0cm);
-        \draw[dashed, color=red]   (d)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (a)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (b)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (c)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (d)  ellipse (1.0cm and 1.0cm);
     \end{tikzpicture}
     \caption{A diagram of three elliptical cells with internal springs to represent biomass 
              elasticity ($\lambda_2 = \frac{K}{\eta \mu}$). The nodes are positioned at the ends of the major dimension
@@ -181,21 +191,21 @@ by a undirected graph with adjacency matrix $A_{ij}$.
         \draw[rotate=0] (0.0,0.5* 4.243)  ellipse (0.6cm and 0.5*4.243cm);
         \draw[rotate=0] (4.0,-3.0)  ellipse (1.2cm and 0.5cm);
 
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (a) at (-3,-3)  {1};
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (b) at (0,  0)  {2};
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (c) at (3, -3)  {3};
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (d) at (0,4.243){4};
-        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (e) at (5,-3){5};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (a) at (-3,-3)  {1};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (b) at (0,  0)  {2};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (c) at (3, -3)  {3};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (d) at (0,4.243){4};
+        \node[circle,fill=yellow, line width=1mm,inner sep=2.0mm] (e) at (5,-3){5};
         \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (a) -- (b);
         \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (c);  
         \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (d); 
         \draw[decoration={aspect=0.3, segment length=0.6mm, amplitude=3mm,coil},decorate] (c) -- (e); 
 
-        \draw[dashed, color=red]   (a)  ellipse (1.0cm and 1.0cm);
-        \draw[dashed, color=red]   (b)  ellipse (1.0cm and 1.0cm);
-        \draw[dashed, color=red]   (c)  ellipse (1.0cm and 1.0cm);
-        \draw[dashed, color=red]   (d)  ellipse (1.0cm and 1.0cm);
-        \draw[dashed, color=red]   (e)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (a)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (b)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (c)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (d)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=blue]   (e)  ellipse (1.0cm and 1.0cm);
     \end{tikzpicture}
     \caption{A mitosis event occurs via the addition of new nodes connected to old nodes.
              The nodes are added very close (distance $\delta \ll 1$) by the original nodes (exaggerated here)
