@@ -119,8 +119,10 @@ together in one function using \codeword{min}, we have the colony SDF given by,
 \end{equation*}
 where the individual SDF for each cell is given by 
 \begin{equation*}
-    f_k(x,y) = \left[\frac{ (x-x_{c,k})\cos{\theta_k} + (y-y_{c,k}) \sin{\theta_k}}{p_k} \right]^2 
-        + \left[ \frac{-(x-x_{c,k})\sin{\theta_k} +(y-y_{c,k}) \cos{\theta_k}}{q_k} \right]^2 - 1.
+    \begin{split}
+    f_k(x,y) &= \left[\frac{ (x-x_{c,k})\cos{\theta_k} + (y-y_{c,k}) \sin{\theta_k}}{p_k} \right]^2 \\ 
+        &+ \left[ \frac{-(x-x_{c,k})\sin{\theta_k} +(y-y_{c,k}) \cos{\theta_k}}{q_k} \right]^2 - 1.
+    \end{split}
 \end{equation*}
 Cell colonies can also be built up by combining the SDFs of the individual cells 
 using a cumulative $\textrm{smoothmin}$.
@@ -136,19 +138,73 @@ are commented on in Chapter 2.
 Now that we have introduced a robust mechanism to represent cell colony 
 shape, the question naturally arises about how to represent the time dependence of this 
 morphology. To represent the branching dynamics of pseudo-hyphal yeast growth, 
-an underlying discrete network which could change node count has been developed.
-In order to address the concern of simplicity of 
+an underlying discrete network which can change node count has been developed.
+A colony for which the node count $N_{\textrm{nodes}}$ remains fixed is given 
+by a undirected graph with adjacency matrix $A_{ij}$.
+\\
 
 
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \draw[rotate=45] (-0.5*4.243cm,0) ellipse (0.5*4.243cm and 0.6cm);
+        \draw[rotate=-45] (0.5* 4.243,0) ellipse (0.5*4.243cm and 0.6cm);
+        \draw[rotate=0] (0.0,0.5* 4.243)  ellipse (0.6cm and 0.5*4.243cm);
+        
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (a) at (-3,-3)  {1};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (b) at (0,  0)  {2};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (c) at (3, -3)  {3};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (d) at (0,4.243){4};
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (a) -- (b);
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (c);  
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (d); 
 
+        \draw[dashed, color=red]   (a)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (b)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (c)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (d)  ellipse (1.0cm and 1.0cm);
+    \end{tikzpicture}
+    \caption{A diagram of three elliptical cells with internal springs to represent biomass 
+             elasticity ($\lambda_2 = \frac{K}{\eta \mu}$). The nodes are positioned at the ends of the major dimension
+             of each ellipse and there are two nodes per cell. The force acting on 
+             node $2$ for instance would be due to the forces from nodes $1$, $3$ and $4$.
+             The dashed red circles represent the activation radius ($ \lambda_4 = R/L_0$) 
+             of the contact force between the nodes.}
+\end{figure}
 
+\section{New cells from old}
+\begin{figure}[h]
+    \centering
+    \begin{tikzpicture}
+        \draw[rotate=45] (-0.5*4.243cm,0) ellipse (0.5*4.243cm and 0.6cm);
+        \draw[rotate=-45] (0.5* 4.243,0) ellipse (0.5*4.243cm and 0.6cm);
+        \draw[rotate=0] (0.0,0.5* 4.243)  ellipse (0.6cm and 0.5*4.243cm);
+        \draw[rotate=0] (4.0,-3.0)  ellipse (1.2cm and 0.5cm);
 
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (a) at (-3,-3)  {1};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (b) at (0,  0)  {2};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (c) at (3, -3)  {3};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (d) at (0,4.243){4};
+        \node[circle,fill=green, line width=1mm,inner sep=2.0mm] (e) at (5,-3){5};
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (a) -- (b);
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (c);  
+        \draw[decoration={aspect=0.3, segment length=3mm, amplitude=3mm,coil},decorate] (b) -- (d); 
+        \draw[decoration={aspect=0.3, segment length=0.6mm, amplitude=3mm,coil},decorate] (c) -- (e); 
 
+        \draw[dashed, color=red]   (a)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (b)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (c)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (d)  ellipse (1.0cm and 1.0cm);
+        \draw[dashed, color=red]   (e)  ellipse (1.0cm and 1.0cm);
+    \end{tikzpicture}
+    \caption{A mitosis event occurs via the addition of new nodes connected to old nodes.
+             The nodes are added very close (distance $\delta \ll 1$) by the original nodes (exaggerated here)
+             so that the spring force can be defined. After this point, 
+             the initially compressed cell ``grows" outwards to achieve its nominal length, under 
+             the influence of elasticity, contact and chemotactic forces.}
+\end{figure}
 
-
-
-\section{Mitosis: new cells from old}
-In summary, the mechanism of mitosis is a slight of hand, in the sense that
+The mechanism of mitosis is a sleight of hand, in the sense that
 each of the nodes (two nodes per cell) are already there at the simulation
 outset. The appearance of growth of the colony coincides with the nodes' progressive
 dislodgement from their equality constraints with one another. Of course,
@@ -156,6 +212,7 @@ there is no reason why the model could not be modified to add nodes
 that were not there to begin with, though such a model would yield
 equivalent results.
 \\
+
 To interpret the model mathematically, we recall that it was desireable to have
 a time parameter $t$ over which the state of the colony could vary. The main 
 goal of the thesis was to demonstrate that a system, in this case a yeast colony,
@@ -163,6 +220,7 @@ which appears to acquire more dynamical variables (new coordinates for new cells
 could be represented by a model with a fixed number of variables which are
 initially coincident.
 \\
+
 Philosophically, however, the model has some limitations. In reality, we know the growth
 of fungal species such as Baker's yeast, is strongly dependent on factors such as temperature
 and the environmental conditions that the colony is subjected to. This means 
@@ -170,15 +228,18 @@ that the dynamics of cell growth (the collision and interaction as well as the m
 any large colony system cannot be intrinsically defined. To put it succinctly, the dynamics of 
 the colony is strongly coupled to the local environmental conditions.
 \\
+
 Does this mean that we can only model biological systems completely if all the conditions 
 are incorporated? As per the discussion in the introduction about mathematical modelling,
 we aim to consider the simplest viable model. This, in the case of the current work, 
 is a model that has two components: a cell colony as discussed in the preceeding section, and 
 a nutrient field. Indeed, their coupling determines the dynamics. 
 \\
+
 In the discussion, I will suggest ways to relax these limiting assumptions that
 are outside the scope of the current work but are nonetheless interesting to consider.
 \\
+
 This model, in which the colony appears as the ``unfolding" of a network of nodes
 follows on somewhat naturally from the theory of $L$-systems, in which the underlying 
 discrete structure of a system is allowed to evolve deterministically based on rules
@@ -190,6 +251,7 @@ within it's structure (for instance, DNA). It is more fashionable nowadays, and 
 scientifically accurate, to think of a biological system as part of a complex network 
 of other organisms and environmental conditions which determine its morphology.
 \\
+
 Consider a minimalistic example of modelling the motion of a spherical ball rolling around on a table.
 Two spatial paramters $x$ and $y$, together as a tuple are enough to say where it is. However, 
 if the ball unexpectately falls from the table, then you would suddenly require
@@ -197,6 +259,7 @@ another parameter to describe the state of the system. The value of this classic
 is to demonstrate for $N$ particles and $M$ constraints that may suddenly change, 
 we can derive rich and unexpected dynamics.
 \\
+
 The best we can hope for is that our parametrisation is somehow dense in the space
 of all possible cell colony configurations that we see experimentally. There are even
 some exotic cases of cellular sytems in which a single cell can have nontrivial topologies (ask Ed 
@@ -208,52 +271,462 @@ in nature. Hopefully it is clear that the present work is just a suggestion of t
 in the area of biolgical morphology viewed in the framework of ``growing geometry''.
 
 
-\section{Adding in a nutrient field}
-The nutrient field is some form of glucose mixture (agar) that is assumed to be given by a reaction-diffusion 
-partial differential equation. That is, the nutrient concentration $u(x,y,t)$ is given by
-\begin{equation}
-    \pdv{u(x,y,t)}{t} = D \left( \frac{\partial^2 u(x,y,t)}{\partial x^2} + 
-                          \frac{\partial^2 u(x,y,t)}{\partial y^2} \right) - r u(x,y,t) f(x,y,t)
-\end{equation}
-where $f(x,y,t)$ is the microscopic biomass density of the cell colony, $D$ is a diffusion
+\section{Incorporating the nutrient field}
+The nutrient field (such as a glucose mixture) is assumed to be given by a reaction-diffusion 
+partial differential equation. That is the nutrient concentration $c(x,y,t)$ is given by
+\begin{equation*}
+    \pdv{c(x,y,t)}{t} = D \left( \frac{\partial^2 c(x,y,t)}{\partial x^2} + 
+                          \frac{\partial^2 c(x,y,t)}{\partial y^2} \right) - r c(x,y,t) b(x,y,t)
+\end{equation*}
+where $b(x,y,t)$ is the microscopic biomass density of the cell colony, $D$ is a diffusion
 coefficient and $r$ is a constant measuring the rate at which the cells consume nutrient.
-The PDE is subjected to a Dirichlet condition, i.e
-that the nutrient density vanishes at the boundary. In order to simulate the nutrient field
-numerically we use a finite difference on the square grid covering the domain. This is implemented 
-using a $5$-point stencil for space and a forward Euler method for time.
-\begin{equation}
-    \frac{u_{i,j}^{n+1} - u_{i,j}^n}{\Delta t} = 
-    D \left( \frac{u_{i+1,j}^{n} - 2 u_{i,j}^n +u_{i-1,j}^n}{h^2} +
-             \frac{u_{i,j+1}^{n} - 2 u_{i,j}^n +u_{i,j-1}^n}{h^2} \right)-
-             r u_{i,j}^n f_{i,j}^n,
+The biomass field $b(x,y,t)$ is given as a function of the colony SDF as,
+\begin{equation*}
+    b(x,y,t) = \begin{cases}
+                -g(x,y,t), & \ \textrm{if} \ g(x,y,t) \leq 0, \\
+                0,         & \ \textrm{otherwise}.
+               \end{cases}
+\end{equation*}
+In the case of the plotting of $b(x,y,t)$ we use \codeword{nan} instead of $0$. 
+\\
+
+The PDE is subjected to the Dirichlet condition
+that the nutrient density takes a value of $1.0$ at the boundary. In order to simulate the nutrient field
+numerically a foward time centered space (FTCS) scheme was prototyped on the square grid 
+covering the domain. However, this scheme was found to be numerically unstable
+for small spatial steps $h$ and large time steps $\Delta t$ and was discarded
+in favour of the unconditionally numerically stable Crank-Nicholson scheme detailed
+in section \ref{Crank_Nicholson}. Before this is possible, 
+we carry out the non-dimensionalising of the equations of motion (EOMs).
+
+
+\section{Non-dimensionalising the equations of motion}
+In order to non-dimensionalise the equations of motion (EOMs) we
+introduce dimensionless parameters $\vb{x}_i = X\hat{\vb{x}}_i$, $t = T \hat{t}$, $b = B \hat{b}$
+and $c = G \hat{c}$, where $X, T, B$ and $G$ are general undetermined scalings for the independent 
+and dependent variables, respectively. At the outset, we fix $X = L_0 = 7.5 \ \mu m$ the nominal major cell diameter
+found by \cite{chavez2024cell}. The same source gives an aspect ratio
+of $7.5 \times 5.5 \ \mu m$ which we call $\lambda_7 = \frac{q}{p}$. The reason for the numbering 
+will become clear from the non-dimesnionalisation of the model. The time scale is chosen as
+$T = \frac{1}{\mu^*}$ the reciprocal of specific growth rate for yeast, that is the $\mu^* = \mu(0)$ that appears in
+the formula for the total node count. The value chosen was $\mu^* = 0.46$ hour$^{-1}$
+from the value cited at \cite{salari2017investigation} which represents ideal conditions
+for saccharomyces cerevisiae growth on a synthetic culture medium containing glucose. 
+The value given by (\cite{salari2017investigation}) is a doubling rate of $90$ mins. In the model
+presented in this thesis, that amounted to $\mu^* = \frac{\log(2)}{1.5 \ \textrm{hours}} = 0.4621$ hour$^{-1}$ which
+was rounded down to $0.46$ hour$^{-1}$ as a conservative estimate.
+
+\begin{table}[!htb]
+\begin{center}
+    \begin{tabular}{ |c|c|c| } 
+     \hline
+      \textbf{Symbol} & \textbf{Value} & \textbf{Descriptive name} \\ 
+      \hline
+     $L_0$   & $7.5 \ \mu m$       & Average cell length \\ 
+     $\mu^*$ & $0.46$ hour$^{-1}$   & Ideal growth rate  \\ 
+     $c_0$   & $1.0 \ \mu m^{-2}$  & Nutrient concentration \\ 
+     \hline
+     
+    \end{tabular}
+    
+\end{center}
+\caption{A summary of the numerical units}
+\label{table:NumericalUnits}
+\end{table}
+
+It is necessary to point out that concentration is typically meaasured in
+mol$\cdot \mu m^{-2}$ which amounts to Avagadro's number of glucose molecules
+per $\mu m^{2}$. In our case, we choose a number such that the concentration
+comes out to $1.0$. It is also worth noting that these values
+can be changed to fit different species of fungus.
+\\
+
+Furthermore, it is useful to recapitulate the formula for the total node count,
+\begin{equation*}  
+    N_{\textrm{nodes}}(t) = N_{\textrm{cells},0} e^{ t \mu(t)},
+\end{equation*}
+where $N_{\textrm{cells},0} = 1$ because we always begin with a single cell.
+
+Substituting in these parameters, we obtain 
+\begin{equation*}
+    \frac{C}{(1/\mu^*)}\pdv{\hat{c}}{\hat{t}} = \left(\frac{D C}{ L_0^2} \right)\left(\pdv[2]{\hat{c}}{\hat{x}} + \pdv[2]{\hat{c}}{\hat{y}} \right) -
+      \left( r C B\right)  \hat{c}\hat{b},
+\end{equation*}
+which results in 
+\begin{equation*}
+    \pdv{\hat{c}}{\hat{t}} = \left(\frac{D}{ \mu^* L_0^2} \right)\left(\pdv[2]{\hat{c}}{\hat{x}} + \pdv[2]{\hat{c}}{\hat{y}} \right) -
+      \left( \frac{r  B}{\mu^*}\right)  \hat{c}\hat{b}.
+\end{equation*}
+Call the dimensionless diffusion constant $\lambda_1 = \frac{D}{ \mu^* L_0^2}$ and 
+set $\frac{r  B}{\mu^*}=1$ which are free to do since $B$ is unset to begin with. This means 
+that the scaling for the biomass density is $B = \frac{\mu^*}{r}$. The reaction diffusion equation 
+reduces to 
+\begin{equation*}
+    \pdv{\hat{c}}{\hat{t}} = \lambda_1 \left(\pdv[2]{\hat{c}}{\hat{x}} + \pdv[2]{\hat{c}}{\hat{y}} \right) -
+      \hat{c}\hat{b}.
+\end{equation*}
+Now, for the EOM for the nodes, we have
+\begin{equation*}
+    \begin{split}
+        \frac{d \vb{x}_i}{dt} &= 
+        \frac{K}{ \eta}\sum_{j = 1}^N   \left[ - A_{ij} \left( ||\vb{x}_i - \vb{x}_j|| - L_0\right) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||} \right]\\
+         &+ \frac{F}{ \eta}\sum_{j = 1}^N \left[ H(R - ||\vb{x}_i - \vb{x}_j||) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||}     \right]\\ 
+         &+ \frac{\gamma}{\eta} \nabla c (\vb{x}_i, t).
+    \end{split}
+\end{equation*}
+Substituting the dimensionless parameters, we acquire
+\begin{equation*}
+    \begin{split}
+        \frac{L_0}{(1/\mu^*)}\frac{d \hat{\vb{x}}_i}{d \hat{t}} &= 
+        \frac{K L_0}{ \eta}\sum_{j = 1, j \neq i}^N   \left[ - A_{ij}\left( ||\hat{\vb{x}}_i - \hat{\vb{x}}_j|| -  1\right) \frac{\hat{\vb{x}}_i - \hat{\vb{x}}_j}{||\hat{\vb{x}}_i - \hat{\vb{x}}_j||} \right]\\
+         &+ \frac{F}{  \eta}\sum_{j = 1, j \neq i}^N \left[H(\hat{R} - ||\hat{\vb{x}}_i - \hat{\vb{x}}_j||) \frac{\hat{\vb{x}}_i - \hat{\vb{x}}_j}{||\hat{\vb{x}}_i - \hat{\vb{x}}_j||}     \right]\\ 
+         &+ \frac{\gamma C}{ \eta L_0} \hat{\nabla}  \hat{c} (\hat{\vb{x}}_i, \hat{t}),
+    \end{split}
+\end{equation*}
+which, after rearrging, becomes,
+\begin{equation*}
+    \begin{split}
+        \frac{d \hat{\vb{x}}_i}{d \hat{t}} &= 
+        \frac{K}{ \eta \mu^*}\sum_{j = 1, j \neq i}^N   \left[ - A_{ij}\left( ||\hat{\vb{x}}_i - \hat{\vb{x}}_j|| -  1\right) \frac{\hat{\vb{x}}_i - \hat{\vb{x}}_j}{||\hat{\vb{x}}_i - \hat{\vb{x}}_j||} \right]\\
+         &+ \frac{F}{  \eta \mu^* L_0}\sum_{j = 1, j \neq i}^N \left[H(\hat{R} - ||\hat{\vb{x}}_i - \hat{\vb{x}}_j||) \frac{\hat{\vb{x}}_i - \hat{\vb{x}}_j}{||\hat{\vb{x}}_i - \hat{\vb{x}}_j||}     \right]\\ 
+         &+ \frac{\gamma C}{ \eta \mu^* L_0^2} \hat{\nabla}  \hat{c} (\hat{\vb{x}}_i, \hat{t}).
+    \end{split}
+\end{equation*}
+Only one of the coefficients could be set to unity, but instead we choose $C = c_0 = 1$ to be the initial 
+concentration. That leaves us with four additional parameters,
+\begin{equation*}
+    \lambda_2 = \frac{K}{ \eta \mu^*},
+\end{equation*}
+\begin{equation*}
+    \lambda_3 = \frac{F}{  \eta \mu^* L_0},
+\end{equation*}
+\begin{equation*}
+    \lambda_4 = \frac{R}{L_0},
+\end{equation*}
+\begin{equation*}
+    \lambda_5 = \frac{\gamma c_0}{ \eta \mu^*L_0^2}.
+\end{equation*}
+The field $g(x,y,t) = \hat{g}(\hat{x},\hat{y},\hat{t})$ is unitless so we are left with the following EOM for the biomass field,
+\begin{equation*}
+    B\hat{b} = \begin{cases}
+                -  \hat{g}(\hat{x},\hat{y},\hat{t}), & \ \textrm{if} \ \hat{g}(\hat{x},\hat{y},\hat{t}) \leq 0, \\
+                    0, &    \ \textrm{otherwise}.
+               \end{cases}
+\end{equation*}
+\begin{equation*}
+    \hat{b} = \begin{cases}
+                -  \frac{r}{\mu^*}\hat{g}(\hat{x},\hat{y},\hat{t}), & \ \textrm{if} \ \hat{g}(\hat{x},\hat{y},\hat{t}) \leq 0, \\
+                    0, &    \ \textrm{otherwise}.
+               \end{cases}
+\end{equation*}
+which leaves us with an additional parameter, $\lambda_6 =\frac{r}{\mu^*}$. The final model parameter is the cell aspect ratio, $\lambda_7$.
+The model parameters are summarised in table \ref{table:VariableNames}.
+
+
+\begin{table}[!htb]
+\begin{center}
+    \begin{tabular}{ |c|c|c| } 
+     \hline
+      \textbf{Symbol} & \textbf{Expression} & \textbf{Descriptive name} \\ 
+      \hline
+     $\lambda_1$ & $\frac{D}{ \mu^* L_0^2}$ & diffusivity \\ 
+     $\lambda_2$ & $\frac{K}{ \eta \mu^*}$ & elasticity \\ 
+     $\lambda_3$ & $\frac{F}{  \eta \mu^* L_0}$ & respulsivity \\ 
+     $\lambda_4$ & $\frac{R}{L_0}$ & respulsion radius \\ 
+     $\lambda_5$ & $\frac{\gamma c_0}{ \eta \mu^* L_0^2}$ & mobility \\ 
+     $\lambda_6$ & $\frac{r}{\mu^*}$ & metabolic rate \\ 
+     $\lambda_7$ & $\frac{\textrm{cell minor axis}}{\textrm{cell major axis}} = \frac{2q}{2p}$ & cell aspect ratio \\ 
+     \hline
+     
+    \end{tabular}
+    
+\end{center}
+\caption{A summary of the dimensionless model parameters}
+\label{table:VariableNames}
+\end{table}
+
+Dropping the hats on variable symbols, we arive at the final system equations of motion which
+span from equation \ref{eqn:EOMs_PDE} to \ref{eqn:centerPos}.
+\newpage
+
+
+\begin{equation} \label{eqn:EOMs_PDE}
+    \boxed{\pdv{c}{t} = \lambda_1 \left(\pdv[2]{c}{x} + \pdv[2]{c}{y} \right) - bc,
+     \ \textrm{for} \ (x,y) \in \Omega \setminus \partial \Omega,}
 \end{equation}
-where $i,j$ take on values in the interior grid points, $n$ is a positive integer time index, 
-$h$ is the spatial step (same in $x$ and $y$ directions) and $\Delta t$ is the time increment. See the
-figure below for an initial condition set to a sine wave product which vanishes on the boundaries.
-
-
-
-
-\section{Calculating the compactness metric}
-A fully grown colony will in general not be perfectly circular in shape.
- In order to measure the roundness of the colony we use the compactness metric used for 
- roundness in image processing (quote Kai use of this metric)
 \begin{equation}
-  C = \frac{P^2}{4 \pi A},
+    \boxed{c(x,y,t) = 1, \ \textrm{for} \ (x,y) \in \partial \Omega,}
 \end{equation}
-where $C \in [1, \infty)$ is $1$ for a circle and can get to large numbers for 
-highly branching shapes, $A$ is the colony area, and $P$ is the colony perimeter. 
-Both of these are calculated from the formula for the microscopic cell
-density which is always given by when $f(x,y,t)$ changes sign. A black and white image 
-is produced at each time step using Matlab's function \codeword{bwboundaries} as per
-Kai's suggestion. The area then is given by summing up the grid squares that are
-inside the implicit shape givcen by $f$ and multiplying by $h^2$. The perimeter
-is got by using \codeword{bwboundaries}, which outputs an array of points on the boundary
-from which the Euclidean distance between neighbouring points is found and then summed over.
+\begin{equation}
+    \boxed{c(x,y,0) = 1,}
+\end{equation}
 
-\begin{figure}[h]
+\begin{equation}
+    \boxed{
+    \begin{split}
+        \frac{d \vb{x}_i}{d t} 
+         &= \lambda_2 \sum_{j=1}^{N_{\textrm{nodes}}} \left[ A_{ij}\left( 1- ||\vb{x}_i - \vb{x}_j|| \right) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||} \right]\\
+         &+ \lambda_3 \sum_{j=1}^{N_{\textrm{nodes}}} \left[H(\lambda_4 - ||\vb{x}_i - \vb{x}_j||) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||}     \right]\\ 
+         &+ \lambda_5 \nabla c (\vb{x}_i, t), \ \textrm{for} \ i \in \{ 1, ...,N_{\textrm{nodes}} \},  
+    \end{split}}
+\end{equation}
+\begin{equation}
+    \boxed{\vb{x}_1(0) = (-0.5, 0), \ \vb{x}_2(0) = (0.5, 0), }
+\end{equation}
+\begin{equation}
+    \boxed{N_{\textrm{nodes}} = N_0 e^{t \mu(t)}, \textrm{where} \ N_0 = 1, }
+\end{equation}
+\begin{equation} 
+    \boxed{\mu(t) = \frac{1}{N_{\textrm{nodes}}}\sum_{j=1}^{N_{\textrm{nodes}}} c(\vb{x}_j, t), } 
+\end{equation}
+\begin{equation}
+    \boxed{
+    b(x,y,t) = 
+    \begin{cases}
+        -\lambda_6 g(x,y,t), & \ \textrm{if} \ g(x,y,t) \leq 0, \\
+            0, &    \ \textrm{otherwise},
+    \end{cases}
+    }
+\end{equation}
+\begin{equation}
+    \boxed{
+    g(x,y,t) = \min_{k \in \{  1, ..., N_{\textrm{cells}}\}} f_k (x,y,t),
+    }
+\end{equation}
+\begin{equation}
+    \boxed{
+    \begin{split}
+    f_k(x,y,t) &= \left[\frac{ (x-x_{c,k}(t))\cos{\theta_k} + (y-y_{c,k}(t)) \sin{\theta_k}}{p_k(t)} \right]^2 \\ 
+               &+ \left[ \frac{-(x-x_{c,k}(t))\sin{\theta_k} +(y-y_{c,k}(t)) \cos{\theta_k}}{q_k(t)} \right]^2 - 1,
+    \end{split}
+    }
+\end{equation}
+\begin{equation}
+    \boxed{p_k(t) = \frac{1}{2}||\vb{x}_{i_1} - \vb{x}_{i_2}||, \ 
+    \textrm{where cell} \ k \ \textrm{is comprised of nodes} \ i_1, i_2,} 
+\end{equation}
+\begin{equation}
+    \boxed{q_k(t) = \lambda_7 p_k(t), }
+\end{equation}
+\begin{equation}
+    \boxed{\theta_k(t) = \atan (y_{i_1} - y_{i_2},x_{i_1} - x_{i_2} ), }
+\end{equation}
+\begin{equation} \label{eqn:centerPos}
+    \boxed{ \vb{x}_{c,k}(t) = \frac{1}{2} \left(\vb{x}_{i_1}(t) + \vb{x}_{i_2}(t)\right). }
+\end{equation}
+
+Note that $i$ and $j$ index over node numbers, $k$ over cells, and $i_1$ and $i_2$ denote the nodes
+that comprise cell $k$. Finally the petri-dish domain is given by 
+
+\begin{equation}
+    \boxed{\Omega = \left[-\frac{1}{2}L_{\textrm{petri-dish}},\frac{1}{2}L_{\textrm{petri-dish}} \right] \times
+             \left[-\frac{1}{2}L_{\textrm{petri-dish}},\frac{1}{2}L_{\textrm{petri-dish}} \right] \subset \mathbb{R}^2.}
+\end{equation}
+
+
+\section{Numerically solving for the nutrient field} \label{Crank_Nicholson}
+In order to advance the nutrient field in time, an efficient and stable numerical solver
+was required. Because of the fact that the nutrient field $c(x,y,t)$ is coupled 
+to the biomass field which is dependent on a discrete network that changes in connectivity and 
+node count, it was necessary to implement the method in-house, as opposed to 
+using a pre-existing MATLAB boundary value solver for instance. The Crank-Nicolson method (\cite{crank1947practical}) was 
+chosen for the practical reason that it led to faster simulations overall since a larger
+time step could be used as opposed to the explicit forward in time central in space (FTCS) scheme. This 
+is a direct consequence of the fact that the (implicit) Crank-Nicholson scheme is unconditionally numerically 
+stable. Let us begin by verifying this fact using the what is
+known as Von Neumann stability analysis (\cite{charney1950numerical}).
+\begin{figure}[!htb]
     \centering
-    \includegraphics[width=\textwidth]{chapter1/figures/compareCompactness.pdf}
-    \caption{A comparsion of high and low compactness}
-    \label{fig:compatness_comparison}
+\begin{tikzpicture}
+    \pgfplotsset{every tick label/.append style={font=\scriptsize}}
+ 
+    \begin{axis}[view = {50}{50},
+        width=0.7\textwidth,
+        xmax = 10,
+        xmin = -10,
+        ymax = 10, 
+        ymin = -10, 
+        zmax = 10, 
+        zmin = 0,
+        xtick=\empty,
+        ytick=\empty,
+        ztick=\empty,
+        grid,
+        grid style={dashed,gray!40},
+        3d box=background]
+     
+        \addplot3[mark=*,black,mark options={blue},point meta=explicit symbolic,nodes near coords] 
+        coordinates 
+        {
+            (0,0,0) [$c_{l,m}^n$]
+            (-8,0,0)[$c_{l-1,m}^n$]
+            (0,0,0)
+            (8,0,0)[$c_{l+1,m}^n$]
+            (0,0,0)
+            (0,8,0)[$c_{l,m+1}^n$]
+            (0,0,0)
+            (0,-8,0)[$c_{l-1,m}^n$]
+            (0,0,0)
+            (0,0,10)[$c_{l,m}^{n+1}$]
+            (-8,0,10)[$c_{l-1,m}^{n+1}$]
+            (0,0,10)
+            (8,0,10)[$c_{l+1,m}^{n+1}$]
+            (0,0,10)
+            (0,8,10)[$c_{l+1,m}^{n+1}$]
+            (0,0,10)
+            (0,-8,10)[$c_{l-1,m}^{n+1}$]
+        };
+
+        \addplot3 [
+        domain = -8:8,
+        domain y = -8:8,
+        samples = 2,
+        samples y = 2,
+        surf,
+        fill opacity=0.1,
+        shader = interp] {0};
+
+        \addplot3 [
+        domain = -8:8,
+        domain y = -8:8,
+        samples = 2,
+        samples y = 2,
+        surf,
+        fill opacity=0.1,
+        color=red,
+        shader = interp] {10};
+     
+    \end{axis}
+     
+\end{tikzpicture}
+\caption{The five point stencil for the nutrient field at times $t_{n} = n \Delta t$ (blue plane)
+         and $t_{n+1} = (n+1) \Delta t$ (red plane) used for the Crank-Nicolson scheme on the domain
+         interior.}
+\label{fig:CrankNicolsonScheme}
 \end{figure}
+
+Firstly, we 
+define the nutrient field as $c_{l,m}^{n} = c(x_l, y_m, t_n)$, where $x_l = -\frac{1}{2}L_{\textrm{petri-dish}} + h l$, 
+$y_m = -\frac{1}{2}L_{\textrm{petri-dish}} + h m$ and similarly for $b_{l,m}^{n}$,
+the biomass. The values  $c_{l,m}^{n}$ precisely satisfy the discretised equations which follow.
+Let  $\bar{c}_{l,m}^{n}$ be the solution achieved with finite precison arithmetic 
+operations which does not necessarily satisfy the equations, up to some error term,
+\begin{equation*}
+    \epsilon_{l,m}^n = \bar{c}_{l,m}^{n} - c_{l,m}^{n}.
+\end{equation*}
+Carrying out the Crank-Nicolson discretisation with the values $c_{l,m}^{n}$, we derive
+\begin{equation*}
+    \frac{c_{l,m}^{n+1} - c_{l,m}^{n}}{\Delta t} =
+    \frac{\lambda_1}{2} \left( \nabla^2 c_{l,m}^{n+1} + \nabla^2 c_{l,m}^{n} \right) -
+     \frac{1}{2} b_{l,m}^{n} (c_{l,m}^{n+1} + c_{l,m}^{n}).
+\end{equation*}
+The laplacian terms here are calculated with a five-point stencil at the current and subsequent 
+time steps as shown in figure \ref{fig:CrankNicolsonScheme}. This results in the following discretisation,
+
+\begin{equation*}
+    \begin{split}
+        \frac{c_{l,m}^{n+1} - c_{l,m}^{n}}{\Delta t} &=
+        \frac{\lambda_1}{2}  \left( \frac{c_{l+1,m}^{n+1} - 2 c_{l,m}^{n+1} + c_{l-1,m}^{n+1} }{h^2} + 
+                                    \frac{c_{l,m+1}^{n+1} - 2 c_{l,m}^{n+1} + c_{l,m-1}^{n+1} }{h^2} \right)  \\
+                                   & +\frac{\lambda_1}{2} \left( \frac{c_{l+1,m}^{n} - 2 c_{l,m}^{n} + c_{l-1,m}^{n} }{h^2} + 
+                                    \frac{c_{l,m+1}^{n} - 2 c_{l,m}^{n} + c_{l,m-1}^{n} }{h^2} \right) \\
+                                   &-\frac{1}{2} b_{l,m}^{n} (c_{l,m}^{n+1} + c_{l,m}^{n}).
+    \end{split}
+\end{equation*}
+To evaluate the numerical stability, we introduce a constant $\alpha = \frac{ \lambda_1 \Delta t }{h^2}$.
+With this constant in place, we continue with
+\begin{equation*}
+    \begin{split}
+        c_{l,m}^{n+1} - c_{l,m}^{n} &=
+       \frac{\alpha}{2}  \left( c_{l+1,m}^{n+1} + c_{l-1,m}^{n+1} + 
+                       c_{l,m+1}^{n+1} + c_{l,m-1}^{n+1}  \right) - 2 \alpha c_{j,k}^{n+1}  \\
+                                   & +\frac{\alpha}{2} \left( c_{l+1,m}^{n}+ c_{l-1,m}^{n} + 
+                                    c_{l,m+1}^{n} + c_{l,m-1}^{n}  \right) - 2 \alpha c_{l,m}^{n} \\
+                                   &-\frac{\Delta t}{2} b_{l,m}^{n} (c_{l,m}^{n+1} + c_{l,m}^{n}).
+    \end{split}
+\end{equation*}
+Since the discretised equations are linear in $c_{l,m}^{n}$ (taking $b_{l,m}^{n}$ to be slowly varying)
+and since $\bar{c}_{l,m}^n$ also form a solution, the $\epsilon_{l,m}^n$ are also 
+a solution.
+\begin{equation*}
+    \begin{split}
+        \epsilon_{l,m}^{n+1} - \epsilon_{l,m}^{n} &=
+       \frac{\alpha}{2}  \left( \epsilon_{l+1,m}^{n+1} + \epsilon_{l-1,m}^{n+1} + 
+                                \epsilon_{l,m+1}^{n+1} + \epsilon_{l,m-1}^{n+1}  \right) - 2 \alpha \epsilon_{l,m}^{n+1}  \\
+                                   & +\frac{\alpha}{2} \left( \epsilon_{l+1,m}^{n}+ \epsilon_{l-1,m}^{n} + 
+                                   \epsilon_{l,m+1}^{n} + \epsilon_{l,m-1}^{n}  \right) - 2 \alpha \epsilon_{l,m}^{n} \\
+                                   &-\frac{\Delta t}{2} b_{l,m}^{n} (\epsilon_{l,m}^{n+1} + \epsilon_{l,m}^{n}).
+    \end{split}
+\end{equation*}
+We subsitute in an ansatz for the error term which is standard in Von Neumann stability analysis, namely
+\begin{equation*}
+    \epsilon_{l,m}^n = \xi^n e^{i \nu_x l h} e^{i \nu_y m h},
+\end{equation*}
+where $\nu_x$ and $\nu_y$ are wavenumbers and $h$ is the spatial step. Note that $i = \sqrt{-1}$. In order for the numerical
+method to be stable, we require that $|\xi| \leq 1$ for all values of the wavenumbers $\nu_x, \nu_y$.
+Substituting this expression into the discretised equation for the error, we get,
+\begin{equation*}
+    \begin{split}
+        \xi^{n+1} e^{i \nu_x l h} e^{i \nu_y m h} - \xi^{n} e^{i \nu_x l h} e^{i \nu_y m h} &=
+       \frac{\alpha}{2}  \left( \xi^{n+1} e^{i \nu_x (l+1) h} e^{i \nu_y m h} + \xi^{n+1} e^{i \nu_x (l-1) h} e^{i \nu_y m h} \right) \\
+       &+ \frac{\alpha}{2}\left( \xi^{n+1} e^{i \nu_x l h} e^{i \nu_y (m+1) h} + \xi^{n+1} e^{i \nu_x l h} e^{i \nu_y (m-1) h}  \right) \\
+       &-2 \alpha\xi^{n+1} e^{i \nu_x l h} e^{i \nu_y m h}  \\
+       &+\frac{\alpha}{2} \left( \xi^{n} e^{i \nu_x (l+1) h} e^{i \nu_y k h}+ \xi^{n} e^{i \nu_x (m-1) h} e^{i \nu_y m h}\right) \\
+       &+ \frac{\alpha}{2}\left(\xi^{n} e^{i \nu_x l h} e^{i \nu_y (k+1) h} + \xi^{n} e^{i \nu_x m h} e^{i \nu_y (m-1) h}  \right) \\
+       &-2 \alpha \xi^{n} e^{i \nu_x l h} e^{i \nu_y k h}\\
+       &-\frac{\Delta t}{2} b_{l,m}^{n} (\xi^{n+1} e^{i \nu_x l h} e^{i \nu_y m h} + \xi^{n} e^{i \nu_x l h} e^{i \nu_y m h}).
+    \end{split}
+\end{equation*}
+Dividing through by $\xi^{n} e^{i \nu_x l h} e^{i \nu_y m h}$, we attain,
+\begin{equation*}
+    \begin{split}
+        \xi - 1 &=
+       \frac{\alpha}{2}  \left( \xi e^{i \nu_x h}+ \xi e^{-i \nu_x h} \right) 
+       + \frac{\alpha}{2}\left( \xi  e^{i \nu_y h} + \xi  e^{-i \nu_y h}  \right) 
+       -2 \xi \alpha  \\
+       &+\frac{\alpha}{2} \left(  e^{i \nu_x  h}+  e^{-i \nu_x h}\right)
+       + \frac{\alpha}{2}\left(   e^{i \nu_y h} +   e^{-i \nu_y  h}  \right) 
+       -2 \alpha
+       -\frac{\Delta t}{2} b_{l,m}^{n} (\xi + 1).
+    \end{split}
+\end{equation*}
+Using the fact that $ \frac{e^{i \nu_x h}+  e^{-i \nu_x h}}{2} = \cos(\nu_x h)$ and similarly for
+the other terms, we have,
+\begin{equation*}
+    \begin{split}
+        \xi - 1 &=
+         \alpha \xi \cos(\nu_x h) 
+       + \alpha \xi \cos(\nu_y h) 
+       -2 \alpha \xi   \\
+       &+\alpha \cos(\nu_x h) 
+       + \alpha \cos(\nu_y h) 
+       -2 \alpha
+       -\frac{\Delta t}{2} b_{l,m}^{n} (\xi + 1).
+    \end{split}
+\end{equation*}
+Finally, solving for $\xi$, and taking its absolute value we have,
+\begin{equation*}
+    |\xi| = \left| \frac{1 + \alpha \left[ \cos(\nu_x h) + \cos(\nu_y h) \right] - 2 \alpha -\frac{1}{2} \Delta t b_{l,m}^{n} }
+                        {1 -\alpha \left[ \cos(\nu_x h) + \cos(\nu_y h) \right]  + 2 \alpha +\frac{1}{2} \Delta t b_{l,m}^{n}} \right|.
+\end{equation*}
+In order to complete the analysis, consider when biomass is $b_{l,m}^{n} = 0$. We have the simplified
+equation,
+\begin{equation*}
+    |\xi| = \left| \frac{1 -\alpha(2 - \left[ \cos(\nu_x h) + \cos(\nu_y h) \right]) }
+                        {1 +\alpha(2 - \left[ \cos(\nu_x h) + \cos(\nu_y h)\right])} \right|,
+\end{equation*}
+Which has a numerator less than or equal to $1$ because $\alpha > 0$ and 
+$0 \leq 2 - \left[ \cos(\nu_x h) + \cos(\nu_y h) \right] \leq 4$. The denominator is 
+always greater than or equal to $1$, which is enough to prove that
+the Crank-Nicolson scheme for the standard heat equation is numerically stable.
+\\
+\\
+Whether this generalises to non-zero $b_{l,m}^{n}$ is determined by numerical experiments, and 
+indeed for $\alpha = \frac{\lambda_1 \Delta t}{h^2} = \frac{(0.1) (0.01)}{(0.1)^2} = 0.1$, the scheme 
+was not found to be unstable. However, for higher values of $\alpha$ it was possible to see spurious 
+oscillations in the solution field for $c$ which obviously suggests some form of instability.
+
+
+
+
+
