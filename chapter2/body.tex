@@ -159,13 +159,12 @@ improved run times. How was this speedup achieved?
 
 Where previously \codeword{ellipse.m} required a \codeword{for} loop over the SDFs for 
 each cell, the final iteration of \codeword{ellipse.m} uses 
-completely vectorised operations which run fast on the GPU. I have provided 
-the code below.
-
-
+completely vectorised operations which run fast on the GPU. The code is 
+provided in listing \ref{lst:ellipse}.
 
 \begin{lstlisting}[style=Matlab-editor,  
-                   caption={A code listing for the \textbf{ellipse.m} script},captionpos=b]
+                   caption={A code listing for the \textbf{ellipse.m} script},
+                   label={lst:ellipse}]
 function sdf =                ... %Colony level SDF
     ellipse(X, Y,             ... %Grid values
             theta,            ... %Orientation angles
@@ -173,39 +172,31 @@ function sdf =                ... %Colony level SDF
             semiMajorRadius,  ... %p_k
             semiMinorRadius   ... %q_k       
            ) 
-
     %Translate the field to the center coordinates:
     Xt = repmat(X, [1,1,size(centerX,2)])-reshape(centerX, [1,1,size(centerX,2)]);
     Yt = repmat(Y, [1,1,size(centerX,2)])-reshape(centerY, [1,1,size(centerX,2)]);
-
-
     %Precompute trigonometric functions for efficiency
     COS = cos(theta);
     SIN = sin(theta);
     cosReshape = reshape(COS, [1,1,size(centerY,2)]);
     sinReshape = reshape(SIN, [1,1,size(centerY,2)]);
-
     %Rotate translated field by the rotation matrix (correctly vectorised):
     rotX =  Xt .* cosReshape + Yt .* sinReshape; 
     rotY = -Xt .* sinReshape + Yt .* cosReshape;
-
     %Precompute reciprocal squared of geometry arrays:
     semiMajorRadiusReciprocalReshape2 = ... 
         reshape(1.0 ./ semiMajorRadius.^2, [1,1,size(centerX,2)]);
     semiMinorRadiusReciprocalReshape2 = ...
         reshape(1.0 ./ semiMinorRadius.^2, [1,1,size(centerX,2)]);
-
     %Instead of using smoothmin (slow) just use min of the
     %square of the SDF. [This does not require calling sqrt() 
     %which is computationally very costly]
     sdf = min(rotX .^2 .* semiMajorRadiusReciprocalReshape2 + ...
               rotY .^2 .* semiMinorRadiusReciprocalReshape2 - ... 
               1.0, [], 3);
-
     %Normalise to with magnitude 1 in colony region:
     absMin = abs(min(sdf,[], "all"));
     sdf = sdf ./ absMin ;
-
 end    
 \end{lstlisting}
 
@@ -232,27 +223,24 @@ solution of the linear system
 \\
 
 The most obvious optimisation made in \codeword{updateFood()} 
-is to completely vectorise all operations. As evinced in the code 
-listing supplied below, there are no \codeword{for} loops.
-\begin{lstlisting}[style=Matlab-editor,basicstyle=\lstconsolas,basicstyle=\small,  
-                   caption={A code listing for the \textbf{updateFood.m} script},captionpos=b]
-function foodNew = updateFood(biomass, food, lambda, dt, h, X)
+is to completely vectorise all operations. As evinced in the code given in 
+listing \ref{lst:updateFood}, there are no \codeword{for} loops.
 
+\begin{lstlisting}[style=Matlab-editor,basicstyle=\lstconsolas,basicstyle=\small,  
+                   caption={A code listing for the \textbf{updateFood.m} script},
+                   label={lst:updateFood}]
+function foodNew = updateFood(biomass, food, lambda, dt, h, X)
     N = size(X,1);
     V = N .* N;
     Vi = (N-2) .* (N-2);
-
     i = 2:(N-1);
-    j = i;
-
-    
+    j = i;  
     %Generate the five point stencil of indices in row major order.
     ij   = rmo(i,j,N);
     im1j = rmo(i-1,j,N);
     ip1j = rmo(i+1,j,N);
     ijm1 = rmo(i,j-1,N);
     ijp1 = rmo(i,j+1,N);
-
     %Flatten these:
     fij   = ij(:);
     fim1j = im1j(:);
@@ -260,43 +248,31 @@ function foodNew = updateFood(biomass, food, lambda, dt, h, X)
     fijm1 = ijm1(:);
     fijp1 = ijp1(:);
 
-
     CFL = dt .* lambda(1) ./ (h .* h);
     coeff1 = 0.5 .* dt .* biomass(i,j) + 2.0 .* CFL + 1.0;
     coeff2 = 0.5 .* CFL;
     coeff3 = 1.0 - 2.0 .* CFL - 0.5 .* dt .* biomass(i,j);
-
     %Flatten the coefficients:
     coeff1 = coeff1(:);
     coeff3 = coeff3(:);
-
-   
-
     c = food(:);
 
     RHS = coeff3 .* c(fij) + ...
           coeff2 .* (c(fim1j) + c(fip1j) + c(fijm1) + c(fijp1));
-
-    
-
 
     LHM = spdiags([-coeff2 .* ones(Vi,1) ,-coeff2 .* ones(Vi,1) ,...
                    gather(coeff1),...
                    -coeff2 .* ones(Vi,1), -coeff2 .* ones(Vi,1)],...
                   [-N, -1, 0, 1, N], Vi, Vi);
     yM  = spdiags(-coeff2 .* ones(1,N), 0, N, N);
-
-
     LHM(1:N,(end - N + 1):end) = LHM(1:N,(end - N + 1):end) + yM;
     LHM((end - N + 1):end,1:N) = LHM((end - N + 1):end,1:N) + yM;
-
 
     [cNew, flag] = pcg(LHM,RHS,1e-6);
 
     foodNew = food;
 
     foodNew(i,j) = reshape(cNew, [N-2, N-2]);
-
 end
 
 
@@ -324,11 +300,160 @@ and leaves the column indices, \codeword{j}, fixed. Other configurations were
 trialed but this was ultimately the only one that produced the correct 
 nutrient diffusion dynamics.
 
-
-
 \subsection{Introducing new nodes in \textit{addCell.m}} \label{ssec:addCell}
+Adding in $\Delta N_{\textrm{nodes}}$ new nodes to the colony requires the
+selection of $\Delta N_{\textrm{nodes}}$ parent nodes to undergo 
+mitosis. This is choice is based on first interpolating the nutrient 
+available to each node, and using \codeword{maxk()} to decide on the 
+$\Delta N_{\textrm{nodes}}$ parent node indices corresponding to 
+greatest values of \codeword{food}. These are called 
+\codeword{buddingIndices} in the \codeword{addCell.m} script. 
+The new node positions are defined by first generating a random 
+budding angle, $\theta_b$, for each node to be added. The formula for 
+a child node's position is given by 
+\begin{equation*}
+x_{\textrm{child}} = x_{\textrm{parent}} + \delta \cos{\theta_b},
+\end{equation*}
+\begin{equation*}
+y_{\textrm{child}} = y_{\textrm{parent}} + \delta \sin{\theta_b},
+\end{equation*}
+where $\delta = 0.01$ is a very small dislocation radius.
+\\
+
+Finally, the addition of new nodes implies the addition of new cells which 
+are defined by the edge connecting a pair of nodes. This 
+change in the adjacency matrix requires updating the \codeword{connectivity}
+array by placing a $1$ in the correct positions. Recall that 
+the \codeword{connectivity} array is a symmetric logical matrix.
 
 \subsection{Advancing the node positions using Euler's method in \textit{updateNodes.m}} \label{ssec:updatenodes}
+The \codeword{updateNodes.m} script employs Euler's first order
+time marching algorithm to update the node positions, 
+based on three forces: elasticity, contact and chemotaxis. 
+It was conceivable that a Runge-Kutta-$4$ (RK4) explcit time stepping scheme 
+could have been implemented, however this was deemed to be unnecessary since
+determining the overdamped spring dynamics to a high degree of accuracy 
+is always swamped by the overall conceptual errors in the modelling. 
+From a mathematical modelling point of view, the spring has been 
+chosen to ensure the passage of the colony from one equilibrium state 
+at the old number of nodes, $N_{\textrm{nodes}}$, to the equilibrium state 
+at the updated node count, $N_{\textrm{nodes}}'$. The Euler method 
+was sufficient to allow this transition without 
+any numerical stability issues. The code is given  in listing \ref{lst:updateNodes}.
+
+\begin{lstlisting}[style=Matlab-editor,basicstyle=\lstconsolas,basicstyle=\small,  
+                   caption={A code listing for the \textbf{updateNodes.m} script},
+                   label={lst:updateNodes}]
+function [xNew,yNew] = updateNodes(x, y, lambda, connectivity, food, numNodes, dt, h, X,Y)
+    %Firsly calculuate the matrix of distances between the nodes;
+    xNodes = x(1:numNodes);
+    yNodes = y(1:numNodes);
+    xMatrix = gpuArray(xNodes - xNodes');
+    yMatrix = gpuArray(yNodes - yNodes');
+    matrixOfSquares = xMatrix.^2 +  yMatrix.^2;
+    matrixOfSquaresDivisor = matrixOfSquares + (matrixOfSquares == 0);
+    rSQRT = 1 ./ sqrt(matrixOfSquaresDivisor);
+
+    xNew = x;
+    yNew = y;
+    contactMask = double(matrixOfSquares <= lambda(4).^2); 
+    connectivityNodes = double(connectivity(1:numNodes,1:numNodes ));
+
+    %Add the force due to the spring:
+    springTermX = (1.0 - rSQRT) .* xMatrix;
+    springTermX = springTermX .* connectivityNodes;
+    springTermY = (1.0 - rSQRT) .* yMatrix;
+    springTermY = springTermY .* connectivityNodes;
+
+    xNew(1:numNodes) = xNew(1:numNodes) - ...
+    dt .* lambda(2) .* sum(springTermX, 2);   
+    yNew(1:numNodes) = yNew(1:numNodes) - ...
+    dt .* lambda(3) .* sum(springTermY, 2);
+
+    contactTermX =  rSQRT .* xMatrix;
+    contactTermX = contactTermX .* contactMask;
+    contactTermY =  rSQRT .* yMatrix;
+    contactTermY = contactTermY .* contactMask;
+    
+    %Add in the contact force:
+    xNew(1:numNodes) = xNew(1:numNodes) + ...
+       dt .* lambda(1) .* sum(contactTermX, 2);
+    yNew(1:numNodes) = yNew(1:numNodes) + ...
+       dt .* lambda(1) .* sum(contactTermY, 2);
+
+    [foodGradientX, foodGradientY] = gradient(food,h);
+
+    %Sample the gradient at the nodes:
+    foodGradientXAtNodes = interp2(X,Y,foodGradientX, xNodes,  yNodes );
+    foodGradientYAtNodes = interp2(X,Y,foodGradientY, xNodes,  yNodes );
+
+    %Add in the chemotactic force:
+    xNew(1:numNodes) = xNew(1:numNodes) +  dt .* lambda(5) .* foodGradientXAtNodes;
+    yNew(1:numNodes) = yNew(1:numNodes) +  dt .* lambda(5) .* foodGradientYAtNodes;
+end
+\end{lstlisting}
+Note that the \codeword{matrixOfSquaresDivisor} is constructed in such a way 
+as to avoid introducing \codeword{nan} values into the solution.
+
+
+\section{Statistics from the model}
+The software developed thus far is a numerical framework for simulating growing cell colonies.
+There is an element of randomness in the model: when two nodes are dislodged from the 
+same point there is initially no preferred direction to move in so one must be chosen randomly
+before other forces can take effect. For this reason, every seperate run of the model 
+starting with identical initial conditions will look different after some time. 
+It is expected, however, that some ``averaged''
+quantity will stabilise so long as the model is simulated over a fairly large number of runs.
+Seperate runs of the model belong to a set called an ensemble.
+\\
+
+A fully grown colony will in general not be perfectly circular in shape.
+In order to measure the roundness of the colony (or analagously, the degree of branching) 
+we use the compactness metric used for 
+ roundness in image processing (for example, see \cite{li2024off}). This is given by
+\begin{equation}
+  C = \frac{P^2}{4 \pi A},
+\end{equation}
+where $C \in [1, \infty)$ is $1$ for a circle and can get to large numbers for 
+highly branching shapes, $A$ is the colony area, and $P$ is the colony perimeter. 
+Both of these are calculated from the colony SDF changes sign. 
+\\
+
+A black and white image 
+is produced at each time step using Matlab's function \codeword{bwboundaries} as per
+PhD student Kai Li's implementation. The area then is given by summing up the grid squares that are
+inside the implicit shape given by the SDF and multiplying by $h^2$. The perimeter
+is obtained by using \codeword{bwboundaries}, which outputs an array of points on the boundary
+from which the Euclidean distance between neighbouring points is found and then summed over.
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{chapter1/figures/compareCompactness.pdf}
+    \caption{A comparsion of high and low compactness}
+    \label{fig:compatness_comparison}
+\end{figure}
+The summary statistics per time step are collected in table \ref{table:summaryStats}.
+
+\begin{table}[!htb]
+\begin{center}
+    \begin{tabular}{ |c|c|c| } 
+     \hline
+      \textbf{Symbol} & \textbf{Descriptive name} \\ 
+      \hline
+     $C$                 &  Colony compactness. \\ 
+     $\mu$               & Colony average growth rate. \\ 
+     $\bar{d}$           &   Average distance of cells from origin. \\ 
+     $N_{\textrm{cells}}$ & Cell count. \\
+     \hline   
+    \end{tabular}
+    
+\end{center}
+\caption{The summary statistics extracted from the model}
+\label{table:summaryStats}
+\end{table}
+
+
+
+
 
 
 

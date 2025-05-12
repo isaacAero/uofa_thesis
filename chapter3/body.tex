@@ -1,40 +1,5 @@
 \chapter{Numerical experiments and simulation results}
 
-\section{Statistics from the model}
-The model developed thus far is a numerical framwork for simulating growing cell colonies.
-There is an element of randomness in the model: when two nodes are dislodged from the 
-same point there is initially no preferred direction to move in so one must be chosen randomly
-before other forces can take effect. For this reason, every seperate run of the model 
-starting with identical initial conditions will look very different after time has passed. 
-It is expected however that some ``averaged''
-quantity will stabilise so long as the model is simulated over a fairly large number of runs.
-Seperate runs of the model belong to a set called an ensemble.
-We will start with a relatively straightforward metric, the number of cells at time
-$T = 500$ steps.
-\\
-
-A fully grown colony will in general not be perfectly circular in shape.
- In order to measure the roundness of the colony we use the compactness metric used for 
- roundness in image processing (quote Kai use of this metric)
-\begin{equation}
-  C = \frac{P^2}{4 \pi A},
-\end{equation}
-where $C \in [1, \infty)$ is $1$ for a circle and can get to large numbers for 
-highly branching shapes, $A$ is the colony area, and $P$ is the colony perimeter. 
-Both of these are calculated from the formula for the microscopic cell
-density which is always given by when $f(x,y,t)$ changes sign. A black and white image 
-is produced at each time step using Matlab's function \codeword{bwboundaries} as per
-Kai's suggestion. The area then is given by summing up the grid squares that are
-inside the implicit shape givcen by $f$ and multiplying by $h^2$. The perimeter
-is got by using \codeword{bwboundaries}, which outputs an array of points on the boundary
-from which the Euclidean distance between neighbouring points is found and then summed over.
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=\textwidth]{chapter1/figures/compareCompactness.pdf}
-    \caption{A comparsion of high and low compactness}
-    \label{fig:compatness_comparison}
-\end{figure}
-
 \begin{figure}[!htb] %Change this to [p] maybe ?
     \centering
     \includegraphics[width= 0.7\textwidth]{
