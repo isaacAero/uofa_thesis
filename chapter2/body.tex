@@ -107,13 +107,229 @@ The current value of the nutrient field and the biomass field,
 are passed to \codeword{updateFood()} (explained in 
 subsection \ref{ssec:updateFood}) which updates the nutrient field
 based on the Crank-Nicholson method applied to equation \ref{eqn:EOMs_PDE}.
-The food at the next time step is outputted from \codeword{updateFood()}.
+The food at the next time step is the output from \codeword{updateFood()}.
+\\
+
+The value of the growth rate across the colony $\mu_i$ is then determined
+using 2D interpolation by calling \codeword{interp2(X, Y, food, x, y)},
+where $X, Y$ are the underlying grid matrices, \codeword{food} is the updated nutrient 
+field, and $(x,y)$ are the node positions, taken as query points in the interpolation.
+Recall from equation \ref{eqn:growthRate}, the growth rate 
+is given by the the average of the nutrient field sampled over the nodes.
+\\
+
+The updated number of nodes, $N_{\textrm{nodes}}' = N_{\textrm{nodes}}(t_{n + \Delta n})$, is found 
+by multiplying the current number of nodes, $N_{\textrm{nodes}}$,
+by $e^{\mu}$ (as stipulated by the exponential growth in equation \ref{eqn:expGrowth}) where $\mu$ is the average growth rate over the colony 
+as discussed above. The number of nodes added is then given by 
+\begin{equation*}
+    \Delta N_{\textrm{nodes}} = N_{\textrm{nodes}}' - N_{\textrm{nodes}} = \lceil e^{\mu} -1 \rceil N_{\textrm{nodes}},
+\end{equation*}
+where $\mu$ is given by 
+\begin{equation*}
+    \mu = \frac{1}{N_{\textrm{nodes}}} \sum_{i = 1}^{N_{\textrm{nodes}}} \mu_i,
+\end{equation*}
+where $\mu_i = c(\vb{x}_i, t)$ is the value of the nutrient field $c(\vb{x}_i, t)$ sampled 
+at the $i$-th node position (this is just a recapitulation of equation \ref{eqn:growthRate}).
+The number of time steps per mitosis event, $\Delta n$ is given by \codeword{ceil(1.0/dt)},
+and we use an \codeword{if} statement to ensure \codeword{addCell()} is only called when $n$ 
+is a multiple of $\Delta n$.
+\\
+
+In \codeword{addCell()}, the number of nodes to add, $\Delta N_{\textrm{nodes}}$, is passed 
+as a argument. The mechanism to choose the parent cells to undergo mitosis is 
+explained in subsection \ref{ssec:addCell}. Finally, 
+the new node positions (based on equation \ref{eqn:EOMs_ODE}) are determined 
+using \codeword{updateNodes()} as detailed in subsection \ref{ssec:updatenodes}.
+\\
+
+The rest of \codeword{runSimulation.m} is devoted to plotting the biomass and nutrient 
+fields, aswell as generating the underlying node network using MATLAB's 
+\codeword{graph()} where the colony adjacency matrix, \codeword{connectivity},
+is passed as an argument.
 
 
 \subsection{Vectorised computation of colony SDF in \textit{ellipse.m}}\label{ssec:ellipse}
+The custom function \codeword{ellipse.m} has been iterated
+with high efficiency in mind since \codeword{ellipse.m} has to be called 
+every time step. Using MATLAB's widget \textit{run-and-time}, the bottleneck found
+in \codeword{ellipse.m} was eliminated. This significantly 
+improved run times. How was this speedup achieved?
+\\
+
+Where previously \codeword{ellipse.m} required a \codeword{for} loop over the SDFs for 
+each cell, the final iteration of \codeword{ellipse.m} uses 
+completely vectorised operations which run fast on the GPU. I have provided 
+the code below.
+
+
+
+\begin{lstlisting}[style=Matlab-editor,  
+                   caption={A code listing for the \textbf{ellipse.m} script},captionpos=b]
+function sdf =                ... %Colony level SDF
+    ellipse(X, Y,             ... %Grid values
+            theta,            ... %Orientation angles
+            centerX, centerY, ... %Center coordinates
+            semiMajorRadius,  ... %p_k
+            semiMinorRadius   ... %q_k       
+           ) 
+
+    %Translate the field to the center coordinates:
+    Xt = repmat(X, [1,1,size(centerX,2)])-reshape(centerX, [1,1,size(centerX,2)]);
+    Yt = repmat(Y, [1,1,size(centerX,2)])-reshape(centerY, [1,1,size(centerX,2)]);
+
+
+    %Precompute trigonometric functions for efficiency
+    COS = cos(theta);
+    SIN = sin(theta);
+    cosReshape = reshape(COS, [1,1,size(centerY,2)]);
+    sinReshape = reshape(SIN, [1,1,size(centerY,2)]);
+
+    %Rotate translated field by the rotation matrix (correctly vectorised):
+    rotX =  Xt .* cosReshape + Yt .* sinReshape; 
+    rotY = -Xt .* sinReshape + Yt .* cosReshape;
+
+    %Precompute reciprocal squared of geometry arrays:
+    semiMajorRadiusReciprocalReshape2 = ... 
+        reshape(1.0 ./ semiMajorRadius.^2, [1,1,size(centerX,2)]);
+    semiMinorRadiusReciprocalReshape2 = ...
+        reshape(1.0 ./ semiMinorRadius.^2, [1,1,size(centerX,2)]);
+
+    %Instead of using smoothmin (slow) just use min of the
+    %square of the SDF. [This does not require calling sqrt() 
+    %which is computationally very costly]
+    sdf = min(rotX .^2 .* semiMajorRadiusReciprocalReshape2 + ...
+              rotY .^2 .* semiMinorRadiusReciprocalReshape2 - ... 
+              1.0, [], 3);
+
+    %Normalise to with magnitude 1 in colony region:
+    absMin = abs(min(sdf,[], "all"));
+    sdf = sdf ./ absMin ;
+
+end    
+\end{lstlisting}
+
+One thing to note from the MATLAB code listing is that 
+vectorised division, say called with \codeword{./}, 
+is precomputed as reciprocals which 
+are then multiplied through in the compuatation of \codeword{sdf} using \codeword{.*} which is 
+faster. Precomputing trigonometric functions was also opted for with 
+the aim of reducing repeated compuatations with the same angle. 
+Finally, we recall the discussion in section \ref{sec:introSDFs}, in which 
+it was noted that \codeword{min} is significantly faster than evaluating smoothmin. 
+The final optimisation made was to remove the call to \codeword{sqrt()} which  
+actually has no effect on the shape of each cell but vastly improves
+compute time.
 
 
 \subsection{A fast Crank-Nicolson scheme in \textit{updateFood.m}}\label{ssec:updateFood}
+The Crank-Nicolson scheme is an implicit numerical scheme that requires the 
+computation of a (mostly zero) matrix of coefficients \codeword{LHM} (which has 
+dimensions $N_{\textrm{grid}}^2 \times N_{\textrm{grid}}^2$)
+a right hand side column vector \codeword{RHS} ($N_{\textrm{grid}}^2 \times 1$), and the 
+solution of the linear system 
+\codeword{LHM * x = RHS}. 
+\\
+
+The most obvious optimisation made in \codeword{updateFood()} 
+is to completely vectorise all operations. As evinced in the code 
+listing supplied below, there are no \codeword{for} loops.
+\begin{lstlisting}[style=Matlab-editor,basicstyle=\lstconsolas,basicstyle=\small,  
+                   caption={A code listing for the \textbf{updateFood.m} script},captionpos=b]
+function foodNew = updateFood(biomass, food, lambda, dt, h, X)
+
+    N = size(X,1);
+    V = N .* N;
+    Vi = (N-2) .* (N-2);
+
+    i = 2:(N-1);
+    j = i;
+
+    
+    %Generate the five point stencil of indices in row major order.
+    ij   = rmo(i,j,N);
+    im1j = rmo(i-1,j,N);
+    ip1j = rmo(i+1,j,N);
+    ijm1 = rmo(i,j-1,N);
+    ijp1 = rmo(i,j+1,N);
+
+    %Flatten these:
+    fij   = ij(:);
+    fim1j = im1j(:);
+    fip1j = ip1j(:);
+    fijm1 = ijm1(:);
+    fijp1 = ijp1(:);
+
+
+    CFL = dt .* lambda(1) ./ (h .* h);
+    coeff1 = 0.5 .* dt .* biomass(i,j) + 2.0 .* CFL + 1.0;
+    coeff2 = 0.5 .* CFL;
+    coeff3 = 1.0 - 2.0 .* CFL - 0.5 .* dt .* biomass(i,j);
+
+    %Flatten the coefficients:
+    coeff1 = coeff1(:);
+    coeff3 = coeff3(:);
+
+   
+
+    c = food(:);
+
+    RHS = coeff3 .* c(fij) + ...
+          coeff2 .* (c(fim1j) + c(fip1j) + c(fijm1) + c(fijp1));
+
+    
+
+
+    LHM = spdiags([-coeff2 .* ones(Vi,1) ,-coeff2 .* ones(Vi,1) ,...
+                   gather(coeff1),...
+                   -coeff2 .* ones(Vi,1), -coeff2 .* ones(Vi,1)],...
+                  [-N, -1, 0, 1, N], Vi, Vi);
+    yM  = spdiags(-coeff2 .* ones(1,N), 0, N, N);
+
+
+    LHM(1:N,(end - N + 1):end) = LHM(1:N,(end - N + 1):end) + yM;
+    LHM((end - N + 1):end,1:N) = LHM((end - N + 1):end,1:N) + yM;
+
+
+    [cNew, flag] = pcg(LHM,RHS,1e-6);
+
+    foodNew = food;
+
+    foodNew(i,j) = reshape(cNew, [N-2, N-2]);
+
+end
+
+
+function index = rmo(i,j,N)
+    index = i' + N .* (j-1);
+end
+\end{lstlisting}
+
+Another optimisation which was not only efficient but also necessary to avoid
+memory issues, was to construct \codeword{LHM} with sparse matrices, which 
+meant that on the order of $N_{\textrm{grid}}^4$ redundant zeros did not have 
+to be stored in memory. In particular, the pentadiagonal matrix ($5$ non-zero diagonals)
+ \codeword{LHM} was constructed using \codeword{spdiags}. A crucial optimisation 
+from the point of view of perfomance was to 
+replace the direct linear solution, \codeword{LMH \ RHS}, with the function, 
+\codeword{pcg}, which carries out the preconditioned conjugate 
+gradient numerical method at no appreciable change in accuracy (error bounded by \codeword{1e-6}),
+but significantly faster.
+\\
+
+Regarding indexing, note that MATLAB uses column-major-order by default in 
+its vectorised functions (see MathWorks website). To align with this convention,
+the row-major-order function, \codeword{rmo}, transposes the row indices, \codeword{i},
+and leaves the column indices, \codeword{j}, fixed. Other configurations were 
+trialed but this was ultimately the only one that produced the correct 
+nutrient diffusion dynamics.
+
+
+
+\subsection{Introducing new nodes in \textit{addCell.m}} \label{ssec:addCell}
+
+\subsection{Advancing the node positions using Euler's method in \textit{updateNodes.m}} \label{ssec:updatenodes}
+
 
 
 

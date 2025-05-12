@@ -1,5 +1,5 @@
 \chapter{ Description of the model \label{ch:numero_uno}}
-\section{An invitation to algebraic representation of cell boundaries}
+\section{An invitation to algebraic representation of cell boundaries}\label{sec:introSDFs}
 The use of signed distance fields (SDFs) to model organic sufaces
 is a time honoured graphical technique used, for example, by Pixar
 Animation Studios to model hair in \textit{The Incredibles} 
@@ -314,7 +314,7 @@ in the area of biolgical morphology viewed in the framework of ``growing geometr
 
 
 \section{Incorporating the nutrient field}
-The nutrient field (such as a glucose mixture) is assumed to be given by a reaction-diffusion 
+A nutrient medium containing glucose is assumed to be given by a reaction-diffusion 
 partial differential equation. That is the nutrient concentration $c(x,y,t)$ is given by
 \begin{equation*}
     \pdv{c(x,y,t)}{t} = D \left( \frac{\partial^2 c(x,y,t)}{\partial x^2} + 
@@ -520,7 +520,7 @@ span from equation \ref{eqn:EOMs_PDE} to \ref{eqn:centerPos}.
     \boxed{c(x,y,0) = 1.0,}
 \end{equation}
 
-\begin{equation}
+\begin{equation}\label{eqn:EOMs_ODE}
     \boxed{
     \begin{split}
         \frac{d \vb{x}_i}{d t} 
@@ -532,11 +532,11 @@ span from equation \ref{eqn:EOMs_PDE} to \ref{eqn:centerPos}.
 \begin{equation}
     \boxed{\vb{x}_1(0) = (0.5 \cos{\Theta_e}, 0.5 \sin{\Theta_e}), \ \vb{x}_2(0) = (-0.5 \cos{\Theta_e}, -0.5 \sin{\Theta_e}), }
 \end{equation}
-\begin{equation}
+\begin{equation} \label{eqn:expGrowth}
     \boxed{N_{\textrm{nodes}} = N_{0, \textrm{cells}} e^{t \mu(t)}, \textrm{where} \ N_{0, \textrm{cells}} = 1, }
 \end{equation}
-\begin{equation} 
-    \boxed{\mu(t) = \frac{1}{N_{\textrm{nodes}}}\sum_{j=1}^{N_{\textrm{nodes}}} c(\vb{x}_j, t), } 
+\begin{equation}\label{eqn:growthRate}
+    \boxed{\mu(t) = \frac{1}{N_{\textrm{nodes}}}\sum_{i=1}^{N_{\textrm{nodes}}} c(\vb{x}_i, t), } 
 \end{equation}
 \begin{equation} \label{eqn:biomass}
     \boxed{
