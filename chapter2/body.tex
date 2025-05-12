@@ -1,16 +1,5 @@
 
-\chapter{Software implementation: \textit{CellColonySimulator}}
-
-\section{The structure of the program}
-The program \textbf{CellColonySimulator} is implemented \textit{in-house} with MATLAB. As shown in 
-figure \ref{fig:softwareFlowChart}, \textbf{CellColonySimulator} is broken up 
-into six seperate scripts as per the programming principle of modularity. These include:
-\codeword{Master.m},
-\codeword{runSimulation.m},
-\codeword{ellipse.m},
-\codeword{updateFood.m},
-\codeword{addCell.m},
-\codeword{updateNodes.m}.
+\chapter{Software Implementation: \textit{CellColonySimulator}}
 
 
 \begin{figure}[!htb]
@@ -21,7 +10,7 @@ into six seperate scripts as per the programming principle of modularity. These 
                     node distance=2cm]
 
 
-    \begin{scope}[scale=0.75,transform shape]
+    \begin{scope}[scale=0.85,transform shape]
     \node (start) [startstop] {\codeword{Master.m}};
     \node (in1) [io, below of=start] { Model parameters: $\lambda_1, ... , \lambda_7$ \\
                                        Numerical parameters: $h$, $\Delta t$ \\
@@ -68,163 +57,63 @@ into six seperate scripts as per the programming principle of modularity. These 
 \label{fig:softwareFlowChart}
 \end{figure}
 
-\newpage
+\section{The structure of the program}
+The program \textbf{CellColonySimulator} is implemented \textit{in-house} with MATLAB as shown in 
+figure \ref{fig:softwareFlowChart}. \textbf{CellColonySimulator} is broken up 
+into six seperate scripts as per the programming principle of modularity. These include:
+\codeword{Master.m},
+\codeword{runSimulation.m},
+\codeword{ellipse.m},
+\codeword{updateFood.m},
+\codeword{addCell.m},
+\codeword{updateNodes.m}.
 
-
-
-
-
-\section{Statistics from the model}
-The model developed thus far is a numerical framwork for simulating growing cell colonies.
-There is an element of randomness in the model: when two nodes are dislodged from the 
-same point there is initially no preferred direction to move in so one must be chosen randomly
-before other forces can take effect. For this reason, every seperate run of the model 
-starting with identical initial conditions will look very different after time has passed. 
-It is expected however that some ``averaged''
-quantity will stabilise so long as the model is simulated over a fairly large number of runs.
-Seperate runs of the model belong to a set called an ensemble.
-We will start with a relatively straightforward metric, the number of cells at time
-$T = 500$ steps.
+\subsection{Calling the update loop in \textit{runSimulation.m}}
+The function \codeword{runSimulation.m} takes in the model parameter vector,
+$\lambda$, the struct of numerical discretisation parameters, \codeword{numericPack},
+the times at which statistics are sampled, \codeword{sampleTimes}, 
+the colony data including node positions $(x,y)$ and the network adjacency
+matrix, \codeword{connectivity}, and the initial nutrient field 
+given by \codeword{food}.
 \\
 
-A fully grown colony will in general not be perfectly circular in shape.
- In order to measure the roundness of the colony we use the compactness metric used for 
- roundness in image processing (quote Kai use of this metric)
-\begin{equation}
-  C = \frac{P^2}{4 \pi A},
-\end{equation}
-where $C \in [1, \infty)$ is $1$ for a circle and can get to large numbers for 
-highly branching shapes, $A$ is the colony area, and $P$ is the colony perimeter. 
-Both of these are calculated from the formula for the microscopic cell
-density which is always given by when $f(x,y,t)$ changes sign. A black and white image 
-is produced at each time step using Matlab's function \codeword{bwboundaries} as per
-Kai's suggestion. The area then is given by summing up the grid squares that are
-inside the implicit shape givcen by $f$ and multiplying by $h^2$. The perimeter
-is got by using \codeword{bwboundaries}, which outputs an array of points on the boundary
-from which the Euclidean distance between neighbouring points is found and then summed over.
-\begin{figure}[!htb]
-    \centering
-    \includegraphics[width=\textwidth]{chapter1/figures/compareCompactness.pdf}
-    \caption{A comparsion of high and low compactness}
-    \label{fig:compatness_comparison}
-\end{figure}
+The mesh grid matrices $X$ and $Y$ are taken from \codeword{numericPack} and 
+converted to graphics processing unit (GPU) arrays using MATLAB's \codeword{gpuArray()}. This is crucial 
+for speed as GPU operations on large matrices are highly optimised and parallelised within 
+the GPU architecture. Besides generating descriptive file names for the output plots
+and other miscellaneous tasks, \codeword{runSimulation.m} then progresses into 
+the primary \codeword{for} loop over the time indices, \codeword{timeIndex}.
+\\
 
-\newpage
+A task to print to the console to let the user know what ensemble instance
+and \codeword{timeIndex} the program is up to, is done first.
+Secondly, based on the current node positions $(x_i,y_i)$ for
+$i \in \{1, ..., N_{\textrm{nodes}}\}$, and the number
+of edges present in the \codeword{connectivity} matrix, the current number of cells
+$N_{\textrm{cells}}$ is counted up
+and vectors are associated to the variables $x_{c,k}$,$y_{c,k}$,
+$\theta_k$, $p_k$ and $q_k$ (based on equations
+ \ref{eqn:semiMajorAxis}, \ref{eqn:semiMinorAxis},
+\ref{eqn:orientationAngle} and \ref{eqn:centerPos}) where $k \in \{1, ..., N_{\textrm{cells}}\}$.
+These vectors are passed to the function \codeword{ellipse()} (explained in 
+subsection \ref{ssec:ellipse})
+which computes the colony-level signed distance field (SDF),
+which is comprised of the elliptical SDF of each cell indexed $k$.
+\\
 
-\begin{figure}[!htb] %Change this to [p] maybe ?
-    \centering
-    \includegraphics[width= 0.7\textwidth]{
-        chapter2/figures/t_all__L1_0o10_L2_1o00_L3_1o00_L4_0o50_L5_1o00_L6_0o50_L7_1o00.pdf}
-    \caption{A cell colony with parameter values given by
-             $\lambda_1 = 0.1$,  
-             $\lambda_2 = 1.0$, 
-             $\lambda_3 = 1.0$, 
-             $\lambda_4 = 0.5$, 
-             $\lambda_5 = 1.0$, 
-             $\lambda_6 = 0.5$, 
-             $\lambda_7 = 1.0$. 
-             On the left we have the biomass field, the nutrient field is on the right.}
-    \label{fig: sdsd}
-\end{figure}
+At this stage the biomass field, \codeword{biomass}, is computed 
+from the colony level SDF, based on equation \ref{eqn:biomass}.
+The current value of the nutrient field and the biomass field,
+are passed to \codeword{updateFood()} (explained in 
+subsection \ref{ssec:updateFood}) which updates the nutrient field
+based on the Crank-Nicholson method applied to equation \ref{eqn:EOMs_PDE}.
+The food at the next time step is outputted from \codeword{updateFood()}.
 
 
-\newpage
+\subsection{Vectorised computation of colony SDF in \textit{ellipse.m}}\label{ssec:ellipse}
 
 
-\begin{figure}[!htb] %Change this to [p] maybe ?
-    \centering
-    \includegraphics[width= 0.7\textwidth]{
-        chapter2/figures/t_all_L1_0o10_L2_5o00_L3_1o00_L4_0o50_L5_1o00_L6_2o00_L7_0o50.pdf}
-    \caption{A cell colony with parameter values given by
-             $\lambda_1 = 0.1$,  
-             $\lambda_2 = 5.0$, 
-             $\lambda_3 = 1.0$, 
-             $\lambda_4 = 0.5$, 
-             $\lambda_5 = 1.0$, 
-             $\lambda_6 = 2.0$, 
-             $\lambda_7 = 0.5$. 
-             Biomass on left and nutrient field on the right.}
-    \label{fig: sdsd}
-\end{figure}
-
-\newpage
-
-\begin{figure}[!htb] %Change this to [p] maybe ?
-    \centering
-    \includegraphics[width= 0.7\textwidth]{
-        chapter2/figures/t_all__L1_0o10_L2_5o00_L3_1o00_L4_0o50_L5_1o00_L6_0o40_L7_0o60.pdf}
-    \caption{A cell colony with parameter values given by
-             $\lambda_1 = 0.1$,  
-             $\lambda_2 = 5.0$, 
-             $\lambda_3 = 1.0$, 
-             $\lambda_4 = 0.5$, 
-             $\lambda_5 = 1.0$, 
-             $\lambda_6 = 0.4$, 
-             $\lambda_7 = 0.6$. 
-             Biomass on left and nutrient field on the right.}
-    \label{fig: sdsd}
-\end{figure}
-
-\begin{figure}[!htb] %Change this to [p] maybe ?
-    \centering
-    \includegraphics[width= 0.7\textwidth]{
-        chapter2/figures/t_all__L1_0o10_L2_5o00_L3_1o00_L4_0o50_L5_1o00_L6_2o00_L7_0o60.pdf}
-    \caption{A cell colony with parameter values given by
-             $\lambda_1 = 0.1$,  
-             $\lambda_2 = 5.0$, 
-             $\lambda_3 = 1.0$, 
-             $\lambda_4 = 0.5$, 
-             $\lambda_5 = 1.0$, 
-             $\lambda_6 = 2.0$, 
-             $\lambda_7 = 0.6$. 
-             Biomass on left and nutrient field on the right.}
-    \label{fig: sdsd}
-\end{figure}
-
-
-
-
-\begin{figure}[!htb] %Change this to [p] maybe ?
-    \centering
-    \includegraphics[width= 1\textwidth]{
-        chapter2/figures/SpecificGrowthRatePlot.png}
-    \caption{The colony average specific growth rate for different values of $\lambda_5$
-                is measured and plotted over time for ensemble size $1$. The rest of the parameters 
-                took the values:
-                $\lambda_1 = 0.1$,  
-                $\lambda_2 = 1.0$, 
-                $\lambda_3 = 1.0$, 
-                $\lambda_4 = 1.0$, 
-                $\lambda_5$ (variable), 
-                $\lambda_6 = 0.5$, 
-                $\lambda_7 = 0.7$.
-                Remarkably, when $\lambda_5 \geq 5.0$ there is an interesting dynamic that 
-                occurs based on the compettition between nutrient consumption rate ($\lambda_6$)
-                and the mobility ($\lambda_5$). For small values of mobility,
-                the cells are not able to move enough into areas where the nutrient has not 
-                decayed.}
-    \label{fig:ColonySimulationNutrientFieldN210}
-    \end{figure}
-
-
-
-
-
-
-
-
-
-
-\section{ Fast computational software in MATLAB }
-The software developed for the computational modelling is recquired
-to be fast, accurate and easy to understand.
-
-
-
-
-
-
-    
+\subsection{A fast Crank-Nicolson scheme in \textit{updateFood.m}}\label{ssec:updateFood}
 
 
 

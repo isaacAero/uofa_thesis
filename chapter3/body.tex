@@ -1,190 +1,131 @@
-\chapter{Discussion and limitations}
-\section{Evaluation of the model}
-The computational model \textbf{CellColonySimulator} incorporates
-design decisions based on a number of concerns. These include
-\begin{itemize}
-    \item The requirement for manageable run times on a gaming laptop.
-    \item Modelling both colony scale and cell scale morphology.
-    \item Capturing the process of mitosis in a natural but simple way.
-    \item Ensuring the model is amenable to statisitical analysis.
-    \item Providing a model ready for fitting to experimental micrographs of cell colonies.
-    \item Crystallising the model into a form that could be analysed in a conceptually 
-          rigorous setting, say within the context of functional analysis,
-          bifurcation theory or algebraic topology.
-\end{itemize}
-Whilst the computational model and conceptual apparatus devloped here take on these concerns,
-this section will explore to what extent these concerns were not met. In particualar, we comment on the
-fundamental limitations of the model. In subsection \ref{conceptLims}, the commentary begins 
-with an evaluation of the model regarding the primary conceptual goals.
+\chapter{Numerical experiments and simulation results}
 
-\subsection{Conceptual limitations} \label{conceptLims}
-The model was able to deploy the concept of algebraic curves with time dependent coefficients 
-to represent the cells. Indeed the implicit equation for a translated, rotated, and scaled ellispe 
-is a member of the ring of polynomials in two variables $\mathbb{R}[x,y]$ where coefficients are
-dependent on the underlying discrete network of nodes. In a previous version of the model, 
-the underlying network of nodes were initially collocated and via the elimination 
-of constraints the network was able to unfold over time. This was implemented with
-logical ``mask" matrices in MATLAB, but 
-brought practical problems. One such problem was that branches 
-could easily deplete their store of nodes, and indeed the number of nodes
-chosen at the beginning of the simulation had to be arbitrary. This meant that
-the previous model had prohibitive limits on the number of branches and the size
-of the branches. Another limitation, was that the ODE solver was slowed
-down by the need to simulate the evolution of collocated vertices.
+\section{Statistics from the model}
+The model developed thus far is a numerical framwork for simulating growing cell colonies.
+There is an element of randomness in the model: when two nodes are dislodged from the 
+same point there is initially no preferred direction to move in so one must be chosen randomly
+before other forces can take effect. For this reason, every seperate run of the model 
+starting with identical initial conditions will look very different after time has passed. 
+It is expected however that some ``averaged''
+quantity will stabilise so long as the model is simulated over a fairly large number of runs.
+Seperate runs of the model belong to a set called an ensemble.
+We will start with a relatively straightforward metric, the number of cells at time
+$T = 500$ steps.
 \\
 
-\textbf{CellColonySimulator} overcomes this issue by simply 
-adding new nodes to the network, just very close by ($\delta = 0.01 L_0$).
-As it turned out, this was not a consequential fault,
-since the distance $\delta$ can be made so small that 
-the daughter cell appears to bud from the parent cell, as 
-would be observed in the case of pseduo-hyphal growth of Baker's yeast.
-What I argue is that this is in fact a conceptual fault present in the model
-because it represents an arbitrary addition of a new variable,
-the budding angle $\theta_{b}$ not to mention the constant (but small) budding radius 
-$\delta$. What I intended  
-was a ``derivation'' of cells division within a broader model,
-as opposed to an imposition of more assumptions and parameters
-over time to achieve the mitosis.
-\\
+A fully grown colony will in general not be perfectly circular in shape.
+ In order to measure the roundness of the colony we use the compactness metric used for 
+ roundness in image processing (quote Kai use of this metric)
+\begin{equation}
+  C = \frac{P^2}{4 \pi A},
+\end{equation}
+where $C \in [1, \infty)$ is $1$ for a circle and can get to large numbers for 
+highly branching shapes, $A$ is the colony area, and $P$ is the colony perimeter. 
+Both of these are calculated from the formula for the microscopic cell
+density which is always given by when $f(x,y,t)$ changes sign. A black and white image 
+is produced at each time step using Matlab's function \codeword{bwboundaries} as per
+Kai's suggestion. The area then is given by summing up the grid squares that are
+inside the implicit shape givcen by $f$ and multiplying by $h^2$. The perimeter
+is got by using \codeword{bwboundaries}, which outputs an array of points on the boundary
+from which the Euclidean distance between neighbouring points is found and then summed over.
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width=\textwidth]{chapter1/figures/compareCompactness.pdf}
+    \caption{A comparsion of high and low compactness}
+    \label{fig:compatness_comparison}
+\end{figure}
 
-Unsatisfyingly, the budding angle is chosen to be uniformly distributed on $[0, 2 \pi]$
-and is the only source of randomness in the model. Of course the budding angle
-could be chosen to be in line with the nutrient gradient vector and this would 
-eliminate randomness from the model. Future work could seek to 
-reintroduce randomness in the form of a stochastic process, 
-such a langevin term in the the ODEs for the node positions (and even in the nutirent PDE).
-\\
-
-A model whaich I have prototyped, is one in which the nutrient field is 
-effectively ``converted into nodes''. That is, the nutrient field is not simply
-a scalar field of ``stuff'', but actually becomes a field of structure. The simplest
-version of this is to set the nutrient field as a collection of Brownian walkers that 
-can be taken up by a colony and added to the colony's network. In some sense this 
-would solve the problem, since no new nodes are ever added into the simulation,
-its just that the initially unstructured nodes take on a new behaviour within the cell network.
-\\
-
-Another conceptual direction is that of taking seriously the notion of 
-``cell as structured randomness''. Biochemistry tells us that
-cells are reducible to chemical reaction networks (CRNs), but of course to combine 
-CRNs into the workings of a single cell is not trivial. This means effictive
-models are required, which leave out most of the labrythine details of the cell's
-internal workings (see proteins, DNA, RNA, mitotic spindles, golgi apparatus) but allow
-for efficient computation. Even CRNs are limited by the fact that 
-they usually do not consider the shape of a protein which plays 
-a key role in its functionality. The model presented here brushes
-over all of these details in favour of an effective mathematical approach, 
-but future work could focus linking 
-nanoscopic molecular scale and microscopic cellular scale.
-\\
-
-Regarding the shape of individual cells, 
-the ellipse with variable aspect ratio is chosen to represent eukaryotic
-fungal cells such as saccharomyces cerevisiae. Beyond changing 
-the cell aspect ratio, there is no mechanism in \textbf{CellColonySimulator}
-to change to plant like cell shapes (for example) which are more blocky.
-Algebraic modelling of the cell membrane (in the case of plant cells) or
-a diverse range of cell wall shapes (fungal or even mammal cells)
-is implied here however. For insance, by chosing more elaborate
-polynomials, one can derive a taxonomy of cell shapes at the cost of 
-implementation simplicity and perhaps computational performance. 
-An avenue to explore is seeing whether bifurcations
-can be achieved in a different ring of continuous functions of $x$ and $y$.
-Indeed, can the whole colony be represented by (the level set of) one function at each time,
-such that the growth of the colony can be given by a homotopy 
-between two functions?
-\\
-
-\subsection{Dynamical limitations}
-A (fixed node count) cell colony undergoes the dynamics of an overdamped spring network capable
-of internal collisions driven by
-an external nutrient field. The key concern is whether this dynamical structure is grounded in 
-biological evidence, and whether the model just metaphorical. Firstly, 
-it is worth noting that because we are in the overdamped regime,
-there are no intrinsic oscillations between connected nodes. This is because the node velocity 
-is proportional to the force as opposed to the case 
-of an underdamped harmonic oscillator, where the acceleration is proportial to force.
-In answer to the concern posed, the current model is an effective one however
-it is feasible that the model can be fitted to experimental micrograph data, 
-which is commented on in section \ref{expFitting}, and thus the seven input parameters 
-could be found from real data.
-\\
-
-The springs have a neutral position which is a cell length distant from the parent node.
-In other words, the spring force encodes a passage between equilibrium positions of the colony.
-The presence of an (external) chemotactic force coupled into the dynamics complicates 
-this by gradually moving the equilibrium position for a fixed node count colony outwards.
-One observation of the simulation results, was that internal cells grew beyond the nominal cell length
-due to the additional force of chemotaxis. In practice,
-this issue is alleviated by increasing the cell elasticity, $\lambda_2$, but this 
-is nonetheless a limitation.
-\\
-
-New nodes are added to the network nearby old nodes as stated in Chapter 1. The timing
-of the addition of new nodes is somewhat adhoc and provisional, but could in theory
-be elevated to something more sophisticated. Starting with the colony growth rate 
-$\mu(t)$ which is taken to be a fraction of the ideal growth rate $\mu^* = 0.4$ hour$^{-1}$.
-Cells are added in at discrete intervals of time, given by 
-\begin{equation*}
-    \Delta n = \bigg\lceil \frac{1}{\Delta t} \bigg\rceil.
-\end{equation*}
-The value $\Delta n$ is the number of time steps between two (global) mitosis events. For a
-time step of $\Delta t = 0.02$, this amounts to $\Delta n = 50$ time steps. The amount of 
-nodes added at this time step, denoted $n^*$ (a multiple of $\Delta n$), is given by 
-$(e^{\mu(t_{n^*})} -1) N_{\textrm{nodes}}(t_{n^*})$ where $\mu (t_{n^*})$ 
-is the average value of the nutrient field (recall that the nutrient field is assumed to 
-be $1.0$ at the simulation outset). The assumption that growth rate is defined
-in terms of the nutrient field makes sense, however the assumption of it being \textit{globally} 
-defined thus is somewhat dubious. A possible impovement is to draw up a coarse 
-grid in which each square can fit a dozen or more cells, and say that 
-the growth rate $\mu = \mu(x,y,t)$ is locally defined by averaging nutrient per grid square. 
-Of course, the reason 
-that a spatially independent growth rate, $\mu = \mu(t)$, was chosen was for 
-implementation simplicity.
-\\
-
-The periodic structure of adding cells in at simultaneous snapshots of time,
-is an artificial choice based on implementation simplicity alone. 
-A higher fidelty model could be constructed in which cells bud off at any time.
-One way to do this is to calibrate mitosis times per cell based on cell cycle data
-and allow a cell to undergo mitosis if a certain threshold of nutrient is locally
-available. This would not be difficult to implement, but 
-comes with a few conceptual caveats. One issue is that 
-a (discrete) logic would need to be introduced per cell,
-which opens up a fascinating area of study (``cell as computer program''), however 
-this is outside the scope of this work.
-\\
-
-Another limitation of the dynamical model is overly simplistic collisions.
-The collision mechanism is node based, as 
-opposed to edge based or even SDF based.
-An attempt to improve upon the expedient hard ball collision scheme, 
-is developed in Appendix \ref{collisionModel}. Therein,
-constrained dynamics techniques are employed to ensure no pairwise
-overlap of the biomass level sections. It is clear that constrained
-dynamics is the way to go, but my unique implementation is 
-not computationally efficient and therefore was not
-used in \textbf{CellColonySimulator}.
-\\
-
-Finally, the use of a reaction-diffusion PDE is traditional in mathematical biology, however
-in light of the insights developed here, future work could focus on modelling 
-random fluctuations in nutrient concentration, or even introducing multiple interacting 
-morphogens such as in Turing's morphogenesis paper (\cite{turing1990chemical}).
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter2/figures/t_all__L1_0o10_L2_1o00_L3_1o00_L4_0o50_L5_1o00_L6_0o50_L7_1o00.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 1.0$, 
+             $\lambda_3 = 1.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 0.5$, 
+             $\lambda_7 = 1.0$. 
+             On the left we have the biomass field, the nutrient field is on the right.}
+    \label{fig: sdsd}
+\end{figure}
 
 
+\newpage
 
-\subsection{Computational limitations}
 
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter2/figures/t_all_L1_0o10_L2_5o00_L3_1o00_L4_0o50_L5_1o00_L6_2o00_L7_0o50.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 1.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 2.0$, 
+             $\lambda_7 = 0.5$. 
+             Biomass on left and nutrient field on the right.}
+    \label{fig: sdsd}
+\end{figure}
 
-\section{Readiness for experiemntal validation and fitting}\label{expFitting}
+\newpage
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter2/figures/t_all__L1_0o10_L2_5o00_L3_1o00_L4_0o50_L5_1o00_L6_0o40_L7_0o60.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 1.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 0.4$, 
+             $\lambda_7 = 0.6$. 
+             Biomass on left and nutrient field on the right.}
+    \label{fig: sdsd}
+\end{figure}
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter2/figures/t_all__L1_0o10_L2_5o00_L3_1o00_L4_0o50_L5_1o00_L6_2o00_L7_0o60.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 1.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 2.0$, 
+             $\lambda_7 = 0.6$. 
+             Biomass on left and nutrient field on the right.}
+    \label{fig: sdsd}
+\end{figure}
 
 
 
 
-
-
-
-
-
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= 1\textwidth]{
+        chapter2/figures/SpecificGrowthRatePlot.png}
+    \caption{The colony average specific growth rate for different values of $\lambda_5$
+                is measured and plotted over time for ensemble size $1$. The rest of the parameters 
+                took the values:
+                $\lambda_1 = 0.1$,  
+                $\lambda_2 = 1.0$, 
+                $\lambda_3 = 1.0$, 
+                $\lambda_4 = 1.0$, 
+                $\lambda_5$ (variable), 
+                $\lambda_6 = 0.5$, 
+                $\lambda_7 = 0.7$.
+                Remarkably, when $\lambda_5 \geq 5.0$ there is an interesting dynamic that 
+                occurs based on the compettition between nutrient consumption rate ($\lambda_6$)
+                and the mobility ($\lambda_5$). For small values of mobility,
+                the cells are not able to move enough into areas where the nutrient has not 
+                decayed.}
+    \label{fig:ColonySimulationNutrientFieldN210}
+    \end{figure}
