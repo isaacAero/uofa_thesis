@@ -68,7 +68,7 @@ into six seperate scripts as per the programming principle of modularity. These 
 \codeword{addCell.m},
 \codeword{updateNodes.m}.
 
-\subsection{Calling the update loop in \textit{runSimulation.m}}
+\subsection{Calling the update loop in \textit{runSimulation.m}}\label{ssec:runSimulation}
 The function \codeword{runSimulation.m} takes in the model parameter vector,
 $\lambda$, the struct of numerical discretisation parameters, \codeword{numericPack},
 the times at which statistics are sampled, \codeword{sampleTimes}, 
@@ -227,7 +227,10 @@ is to completely vectorise all operations. As evinced in the code given in
 listing \ref{lst:updateFood}, there are no \codeword{for} loops.
 
 \begin{lstlisting}[style=Matlab-editor,basicstyle=\lstconsolas,basicstyle=\small,  
-                   caption={A code listing for the \textbf{updateFood.m} script},
+                   caption={A code listing for the \textbf{updateFood.m} script. The variable
+                   name \textbf{CFL} refers to the Courant–Friedrichs–Lewy number 
+                   which comes up in numerical schemes. This is called $\alpha$ in 
+                   Chapter 1.},
                    label={lst:updateFood}]
 function foodNew = updateFood(biomass, food, lambda, dt, h, X)
     N = size(X,1);
@@ -330,7 +333,8 @@ the \codeword{connectivity} array is a symmetric logical matrix.
 The \codeword{updateNodes.m} script employs Euler's first order
 time marching algorithm to update the node positions, 
 based on three forces: elasticity, contact and chemotaxis. 
-It was conceivable that a Runge-Kutta-$4$ (RK4) explcit time stepping scheme 
+It was conceivable that a Runge-Kutta-$4$ (RK4) explcit time stepping scheme,
+ detailed in \cite{zingg1999runge},
 could have been implemented, however this was deemed to be unnecessary since
 determining the overdamped spring dynamics to a high degree of accuracy 
 is always swamped by the overall conceptual errors in the modelling. 
@@ -425,27 +429,27 @@ PhD student Kai Li's implementation. The area then is given by summing up the gr
 inside the implicit shape given by the SDF and multiplying by $h^2$. The perimeter
 is obtained by using \codeword{bwboundaries}, which outputs an array of points on the boundary
 from which the Euclidean distance between neighbouring points is found and then summed over.
+Figure \ref{fig:compactness_comparison} demonstrates visually that more branched shapes 
+have higher compactness than approximately circular shapes.
 \begin{figure}[!htb]
     \centering
     \includegraphics[width=\textwidth]{chapter1/figures/compareCompactness.pdf}
     \caption{A comparsion of high and low compactness}
-    \label{fig:compatness_comparison}
+    \label{fig:compactness_comparison}
 \end{figure}
-The summary statistics per time step are collected in table \ref{table:summaryStats}.
-
+The summary statistics descriptions are collected in table \ref{table:summaryStats}.
 \begin{table}[!htb]
 \begin{center}
     \begin{tabular}{ |c|c|c| } 
      \hline
-      \textbf{Symbol} & \textbf{Descriptive name} \\ 
+      \textbf{Symbol} & \textbf{Description} \\ 
       \hline
      $C$                 &  Colony compactness. \\ 
      $\mu$               & Colony average growth rate. \\ 
      $\bar{d}$           &   Average distance of cells from origin. \\ 
      $N_{\textrm{cells}}$ & Cell count. \\
      \hline   
-    \end{tabular}
-    
+    \end{tabular}   
 \end{center}
 \caption{The summary statistics extracted from the model}
 \label{table:summaryStats}

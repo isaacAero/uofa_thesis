@@ -23,7 +23,7 @@ To motivate the primary mechanism by which cells will undergo mitosis
 in this thesis, we consider a toy example in which the level sectios of the equations for
 a pair of ellipses undergo a catastrophic topological change as one real parameter 
 changes, namely the distance $d$ between their centers. We start by considering 
-the equations for two spheres which 
+the equations for two ellipses which 
 begin as coincident and move apart as the parameter $d$ becomes larger. 
 The equations that represent the individual cells are
 \begin{equation*}
@@ -33,7 +33,7 @@ The equations that represent the individual cells are
     f_2(x,y,z) = \left( \frac{x-d}{p} \right)^2 + \left( \frac{y}{q} \right)^2 - 1,
 \end{equation*}
 where $p=1.0 L_0$ and $q=0.9 L_0$ are the semi-major radius and semi-minor radius
-of the ellispes, respectively, 
+of the ellipses, respectively, 
 and $d$ is the distance bewteen their centers. The aspect ratio is $q/p = 0.9$ and $L_0 = 7.5 \ \mu m$
 is the average length of a  saccharomyces cerevisiae (Baker's yeast) cell in ideal conditions as per
 \cite{chavez2024cell}.
@@ -133,7 +133,7 @@ Some significant optimsations were made to make sure that the evalution of
 the colony SDF (evaluated via calling \codeword{ellipse.m}) was as fast as 
 possible within the capabilities of MATLAB. These 
 optimisations, which were crucial because \codeword{ellipse.m} is called per time step, 
-are commented on in Chapter 2.
+are commented on in Chapter 2, subsection \ref{ssec:ellipse}.
 
 \section{Cell colony dynamics with an underlying discrete network}
 Now that we have introduced a robust mechanism to represent cell colony 
@@ -187,7 +187,7 @@ A diagram of this is shon in figure \ref{fig:yeastAsSpringNetwork}.
 
 Relating the positions of the nodes in the network is done 
 based on a simple implementation shown in figure \ref{fig:yeastMicrograph}.
-\begin{figure}[H]
+\begin{figure}[!htb]
     \centering
     \includegraphics[width=0.6\textwidth]{chapter1/figures/networkYeast.pdf}
     \caption{A plot showing the underlying network of a simulated yeast colony 
@@ -210,9 +210,117 @@ and its constitutive nodes indexed $i_1$ and $i_2$ are given by,
 \begin{equation}
     \vb{x}_{c,k}(t) = \frac{1}{2} \left(\vb{x}_{i_1}(t) + \vb{x}_{i_2}(t)\right),
 \end{equation}
-where $\atan$ is the $2$ argument inverse tangent.
+where $\atan$ is the $2$ argument inverse tangent. In table \ref{table:perCellVariables} the variables 
+associated with the cell indexed $k$, comprised of nodes $i_1$ and $i_2$ are summarised.
+
+\begin{table}[!htb]
+\begin{center}
+    \begin{tabular}{ |c|c|c| } 
+     \hline
+      \textbf{Symbol} & \textbf{Formula in terms of nodes $i_1, i_2$} & \textbf{Description} \\ 
+      \hline
+     $\vb{x}_{c,k}$ & $\frac{1}{2} \left(\vb{x}_{i_1} + \vb{x}_{i_2}\right)$     & Center \\ 
+     $p_k$          & $\frac{1}{2}||\vb{x}_{i_1} - \vb{x}_{i_2}||$                     & Semi-major radius \\ 
+     $q_k$          & $\frac{\lambda_7}{2}||\vb{x}_{i_1} - \vb{x}_{i_2}||$                                      & Semi-minor radius \\         
+     $\theta_k$     & $\atan (y_{i_1} - y_{i_2},x_{i_1} - x_{i_2} )$                   & Orintation angle \\         
+     \hline   
+    \end{tabular}   
+\end{center}
+\caption{The variables associated with each cell indexed $k$ and comprised of 
+         nodes $i_1$ and $i_2$.}
+\label{table:perCellVariables}
+\end{table}
+
+\section{The colony adjacency matrix, $A$}
+In the software \codeword{CellColonySimulator} developed, the maximum 
+number of nodes which the simulation can take is set to 
+\codeword{maxNodeCount = 500}. This number is of course arbitrary and 
+can be chosen to be much larger if the supercomputing time is available. 
+In the case of figure \ref{fig:yeastAsSpringNetwork}, suppose
+\codeword{maxNodeCount = 5}. Since there are only $4$ active nodes,
+we would have an adjacency matrix of 
+\begin{equation*}
+    A = 
+    \begin{bmatrix}
+    0 & 1 & 0 & 0 & 0  \\
+    1 & 0 & 1 & 1 & 0  \\
+    0 & 1 & 0 & 0 & 0  \\
+    0 & 1 & 0 & 0 & 0  \\
+    0 & 0 & 0 & 0 & 0  \\ 
+    \end{bmatrix},
+\end{equation*}
+which encodes the connectivity, i.e. node $1$ is connected to node $2$ and so on.
+In order to represent the spring force from nodes $1$, $3$ and $4$ acting on node $2$,
+we would sum up the spring forces from each connected node and apply Newton's Second Law, 
+in the overdamped regime
+\begin{equation*}
+    \vb{v}_2 = \frac{\vb{F}_2}{\eta},
+\end{equation*}
+where $\vb{v}_2$ is the node 2's velocity, $\vb{F}_2$ is the net force acting on 
+node 2, and $\eta$ is the dampening constant which is assumed to be uniform in the simulation.
+The force on node 2 due to node 1 for example is given by $\vb{F}_{21}$ as 
+\begin{equation*}
+    \vb{F}_{21} = -K \left( ||\vb{x}_2 - \vb{x}_1|| - L_0 \right) \frac{\vb{x}_2 - \vb{x}_1}{||\vb{x}_2 - \vb{x}_1||},
+\end{equation*}
+which is Hooke's Law for a spring of stiffness $K$ and nominal length $L_0$.
+The force acting on node 2 then is,
+\begin{equation*}
+    \vb{F}_{2} = \vb{F}_{21} + \vb{F}_{23} + \vb{F}_{24},
+\end{equation*}
+where the forces $\vb{F}_{23}$ and $\vb{F}_{24}$ are similarly defined. For a
+system of nodes with arbitrary connectivty, the net force 
+acting on node $i$ is given by 
+\begin{equation*}
+    \vb{F}_{i} = \sum_{j = 1, j \neq i}^{N_{\textrm{nodes}}} A_{ij} \vb{F}_{ij},
+\end{equation*}
+where $\vb{F}_{ij}$ is the spring force on node $i$ due to node $j$.
+\\
+
+In a very similar way, we add in a constant contact force between the nodes with radius $R \leq \frac{1}{2}L_0$,
+which ensures that the nodes do not overlap. This is sometimes called an exclusion principle. The third 
+type of force is in a sense an external driving force for the colony. It is a force 
+proportional to the nutrient concentration gradient $\nabla c(\vb{x}_i, t)$ at the cell position. This type of 
+force represents the attraction of the cells to areas of the petri dish with a high nutrient concentration.
+A separate equation for the nutrient dynamics is introduced in section \ref{sec:nutrientField}. 
+All of the three types of forces: elastic, contact and chemotaxis are added together to 
+determine the motion of each node.
+\begin{equation} \label{eqn:forcesNode_i}
+    \begin{split}
+        \frac{d \vb{x}_i}{dt} &= 
+        \frac{K}{ \eta}\sum_{j = 1, j \neq i}^{N_{\textrm{nodes}}}   \left[ - A_{ij} \left( ||\vb{x}_i - \vb{x}_j|| - L_0\right) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||} \right]\\
+         &+ \frac{F}{ \eta}\sum_{j = 1, j \neq i}^{N_{\textrm{nodes}}} \left[ H(R - ||\vb{x}_i - \vb{x}_j||) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||}     \right]\\ 
+         &+ \frac{\gamma}{\eta} \nabla c (\vb{x}_i, t),
+    \end{split}
+\end{equation}
+where $F$ is the magnitude of the contact force, and $\gamma$ is the magnitude of chemotaxis. In equation 
+\ref{eqn:forcesNode_i} we have used the kinematic relationship $\vb{v}_i = \frac{d \vb{x}_i}{dt}$ and 
+$H$ denotes a step function which is $0$ for a negative argument and $1$ for an arguemnt in 
+$\mathbb{R}_{\geq 0}$.
+
+
 
 \section{New cells from old}
+We add in nodes at a small distance $\delta = 0.01$ beside old nodes 
+which are taken to be parent nodes. The addition of new nodes is done in global mitosis events 
+at time indices $n$ that are a multiple of
+\begin{equation*}
+    \Delta n = \bigg\lceil \frac{1}{\Delta t} \bigg\rceil,
+\end{equation*}
+where $\Delta t$ is the (non-dminesionalised) simulation time step, taken to be $0.01$ in \\
+ \codeword{CellColonySimulator}.
+The number of cells added at each global mitosis event reflects the exponential growth equation,
+\begin{equation*}
+    N_{\textrm{nodes}} = N_{0, \textrm{cell}} e^{t \mu(t)},
+\end{equation*}
+where the time-dependent growth rate $\mu$ is discussed 
+in more detail in Chapter 2, subsection \ref{ssec:runSimulation}. The growth rate 
+itself is given to be proportional to the average nutrient concentration over the node indices, and 
+is given by equation \ref{eqn:growthRate}. This reflects the fact that if the nutrient has been depleted,
+no new cells should be added, whereas if the nutrient has a uniform concentration of $1.0 \ \mu m^{-2}$ 
+(taken to be the ideal nutrient concentration for growth and explained in section \ref{sec:nonDimEOMs}), 
+then the colony will grow at the ideal growth rate, given by $\mu^*$.
+\\
+
 \begin{figure}[!htb]
     \centering
     \begin{tikzpicture}
@@ -244,76 +352,27 @@ where $\atan$ is the $2$ argument inverse tangent.
              so that the spring force can be defined. After this point, 
              the initially compressed cell ``grows" outwards to achieve its nominal length, under 
              the influence of elasticity, contact and chemotactic forces.}
+    \label{fig:addingACell}
 \end{figure}
-
-The mechanism of mitosis is a sleight of hand, in the sense that
-each of the nodes (two nodes per cell) are already there at the simulation
-outset. The appearance of growth of the colony coincides with the nodes' progressive
-dislodgement from their equality constraints with one another. Of course,
-there is no reason why the model could not be modified to add nodes
-that were not there to begin with, though such a model would yield
-equivalent results.
-\\
-
-To interpret the model mathematically, we recall that it was desireable to have
-a time parameter $t$ over which the state of the colony could vary. The main 
-goal of the thesis was to demonstrate that a system, in this case a yeast colony,
-which appears to acquire more dynamical variables (new coordinates for new cells for example)
-could be represented by a model with a fixed number of variables which are
-initially coincident.
-\\
-
-Philosophically, however, the model has some limitations. In reality, we know the growth
-of fungal species such as Baker's yeast, is strongly dependent on factors such as temperature
-and the environmental conditions that the colony is subjected to. This means 
-that the dynamics of cell growth (the collision and interaction as well as the morphology) in 
-any large colony system cannot be intrinsically defined. To put it succinctly, the dynamics of 
-the colony is strongly coupled to the local environmental conditions.
-\\
-
-Does this mean that we can only model biological systems completely if all the conditions 
-are incorporated? As per the discussion in the introduction about mathematical modelling,
-we aim to consider the simplest viable model. This, in the case of the current work, 
-is a model that has two components: a cell colony as discussed in the preceeding section, and 
-a nutrient field. Indeed, their coupling determines the dynamics. 
-\\
-
-In the discussion, I will suggest ways to relax these limiting assumptions that
-are outside the scope of the current work but are nonetheless interesting to consider.
-\\
-
-This model, in which the colony appears as the ``unfolding" of a network of nodes
-follows on somewhat naturally from the theory of $L$-systems, in which the underlying 
-discrete structure of a system is allowed to evolve deterministically based on rules
-analogous to cellular automata. A criticism which has been leveled 
-(find relevant paper that I read a while ago) at $L$-systems and other deterministic models
-of plants for example, is what I call their intrinsic nature. That is, they effectively
-rely on the assumption that a biological system's rules for developement are somehow contained
-within it's structure (for instance, DNA). It is more fashionable nowadays, and indeed more 
-scientifically accurate, to think of a biological system as part of a complex network 
-of other organisms and environmental conditions which determine its morphology.
-\\
-
-Consider a minimalistic example of modelling the motion of a spherical ball rolling around on a table.
-Two spatial paramters $x$ and $y$, together as a tuple are enough to say where it is. However, 
-if the ball unexpectately falls from the table, then you would suddenly require
-another parameter to describe the state of the system. The value of this classical example
-is to demonstrate for $N$ particles and $M$ constraints that may suddenly change, 
-we can derive rich and unexpected dynamics.
-\\
-
-The best we can hope for is that our parametrisation is somehow dense in the space
-of all possible cell colony configurations that we see experimentally. There are even
-some exotic cases of cellular sytems in which a single cell can have nontrivial topologies (ask Ed 
-about the slime cells which optimise their topology based on nutrient). Therefore, future work 
-should focus on representations of dynamic cell geometries that are as free of assumptions as
-is conceivable. Once an abstract enough representation of a biological system and its environment
-becomes available in the theory, one can use it to study and predict novel morphologies that appear 
-in nature. Hopefully it is clear that the present work is just a suggestion of the numerous possibilities
-in the area of biolgical morphology viewed in the framework of ``growing geometry''.
+Figure \ref{fig:addingACell}, demonstrates the mechanism by which a new node is added to the 
+colony, in this case, node $5$. The colony connectivity of this new $5$-node network would be given as 
+\begin{equation*}
+    A' = 
+    \begin{bmatrix}
+    0 & 1 & 0 & 0 & 0  \\
+    1 & 0 & 1 & 1 & 0  \\
+    0 & 1 & 0 & 0 & 1  \\
+    0 & 1 & 0 & 0 & 0  \\
+    0 & 0 & 1 & 0 & 0  \\ 
+    \end{bmatrix},
+\end{equation*}
+because node $5$ is connected to node $3$. We mention that the new colony 
+is defined by a different equilibrium position (when the time-derivative of 
+position is quasi-steady).
 
 
-\section{Incorporating the nutrient field}
+
+\section{Incorporating the nutrient field} \label{sec:nutrientField}
 A nutrient medium containing glucose is assumed to be given by a reaction-diffusion 
 partial differential equation. That is the nutrient concentration $c(x,y,t)$ is given by
 \begin{equation*}
@@ -342,7 +401,7 @@ in section \ref{Crank_Nicholson}. Before this is possible,
 we carry out the non-dimensionalising of the equations of motion (EOMs).
 
 
-\section{Non-dimensionalising the equations of motion}
+\section{Non-dimensionalising the equations of motion}\label{sec:nonDimEOMs}
 
 In order to non-dimensionalise the equations of motion (EOMs) we
 introduce dimensionless parameters $\vb{x}_i = X\hat{\vb{x}}_i$, $t = T \hat{t}$, $b = B \hat{b}$
@@ -519,7 +578,6 @@ span from equation \ref{eqn:EOMs_PDE} to \ref{eqn:centerPos}.
 \begin{equation}
     \boxed{c(x,y,0) = 1.0,}
 \end{equation}
-
 \begin{equation}\label{eqn:EOMs_ODE}
     \boxed{
     \begin{split}
