@@ -1,25 +1,205 @@
 \introduction
 
-\begin{itemize}
-    \item Biology of two types of yeast!
-    \item Write chapter 2/ 3 and 4 now 
-\end{itemize}
-The art of mathematical biology is to capture a biological phenomenon with the simplest model possible. Another concern which appears in the connection between applied and pure mathematics, is that of ensuring the model that one selects is amenable to rigorous analysis. This further reinforces the requirement that the model be as simple as possible, but no simpler. Indeed, a model that is sufficiently crystallized so as to capture the essential details of a physical effect, will necessarily not capture everything observable, but has more chance to be useful, since it directs our thinking away from extraneous features.
+\section{Kingdom Fungi}
+
+Microfossils discovered in the Grassy Bay Formation 
+(Shaler Supergroup, Artic Canada) dating back to the Proterozoic Eon, $2500$ to $538.8$ million years ago, were 
+found to have fungal affinity (\cite{loron2019early}). Curiously, it took until 1969 for Fungi to be 
+recognised in plant ecologist Robert Whittaker's work as part of a taxonomic kingdom, Kingdom Fungi,
+which is distinct from Kingdom Plantae (\cite{whittaker1969new}). Today, locating fungal species 
+in phylogenetic lineages is facilitated through colonial morphology imaging as a first 
+estimate. More advanced experimental techniques such as transmission 
+electron microscopy (TEM) can provide  
+conclusive identification (\cite{loron2019early}) of fungal samples.
+\\
+
+Nonetheless, morphological features observed in fungal strains such as fission yeast 
+(\textit{Schizosaccharomyces pombe}) are sometimes cited as the reason 
+why yeast is broadly considered a ``model organism'' (\cite{hayles2018introduction}).
+Cell Biologist Murdoch Mitchison was able to study the fission yeast cell cycle in 1957 for instance,
+because the length of the rod shaped cells of \textit{S. pombe} reflected their stage in the cell cycle.
+It happens to be an \textit{S. pombe} spore grown on malt extract agar that was imaged in exquisite detail via 
+X-ray diffraction microscopy by \cite{jiang2010quantitative}. By 3D 
+reconstruction techniques \cite{jiang2010quantitative} visualised the organelles
+present in the unstained (and unsectioned) spore at a resolution of $50-60 \ nm$ 
+producing isosurfaces of cellular organelles such as the endoplasmic reticulum, 
+vacuole and cell wall.
+\\
+
+Contemporary advancements in computer hardware facilitate 
+the ability for big datasets such as 3D morphological data 
+obtained from yeast to be analysed mathematically. \cite{clermont2015inverse} 
+discuss the ``inverse problem" in mathematical biology, which is to determine a model 
+from noisy, complex and extensive biological data whilst minimising bias. This often 
+comes in the framework of model parameter estimation which 
+can be accelerated using fairly systematic deep learning techniques. Still, the predictive power
+of a mathematical model is always limited by the bias implicit (or explicit) in its assumptions.
+\\
+
+Biology is inherently multi-scale and the problem 
+of bridging between scales is named the ``translational challenge'' (\cite{an2009agent}).
+The interplay between the phenotypical properties of a filamentous yeast colony and 
+its genotype, is one such challenge. Indeed, the eukaryote \textit{S. pombe}, has a similar 
+cytoskeletal organisation to a human tissue cell as well as analogous DNA transcription mechanisms 
+(\cite{hoffman2015ancient}) and yet human tissue 
+morphology vastly differs from fission yeast.
+\\
+
+\cite{an2009agent} position agent-based models (ABMs), dating back to cellular automata, as well suited to the 
+ translational challenge for a number of reasons. These include the ability 
+ for ABMs to model morphological emergence from simple and modular rules. These rules 
+ are constructed from a qualitative understanding of the underlying mechanisms of for instance 
+ \textit{S. pombe} intracellular stresses which could be based on some basic assumptions
+ about cellular elasticity. Importantly, ABMs are easy to deploy acting 
+ as a cheap alternative to \textit{in vitro} experiments with fungal species.
+ \\
+
+ Multi-cellular agent based modelling of \textit{S. pombe} or baker's yeast 
+ (\textit{Saccharomyces cerevisiae}) is of interest to number of scientific  
+ communities. On the one hand, due to the molecular similarity of yeast to human 
+ cells it can serve as a model organism that can ethically be grown, and on 
+ the other it is of intrinsic interest to philogeneticists who study the origin 
+ of life on Earth. Morphological studies using ABMs can also provide breweries and 
+ food processing industries with practically useful findings to 
+ set up ideal growth conditions for cultures prior to expensive 
+ industrial implemenatations. Indeed \textit{pombe} is Swahili 
+ for ``booze'', being originally observed in contaminated 
+ millet beer delayed on route from East Africa to Germany (\cite{hayles2018introduction}).
+ \\
+
+ In this work, a dynamic off-lattice agent based modelling framework for \textit{S. cerevisiae} colonial morphology 
+ is proposed and implemented. As opposed to fission yeast, \textit{S. cerevisiae} exhibits 
+ budding and can be induced into a filamentous regime called pseudohyphal growth
+ in which cells become elongated leading to overall branching patterns 
+ in the colonial morphology. The off-lattice ABM developed in \cite{li2024off} 
+ inspired the modelling of the pseudohyphal \textit{S. cerevisiae} regime 
+ presented here, though it uses a vastly different computational methodology.
+ \\
+
+ \cite{li2024off} use approximate bayesian computatation (ABC)
+ to infer model parameters within the context of a probabilistic (and spatial) branching simulation, 
+ yielding remarkable fits to micrographs of filamentous yeast. Building 
+ from the experimental observations of pseudohyphal growth presented in 
+ \cite{gimeno1992unipolar}, Li et al. dispense with diffusion limited growth (DLG) which is
+shown by \cite{tronnolone2018diffusion} to only be a peripheral mechanism in filamentous 
+colony shape.
+\\
+
+Whilst pseudohyphal growth dynamics
+have proved to be the dominant growth mechanism (\cite{tronnolone2018diffusion}) for 
+\textit{S. cerevisiae} in nutrient poor environments, it is the aim of the present 
+work to reintroduce a diffusive nutrient medium in the hope of defining 
+\textit{to what extent} these two phenomena intertwine.
+\\
+
+\cite{brown2021rigid} develop rigid body modelling for multi-cellular colonies using 
+an ABM which represents each cell as a deformable polygon. The emphasis in the model 
+of Brown et al. is to represent to process of cell division in diverse biological 
+settings through the addition of new nodes and edges to each polygonal cell. 
+In contrast, \cite{li2024off}, use static ellipsoidal cells that are added into the simulation
+abruptly. \cite{li2024off} instead focus on the ability to fit their model 
+to experimental micrographs of \textit{S. cerevisiae} using statistical methods.
+In fact, this choice seems to reflect a gap in the multi-cellular modelling literature:
+\textit{how can cell division be represented without the artificial inclusion of new parameters?}
+\\
+
+In both the work of \cite{van2020quantitative}, and the ABM of 
+\cite{brown2021rigid}, the dynamics of the colony 
+are derived from the dynamcis of individual cells which are represented
+by meshes with time-dependent topology as well as geometry. However ingenious this idea may be, 
+computation quickly becomes intractible for large colonies
+due to the increasing size of the underlying system of ordinary differential equation (ODEs)
+for the node states. Most serious ABMs need supercomputers, however
+the computationally costly use of meshed cells is circumvented in the current work by employing 
+an algebraic representation of cell geometry.
+\\
+
+
+
+
+
+In Keener and Sneyd's foundational textbook on cellular physiology 
+(\cite{keener2009mathematical}), the law of mass action is 
+introduced as the fundamental law of chemical reactions, 
+the process of transformation comprises the living cell. The law of mass 
+action states that for the reaction 
+\begin{equation*}
+    A + B \xrightarrow{k} C,
+\end{equation*}
+in which chemicals $A$, $B$ react to form the product $C$, the rate of change of the concentration of $C$, 
+call it $c$ (in mol$\cdot L^{-1}$) is proportional to the product of the concentration 
+of $A$ and $B$, given by $a$ and $b$, respectively. Sequences of interrelated chemical 
+reactions induce systems of first order non-linear ordinary differential equations 
+(ODEs). These are called a chemical reaction network.
+\\
+
+It is suprising then that much of the cell's functionality and behaviour 
+can, in theory, be derived from these chemical reaction networks, however
+we would not expect all behaviour to be derivable from this model alone.
+This is for two reasons,
+
+The art of mathematical biology is to capture a biological phenomenon with the 
+simplest model possible. Another concern which appears in the connection between 
+applied and pure mathematics, is that of ensuring the model that one selects is 
+amenable to rigorous analysis. This further reinforces the requirement that the 
+model be as simple as possible, but no simpler. Indeed, a model that is sufficiently 
+crystallized so as to capture the essential details of a physical effect, will 
+necessarily not capture everything observable, but has more chance to be useful, 
+since it directs our thinking away from extraneous features.
 \\
 \\
-What is essential in the study of biological systems? One essential aspect is the phenomenon of growth. Growth, when seen on its own, without reference to biology, is simply ``change over time". The standard tool for this is calculus, which in its more developed form, is called differential geometry. A cell colony will be modelled here as a subset of $\mathbb{R}^n$ where $n = 1,2,3$. In order for that set to ``change over time", namely, for the cell to be parametrized by a real number $t \in \mathbb{R}_{\geq 0}$, the geometry of the colony needs to be represented by a finite list of parameters. The most simple way to do this, which comprises one of the models developed here, is to represent each cell as a disk in $\mathbb{R}^2$ with radius $r = r(t) \in \mathbb{R}_{\geq 0}$ centered at the position $(x(t),y(t)) \in \mathbb{R}^2$. The advantage to this approach is that it is more computationally efficient as compared to models which represent each cell as a deformable polygon, for instance.
+What is essential in the study of biological systems? One essential aspect is the 
+phenomenon of growth. Growth, when seen on its own, without reference to biology, 
+is simply ``change over time". The standard tool for this is calculus, which in its 
+more developed form, is called differential geometry. A cell colony will be modelled 
+here as a subset of $\mathbb{R}^n$ where $n = 1,2,3$. In order for that set to 
+``change over time", namely, for the cell to be parametrized by a real number 
+$t \in \mathbb{R}_{\geq 0}$, the geometry of the colony needs to be represented 
+by a finite list of parameters. The most simple way to do this, which comprises 
+one of the models developed here, is to represent each cell as a disk in 
+$\mathbb{R}^2$ with radius $r = r(t) \in \mathbb{R}_{\geq 0}$ centered at 
+the position $(x(t),y(t)) \in \mathbb{R}^2$. The advantage to this approach 
+is that it is more computationally efficient as compared to models which 
+represent each cell as a deformable polygon, for instance.
 \\
 \\
-The question remains: how can cell division be achieved within mathematical growth models? It does not seem obvious except via the continual addition of new parameters, such as new cell radii and positions. As we will see, taking seriously the question of mitosis from a topological standpoint will yield a generalized model for systems in which geometric changes and topological changes can be captured simultaneously. Why is the topology important in the case of biological growth? 
+The question remains: how can cell division be achieved within mathematical 
+growth models? It does not seem obvious except via the continual addition of 
+new parameters, such as new cell radii and positions. As we will see, taking 
+seriously the question of mitosis from a topological standpoint will yield a 
+generalized model for systems in which geometric changes and topological changes 
+can be captured simultaneously. Why is the topology important in the case of biological growth? 
 \\
 \\
-As a motivating example, consider the graph of the function $f(x) = x^2$. Now consider the time-dependent set given by $C(t) = f^{-1} (\{t\})$ where $t \in \mathbb{R}_{\geq 0}$ is a time parameter. When $t=0$, $C(0) = \{ 0\}$ (only one element), but when $t=1$, $C(1) = \{ -1, +1  \}$, which has two elements, and, likewise for $t=2$ where $C(t) = \{ -\sqrt{2}, +\sqrt{2}  \}$. This example shows that a catastrophic change (a bifurcation) can occur in $C(t)$ during a smooth change in $t$. A subtle modification to this model is to consider $f_t(x) = x^2-t$ and fix $C(t) = f^{-1}_t(\{0 \})$. That is, instead of sliding up the query point $t$, we slide down the whole smooth manifold given by $(x,f_t(x))$ such that $x \in \mathbb{R}$. The set $C(t)$ is actually called a level-$0$ set. We will just call this a level set of $f_t$.
+As a motivating example, consider the graph of the function $f(x) = x^2$. 
+Now consider the time-dependent set given by $C(t) = f^{-1} (\{t\})$ where 
+$t \in \mathbb{R}_{\geq 0}$ is a time parameter. When $t=0$, $C(0) = \{ 0\}$ 
+(only one element), but when $t=1$, $C(1) = \{ -1, +1  \}$, which has two elements, 
+and, likewise for $t=2$ where $C(t) = \{ -\sqrt{2}, +\sqrt{2}  \}$. This example 
+shows that a catastrophic change (a bifurcation) can occur in $C(t)$ during a smooth 
+change in $t$. A subtle modification to this model is to consider $f_t(x) = x^2-t$ 
+and fix $C(t) = f^{-1}_t(\{0 \})$. That is, instead of sliding up the query point $t$, 
+we slide down the whole smooth manifold given by $(x,f_t(x))$ such that $x \in \mathbb{R}$. 
+The set $C(t)$ is actually called a level-$0$ set. We will just call this a level set of $f_t$.
 \\
 \\
-We can consider level sets of functions from $\mathbb{R}^n$ to $\mathbb{R}$ for $n = 2,3$ as well. In these cases, the level sets are, respectively, level curves and level surfaces. A analogous example for $n=2$, is the set of functions $f_t(x,y) = x^2+y^2-t$, the level curves of which look like circles centered at the origin of radius $\sqrt{t}$.
+We can consider level sets of functions from $\mathbb{R}^n$ to $\mathbb{R}$ for $n = 2,3$ 
+as well. In these cases, the level sets are, respectively, level curves and level surfaces. 
+A analogous example for $n=2$, is the set of functions $f_t(x,y) = x^2+y^2-t$, the level 
+curves of which look like circles centered at the origin of radius $\sqrt{t}$.
 \\
 \\
-This level of generalization will not be sufficient for our purposes, since the type of manifolds that we will be dealing with will not in general be representable as graphs of functions. To see this, consider the fact that a vertical line in the $xt$-plane is a perfectly reasonable representation of a stationary cell, and yet there's no function (of $x$) that has a vertical line graph. What is required is that $C(t) = \{ p \in M_t \ | \ \textrm{the last component of $p$ is $0$} \}$ where $M_t$ is a time dependent smooth manifold. The requirement that $M_t$ is smooth for all $t$ is imposed so that the theory of smooth manifolds can be brought to bear on the problem. What we will consider are smooth manifolds $M_t \subset \mathbb{R}^{n+1}$ where $n$ is the dimension in which the colony exists. For instance, a two-dimensional colony would be represented by
+This level of generalization will not be sufficient for our purposes, since the 
+type of manifolds that we will be dealing with will not in general be representable 
+as graphs of functions. To see this, consider the fact that a vertical line in the 
+$xt$-plane is a perfectly reasonable representation of a stationary cell, and yet 
+there's no function (of $x$) that has a vertical line graph. What is required is 
+that $C(t) = \{ p \in M_t \ | \ \textrm{the last component of $p$ is $0$} \}$ where 
+$M_t$ is a time dependent smooth manifold. The requirement that $M_t$ is smooth for 
+all $t$ is imposed so that the theory of smooth manifolds can be brought to bear on 
+the problem. What we will consider are smooth manifolds $M_t \subset \mathbb{R}^{n+1}$ 
+where $n$ is the dimension in which the colony exists. For instance, a two-dimensional 
+colony would be represented by
 \begin{equation}
         C(t) = \{ p \in M_t \subset \mathbb{R}^3 \ | \ p_3 = 0  \}.
 \end{equation}
@@ -29,58 +209,106 @@ A three-dimensional colony would be represented by
 \end{equation}
 \\
 \\
-In the subdiscipline of abstract algebra called ring theory, it is typical to consider the polynomial ring over the real field in two variables $\mathbb{R}[x,y]$ wherein the typical element looks like
+In the subdiscipline of abstract algebra called ring theory, it is typical to 
+consider the polynomial ring over the real field in two variables $\mathbb{R}[x,y]$ 
+wherein the typical element looks like
 \begin{equation}
     p(x,y) = \sum_{n,m} a_{nm} x^n y^m,
 \end{equation}
-where $n,m$ are non-negative integers, and $a_{nm}$ is a real coefficient. The set $\mathbb{R}[x,y]$ is closed under multiplication and addition because polynomial multiplication and addition yields another real polynomial. In this thesis, a cell will be modeled as a level set of the quartic given by
+where $n,m$ are non-negative integers, and $a_{nm}$ is a real coefficient.
+The set $\mathbb{R}[x,y]$ is closed under multiplication and addition because 
+polynomial multiplication and addition yields another real polynomial. In this 
+thesis, a cell will be modeled as a level set of the quartic given by
 \begin{equation}
     f(x,y) = ax^4 +bx^3+cx^2 +dx +e+
 \end{equation}
 
 
-At the beginning, we imagine a colony of yeast cells that is restricted to move along a straight line. The colony is therefore modeled as a set of real numbers $C \subset \mathbb{R}$. Like an archipelago of small islands, the colony as a whole is composed of closed sets, $C_j$ where $j \in \mathbb{N}$ indexes over the cells. Therefore, the colony is a disjoint union of these individual cells,
+At the beginning, we imagine a colony of yeast cells that is restricted to move 
+along a straight line. The colony is therefore modeled as a set of real numbers 
+$C \subset \mathbb{R}$. Like an archipelago of small islands, the colony as a whole 
+is composed of closed sets, $C_j$ where $j \in \mathbb{N}$ indexes over the cells. 
+Therefore, the colony is a disjoint union of these individual cells,
 \begin{equation*}
     C = \coprod_{j=1}^N C_j
 \end{equation*}
-and $N$ is the total cell count. Closed sets (in the standard topology on $\mathbb{R}$) are chosen to represent the cells for the technical reason that a point (singleton) may also constitute a cell. In fact, we further restrict each cell to a closed interval $C_j = [a_j, b_j]$.
+and $N$ is the total cell count. Closed sets (in the standard topology on 
+$\mathbb{R}$) are chosen to represent the cells for the technical reason that 
+a point (singleton) may also constitute a cell. In fact, we further restrict 
+each cell to a closed interval $C_j = [a_j, b_j]$.
 \\
 \\
-As we shall see in general, all we require is that each cell have no holes. Another way of saying this is that each cell is homeomorphic to a singleton (which works in $\mathbb{R}^2$ and $\mathbb{R}^3$ as well). Finally, the closed interval $[a_j,b_j]$ will be called a parametrization of the cell $C_j$: this is important to note for the generalization to $\mathbb{R}^2$ and $\mathbb{R}^3$, where parametrizations must also be constructed.
+As we shall see in general, all we require is that each cell have no holes. 
+Another way of saying this is that each cell is homeomorphic to a singleton 
+(which works in $\mathbb{R}^2$ and $\mathbb{R}^3$ as well). Finally, the closed 
+interval $[a_j,b_j]$ will be called a parametrization of the cell $C_j$: this is 
+important to note for the generalization to $\mathbb{R}^2$ and $\mathbb{R}^3$, 
+where parametrizations must also be constructed.
 \\
 \\
-The mechanism of mitosis must account for the fact that several cells can undergo fission at the same time, or more aptly, they undergo mitosis independently. The most general formulation, which is also simple to implement computationally is the addition of a non-intersecting singleton $\{x  \}$ to the set $C$. Note, that this mechanism is chosen principally for the fact that it conserves the Lebesgue measure of the colony,
+The mechanism of mitosis must account for the fact that several cells can 
+undergo fission at the same time, or more aptly, they undergo mitosis independently. 
+The most general formulation, which is also simple to implement computationally is the 
+addition of a non-intersecting singleton $\{x  \}$ to the set $C$. Note, that this 
+mechanism is chosen principally for the fact that it conserves the Lebesgue measure of the colony,
 \begin{equation*}
     l(C \cup \{x\} ) = l(C),
 \end{equation*}
 where $C \cup \{x\} $ is the colony after mitosis has occurred, since singletons have measure $0$. 
 \\
 \\
-Of course, some restrictions must be applied to the choice of $x \in \mathbb{R} \setminus C$. Since, we are always working in Euclidean spaces (for practical scenarios), we may as well require that $x$ is close to $C$ in the sense that for all $c \in C$ we have that $d(c,x) < \delta$ for some small positive amount $\delta$ where $d: \mathbb{R} \times \mathbb{R} \rightarrow \mathbb{R}_{\geq 0}$ is the Euclidean metric on $\mathbb{R}$ (which is easily generalized to higher dimensions). This parameter $\delta$ represents how the colony spreads out.
+Of course, some restrictions must be applied to the choice of 
+$x \in \mathbb{R} \setminus C$. Since, we are always working in 
+Euclidean spaces (for practical scenarios), we may as well require that 
+$x$ is close to $C$ in the sense that for all $c \in C$ we have that 
+$d(c,x) < \delta$ for some small positive amount $\delta$ where 
+$d: \mathbb{R} \times \mathbb{R} \rightarrow \mathbb{R}_{\geq 0}$ 
+is the Euclidean metric on $\mathbb{R}$ (which is easily generalized to 
+higher dimensions). This parameter $\delta$ represents how the colony spreads out.
 \\
 \\
-A profitable aspect of this model for cell colonies is that it unifies the topological aspects of the colony (it is always homeomorphic to a finite set of points or the empty set), and the measure theoretic properties (one can speak of getting more cells without changing the total measure). This means we can separate the dynamics of cell division from the dynamics of the geometric growth of the cells, i.e. the change in $a_j$ and $b_j$. One simple way to do this is to supply an ordinary differential equation for the measure of the colony $V = l(C)$, and equip this with a discrete time update equation for number of cells. 
+A profitable aspect of this model for cell colonies is that it unifies 
+the topological aspects of the colony (it is always homeomorphic to a finite 
+set of points or the empty set), and the measure theoretic properties (one can 
+speak of getting more cells without changing the total measure). This means we 
+can separate the dynamics of cell division from the dynamics of the geometric 
+growth of the cells, i.e. the change in $a_j$ and $b_j$. One simple way to do 
+this is to supply an ordinary differential equation for the measure of the 
+colony $V = l(C)$, and equip this with a discrete time update equation for number of cells. 
 \\
 \\
-To move us closer to a manageable computer implementation of cell colony growth, we consider the simple growth model given by,
+To move us closer to a manageable computer implementation of cell colony growth, 
+we consider the simple growth model given by,
 \begin{equation*}
     \frac{dV(t)}{dt} = g(t),
 \end{equation*}
 \begin{equation*}
     N_{n+1} = 2N_n,
 \end{equation*}
-where $g(t)$ is a growth function. Now we need apply some equation for how each cell grows. For sake of simplicity, say that for all cells $j$, the cell measure $V_j$ grows as
+where $g(t)$ is a growth function. Now we need apply some equation for 
+how each cell grows. For sake of simplicity, say that for all cells $j$, the cell measure $V_j$ grows as
 \begin{equation*}
     \frac{dV_j(t)}{dt} = g_j(t), \ \ t \geq m_j,
 \end{equation*}
- where $g_j(t)$ is a cellular growth function such that $V_j(t) \rightarrow V_f$ is the final cellular volume, and $m_j$ is the birth time of the cell. This actually is not enough to specify the whole colony geometry. So how do we pin down the geometry?
+ where $g_j(t)$ is a cellular growth function such that 
+ $V_j(t) \rightarrow V_f$ is the final cellular volume, and $m_j$ is the 
+ birth time of the cell. This actually is not enough to specify the whole 
+ colony geometry. So how do we pin down the geometry?
 \\
 \\
-The geometry and how its dynamics evolve of course depends on the chosen parametrization of each cell. For our purposes, we will consider $C_j = \bar{B} (x_j, \varepsilon_j)$ where
+The geometry and how its dynamics evolve of course depends on the 
+chosen parametrization of each cell. For our purposes, we will 
+consider $C_j = \bar{B} (x_j, \varepsilon_j)$ where
 \begin{equation*}
     \bar{B} (x_j, \varepsilon_j) = \{ x \in \mathbb{R} : d(x_j,x) \leq \varepsilon_j \},
 \end{equation*} 
-which is called the closed ball centered on $x_j$ of radius $\varepsilon_j$. That means $a_j = x_j-\varepsilon_j$, and $b_j = x_j+\varepsilon_j$. It is more convenient to use this parametrization since closed balls are defined in higher dimensions as well. Another important benefit to the closed ball is that whenever $\varepsilon_j = 0$, $\bar{B} (x_j, 0) = \{ x_j\}$. Also, the volume of each cell is simply $V_j = 2\varepsilon_j$ which tells us that the volume is completely independent of the cell center position $x_j$.
+which is called the closed ball centered on $x_j$ of radius $\varepsilon_j$.
+ That means $a_j = x_j-\varepsilon_j$, and $b_j = x_j+\varepsilon_j$. It is 
+ more convenient to use this parametrization since closed balls are defined 
+ in higher dimensions as well. Another important benefit to the closed ball 
+ is that whenever $\varepsilon_j = 0$, $\bar{B} (x_j, 0) = \{ x_j\}$. Also, 
+ the volume of each cell is simply $V_j = 2\varepsilon_j$ which tells us that
+  the volume is completely independent of the cell center position $x_j$.
 \\
 \\
 Now we easily obtain a nice formula for $\varepsilon_j(t)$  defined for $t \geq m_j$ as
@@ -99,7 +327,10 @@ This means that the colony and cell growth functions must be related by the foll
 \begin{equation*}
     g(t) = \sum_{j=1}^N g_j (t).
 \end{equation*}
-Our functions $g_j(t)$ were defined for $t \in [m_j, +\infty)$ which means they have different domains. To make the analysis easier, we build these functions by taking linear combinations of basis hat functions (defined for $t \in [0, +\infty)$). The basis functions have compact support and are given piecewise by,
+Our functions $g_j(t)$ were defined for $t \in [m_j, +\infty)$ which means they have
+ different domains. To make the analysis easier, we build these functions by taking
+  linear combinations of basis hat functions (defined for $t \in [0, +\infty)$). 
+  The basis functions have compact support and are given piecewise by,
 \begin{equation*}
     \varphi_i(t) = \begin{cases} 
       \frac{t-t_{i-1}}{h}, & t \in [t_{i-1}, t_i] \\
@@ -107,11 +338,15 @@ Our functions $g_j(t)$ were defined for $t \in [m_j, +\infty)$ which means they 
       0, & \textrm{otherwise}, 
    \end{cases}
 \end{equation*}
-where $h$ is the smallest time step, $t_0 = 0$ and $t_i = ih$ for $i \in \mathbb{N}$. Hence, each $g_j(t)$ can be extended to a definition on all of $\mathbb{R}_{\geq 0}$ by
+where $h$ is the smallest time step, $t_0 = 0$ and $t_i = ih$ for $i \in \mathbb{N}$.
+ Hence, each $g_j(t)$ can be extended to a definition on all of $\mathbb{R}_{\geq 0}$ by
 \begin{equation*}
     \tilde{g}_j(t) = \sum_{i=1}^{\infty} g_j(t_i) \varphi_i(t) =\sum_{i=1}^{\infty} g_{ij} \varphi_i(t) .
 \end{equation*}
-Now that the $g_{ij}$ are defined on the same domain, we can further restrict to $i \leq T$ where $T$ is the total number of time steps. This means that the time dependence is now fixed by a finite number of parameters, $g_{ij}$. Summing over $j$, we get that
+Now that the $g_{ij}$ are defined on the same domain, we can further restrict to
+ $i \leq T$ where $T$ is the total number of time steps. This means that the time 
+ dependence is now fixed by a finite number of parameters, $g_{ij}$. Summing over
+  $j$, we get that
 \begin{equation*}
     \tilde{g}(t) = \sum_{j=1}^N \sum_{i=1}^{T} g_{ij} \varphi_i(t).
 \end{equation*}
