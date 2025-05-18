@@ -1,0 +1,194 @@
+\chapter{My appendices from chapter 1 \label{app:chapter_1}}
+% I like to do a seperate appendix file for each chapter and save it in the appropriate folder
+
+\section{First appendix section}
+\section{Cell-cell collisions with constrained dynamics}
+Earlier, it was mentioned that the intersection of cells could be found by taking a smoothmax. To find the overlapping area
+the sum of the grid points in the intersection can be taken and then multiplied by the grid square area $h_x h_y$. Whilst
+it is more or less trivial to calculate the overlapping area, ensuring that this area remains zero throughout the simulation
+is more involved. We employ the technique explained by \cite{witkin1997introduction} based on constrained
+dynamics. The constraint in this case is that the area $C$ remains $0$ for all times,
+\begin{equation}
+    C(\vb{q}) = 0,
+\end{equation}
+where $\vb{q}$ is the concatenated state vector of the system. One should be aware that, if we have multiple colonies, it will
+be required to have pairwise constraints forcing no overlap between each of the constitiuent colonies. For the purpose of simplicity
+our state vector $\vb{q}$ will just take into account position and orientation and not size of cells. Later on, this will be generalized.
+Therefore $\vb{q}$ is produced by concatenating over $\vb{q}_j$ into one $3N \times 1$ column vector, where
+\begin{equation}
+\vb{q}_j = \begin{bmatrix}
+                x_j \\
+                y_j \\
+                \theta_j
+            \end{bmatrix}.
+\end{equation}
+Of course, the number of variables per cell can be larger but this comes at a cost in computational time. Recall that the 
+intersecting area is secretly a function of the cell state coordinates $\vb{q}_j$ since we are taking a smoothmax of the SDFs 
+of each cell. In other words,
+\begin{equation*}
+f_{\textrm{intersect}}(x,y,\vb{q}) = \textrm{smoothmax}(f_1(x,y,\vb{q}) , \ldots, f_N(x,y,\vb{q}) ),
+\end{equation*}
+
+for concreteness, we write out the formula for smoothmax which is the negative smoothmin of the negatives of the SDFs or
+\begin{equation*}
+    f_{\textrm{intersect}}(x,y,\vb{q}) = -\textrm{smoothmin}(-f_1(x,y,\vb{q}) , \ldots, -f_N(x,y,\vb{q}) ).
+\end{equation*}
+In full this boils down to,
+\begin{equation*}
+    f_{\textrm{intersect}}(x,y,\vb{q}) = k \log( \sum_{j=1}^N e^{f_j(x,y,\vb{q})/k}).
+\end{equation*}
+Now we assume the state is given by five variables for full generality:
+\begin{equation}
+\vb{q}_j(t) = 
+\begin{bmatrix}
+    x_j (t) \\
+    y_j(t) \\
+    \theta_j(t) \\
+    b_j(t) \\
+    R_j(t)
+\end{bmatrix},
+\end{equation}
+where $b(t)$ is the semi-major axis length and $R_j(t) \in (0,1]$ is the aspect ratio of the elliptical cell so the semi-minor axis is given by $a_j(t) = R_j(t) b_j(t)$. 
+Why are we going to the effort to write out $C(\vb{q})$ in full? Because we need to compute the Jacobian of $C(\vb{q})$ with
+respect to $\vb{q}$ in order to carry out the constrained dynamics algorithm. The upshot is that smoothmax is differentiable
+whereas maximum is not differentiable. 
+
+We define the region in $\mathbb{R}^2$ to integrate over by 
+\begin{equation}
+    \Omega(\vb{q}) = \{ (x,y) \in \mathbb{R}^2 \ | \ f_{\textrm{intersect}}(x,y,\vb{q}) \leq 0 \},
+\end{equation}
+so that the area of the overlapping region is simply a two-dimensional integral over $\Omega(\vb{q})$ of $1$,
+\begin{equation}
+    C(\vb{q}) = \int\int_{\Omega(\vb{q})} dxdy.
+\end{equation}
+Now we break up the integral into a sum over simply connected components (SCC) so that we can safely apply Leibniz's rule
+\begin{equation}
+    C(\vb{q}) = \sum_{i \in SCC(\vb{q})}\int\int_{\Omega_i(\vb{q})} dxdy.
+\end{equation}
+Leibniz's rule tells us how to carry out a total derivative of $\int\int_{\Omega_i(\vb{q})} dxdy$ with respect to $t$ which determines $\vb{q}$. Let's take that total
+derivative now to attain
+\begin{equation}
+   \frac{d}{dt}\int\int_{\Omega_i(\vb{q})} dxdy = \int\int_{\Omega_i(\vb{q})} \pdv{(1)}{t} dxdy + 
+   \int_{\partial \Omega_i(\vb{q})} (1) \vb{v}_{\partial \Omega_i(\vb{q})} \cdot \hat{\vb{n}} dl,
+\end{equation}
+where $\vb{v}_{\partial \Omega_i(\vb{q})}$ is the ``Eulerian'' velocity of the boundary of the $i$-th SCC. All of this can be avoided if we integrate over a smoothstep
+which is defined in our region.
+\begin{equation}
+    C(\vb{q}) = \int\int_{D} \left[ \frac{1}{2} +\frac{1}{2} \tanh{ \left(- \frac{1}{K}f_{\textrm{intersect}}(x,y,\vb{q}) \right)}\right]dxdy,
+\end{equation}
+where $D$ is the entire domain of the pertri dish.
+
+
+\begin{equation*}\
+\pdv{f_{\textrm{intersect}}(x,y,\vb{q})}{\vb{q}} = \frac{ \sum_{j=1}^N \pdv{f_j(x,y,\vb{q})}{\vb{q}}e^{f_j(x,y,\vb{q})/k}}{ \sum_{j=1}^N e^{f_j(x,y,\vb{q})/k}}.
+\end{equation*}
+Conveniently, computing the Jacobian, has turned into $N$ problems that are easier to solve individually. Namely computing $\pdv{f_j(\vb{q})}{\vb{q}}$.
+This requires us to express the SDF for an ellipse in terms of the query point $(x,y)$, the center of the cell $(x_j,y_j)$, and its orientation $\theta_j$. This
+is given in terms of $l_j^-(\vb{q}, x, y)$ and $l_j^+(\vb{q}, x, y)$ which are given in the ellipse formula. We use MATLAB's symbolic toolbox to compute the
+ellipse Jacobian $\pdv{f_j(x,y,\vb{q})}{\vb{q}}$ and return a function that can take numerical inputs using \codeword{matlabFunction(J,"File","ellipseJacobian")}.
+With that we can compute Jacobian of the constraint using
+\begin{equation} 
+    \pdv{C(\vb{q})}{\vb{q}} = -\frac{1}{2K} \int \int_D \left[ 1- \tanh[2]( -\frac{f_{\textrm{intersect}}(x,y,\vb{q})}{K}) \right] \pdv{f_{\textrm{intersect}}(x,y,\vb{q})}{\vb{q}} dx dy.
+\end{equation}
+Now that all the derivatives have been computed analytically, we can carry out the computation of the integral over $x$ and $y$ using a numerical integral in MATLAB.
+From now we use $f$ instead of $f_{\textrm{intersect}}$ for brevity, and we pass to index notation, instead expression the $\beta$-th component of $J$ as 
+\begin{equation}
+J_{\beta} = -\frac{1}{2K} \int \int_D \left[ 1- \tanh[2]( -\frac{f(x,y,\vb{q})}{K}) \right] \pdv{f(x,y,\vb{q})}{q_{\beta}} dx dy.
+\end{equation}
+For the computation of constraint forces, we need to further compute the total derivative of the Jacobian with respect to time. This turns 
+out to be realted to the Hessian matrix of $C(\vb{q})$ (for no explicit time dependence), as 
+\begin{equation*}
+    \dot{J}_{\beta} = \sum_{\alpha = 1}^{5N} \dot{q}_{\alpha} \frac{\partial^2 C}{ \partial q_{\alpha} \partial q_{\beta}} = \sum_{\alpha = 1}^{5N} \dot{q}_{\alpha} H_{\alpha, \beta},
+\end{equation*}
+We need to compute how the Hessian of $C$ can be written in terms of the Hessian and Jacobian of $f$.
+\begin{equation}
+    \frac{\partial^2 C}{ \partial q_{\alpha} \partial q_{\beta}} = \frac{\partial }{\partial q_{\alpha}} J_{\beta}
+\end{equation}
+Crunching the calculuations we get
+\begin{equation}
+ \frac{\partial }{\partial q_{\alpha}} J_{\beta} = -\frac{1}{4 K^2} \int \int_D \left[ 1- \tanh[2]( -\frac{f}{K}) \right] \left[\tanh(-\frac{f}{K})\pdv{f}{q_{\alpha}}\pdv{f}{q_{\beta}} + K \frac{\partial^2 f}{ \partial q_{\alpha} \partial q_{\beta}}\right]  dx dy
+\end{equation}
+Luckily, the Hessian is built into MATLAB's symbolic toolbox, so we can just call \codeword{matlabFunction(H,"File","ellipseHessian")} and the function to compute
+the Hessian is saved into our working directory. Note that the function \codeword{ellipseHessian} computes a $5 \times 5 \times N_{\textrm{grid}} \times N_{\textrm{grid}}$ matrix. 
+We call it for each cell $j \in \{1, \ldots, N\}$ but recall that for a given value of $\vb{q}$, the Hessian still has $(x,y)$ as free field variables. In order to integrate
+the field data, we use the cell-wise Jacobian field $J_{\beta}^j (x,y)$ and the cell-wise Hessian field $H_{\alpha, \beta}^j (x,y)$ to calculate the overall Hessian field for $f$
+\begin{equation*}
+    \frac{\partial^2 f}{ \partial q_{\alpha} \partial q_{\beta}} = \left(\frac{1}{k}\right) \left[ \frac{\left(\sum_{j=1}^N E_j\right) \left( \sum_{j=1}^N E_j (k H_{\alpha, \beta}^j + J_{\alpha}^j J_{\beta}^j)\right) - \left(\sum_{j=1}^N E_j J_\alpha^j \right) \left(\sum_{j=1}^N E_j J_\beta^j \right)}{\left(\sum_{j=1}^N E_j\right)^2} \right],
+\end{equation*}
+where $E_j = e^{f_j/k}$ is used for short. To actually compute the overall integrals for $\pdv{C}{q_{\beta}}$ and $\frac{\partial^2 C}{ \partial q_\alpha \partial q_\beta }$
+we use MATLAB's \codeword{trapz} function the following way
+\begin{lstlisting}[style=Matlab-editor]
+    trapz(y_lin,trapz(x_lin,integrandJacobian,3),2);
+\end{lstlisting}
+or, in the case of the Hessian,
+\begin{lstlisting}[style=Matlab-editor]
+    trapz(y_lin,trapz(x_lin,integrandHessian,4), 3);
+\end{lstlisting}
+where the integrand in the Jacobian cas is given by
+\begin{equation*}
+    F_{\beta}(x,y) = \left(\frac{T^2-1}{2K} \right)\frac{ \sum_{j=1}^N J_\beta^j E_j}{ \sum_{j=1}^N E_j},
+\end{equation*}
+where $T = \tanh( -\frac{f(x,y,\vb{q})}{K})$ and, in the case of the Hessian
+\begin{equation*}
+    G_{\alpha, \beta}(x,y) = 
+\left(\frac{T^2-1}{4K^2} \right) \left(T \left(\frac{ \sum_{j=1}^N J_\alpha^j E_j}{ \sum_{j=1}^N E_j}\right) \left(\frac{ \sum_{j=1}^N J_\beta^j E_j}{ \sum_{j=1}^N E_j}\right) + K \frac{\partial^2 f}{ \partial q_{\alpha} \partial q_{\beta}} \right),
+\end{equation*}
+which, after some serious simplification becomes
+\begin{equation*}
+    G_{\alpha, \beta}(x,y) = \frac{T^2-1}{4Kk \left(\sum_{j=1}^N E_j\right)^2} \sum_{n=1}^N \sum_{m=1}^N E_n E_m \bigg[ \left( \frac{kT-K}{K}\right) J_\alpha^n J_\beta^m +J_\alpha^m J_\beta^m +k H_{\alpha, \beta}^m \bigg]
+\end{equation*}
+To make things neat we replace $B = \frac{T^2-1}{4K^2}$, $\hat{E} = \sum_{j=1}^N E_j$ and we subsitute the ratio of the smoothstep and smoothmax parameters
+$S = K/k$ to attain,
+\begin{equation*}
+    G_{\alpha, \beta}(x,y) = \frac{B}{\hat{E}^2} \sum_{n=1}^N \sum_{m=1}^N E_n E_m \bigg[   S(k H_{\alpha, \beta}^m +J_\alpha^m J_\beta^m )+ (T-S)J_\alpha^n J_\beta^m\bigg],
+\end{equation*}
+Thus we can write 
+\begin{equation*}
+    J_\beta =  \int \int_D F_{\beta}(x,y) dx dy,
+\end{equation*}
+\begin{equation*}
+    \dot{J}_\beta =\sum_{\alpha=1}^{5N}\dot{q}_\alpha \int \int_D G_{\alpha, \beta}(x,y) dx dy,
+\end{equation*}
+Now we subsitute to obtain the final integral formulae:
+\begin{equation*}
+    J_\beta =  \int \int_D \frac{B}{\hat{E}S} \sum_{j=1}^N J_\beta^j E_j dx dy,
+\end{equation*}
+\begin{equation*}
+    \dot{J}_\beta = \int \int_D \frac{B}{\hat{E}^2}  \sum_{\alpha=1}^{5N}  \sum_{n=1}^N \sum_{m=1}^N \dot{q}_\alpha E_n E_m \bigg[   S(k H_{\alpha, \beta}^m +J_\alpha^m J_\beta^m )+ (T-S)J_\alpha^n J_\beta^m\bigg] dx dy.
+\end{equation*}
+We set out to calculate the following scalar $A = JWJ^t$ where $W = M^{-1}$ is the inverse mass matrix of our dynmical system. Note, that since we have 
+only one constraint our goal is to solve for one Lagrange multiplier $\lambda$ which is given as 
+\begin{equation*}
+A \lambda = - \sum_{\beta =1 }^{5N }\dot{J}_\beta \dot{q}_\beta - JWQ -\kappa_s C -\kappa_d \dot{C},
+\end{equation*}
+Recall $C = \frac{1}{2}\int \int_D (1+T) dx dy$ and $\dot{C} = \sum_{\beta=1}^{5N} \dot{q}_\beta J_\beta$. This means we can write out our equation for $\lambda$ explicitely
+\begin{equation*}
+    \left( \sum_{\alpha=1}^{5N} \sum_{\beta=1}^{5N} J_\alpha W_{\alpha, \beta} J_\beta \right) \lambda = - \sum_{\beta =1 }^{5N }\dot{J}_\beta \dot{q}_\beta - \sum_{\alpha =1}^{5N} \sum_{\beta =1}^{5N}J_\alpha W_{\alpha,\beta} Q_\beta -\kappa_s \frac{1}{2}\int \int_D (1+T) dx dy -\kappa_d \sum_{\beta=1}^{5N} \dot{q}_\beta J_\beta,
+\end{equation*}
+Note that its convenient from a computatational point of view to bring the quadriple sum into the integral and then evaluate this using \codeword{trapz}:
+\begin{equation*}
+    \int \int_D \frac{B}{\hat{E}^2}  \sum_{\alpha=1}^{5N} \sum_{\beta=1}^{5N}  \sum_{n=1}^N \sum_{m=1}^N (\dot{q}_\alpha \dot{q}_\beta E_n E_m )\bigg[   S(k H_{\alpha, \beta}^m +J_\alpha^m J_\beta^m )+ (T-S)J_\alpha^n J_\beta^m\bigg] dx dy.
+\end{equation*}
+where the term $\dot{q}_\alpha \dot{q}_\beta E_n E_m$ is a $(5N) \times (5N) \times N \times N \times N_{\textrm{grid}} \times N_{\textrm{grid}}$ array.
+Now, of course the integral we are after is the following
+\begin{equation*}
+    I_{\alpha, \beta}^{l,m,n} = \int \int_D \frac{B_l}{E_l^2} (E_n E_m )\bigg[   S(k H_{\alpha, \beta}^m +J_\alpha^m J_\beta^m )+ (T_l-S)J_\alpha^n J_\beta^m\bigg] dx dy.
+\end{equation*}
+Observing this formula, we can note that $\hat{E}$ has been replaced by $E_l$. This is actually an improvement since $\hat{E}$ was only ever part of the
+smoothmax approximation, we replace it by an arbitrary $E_l$ which must be picked prior to evaluating the integral based on the maximum. I have subscripted $B_l$ and $T_l$
+similarly as they depend on $E_l$. The main reason for this was due to difficulty in evaluating the integral over a reciprical sum when $N$ was arbitrary. Note that 
+if we evaluate this integral symbolically in preprocessing we can essentially divide the amount of computational work by $10^6$ for a $1000 \times 1000$ grid. Even
+now, the compute time scales as $N^4$ for $N$ cells. This is still intractable. A significant optimisation can be made when we realise that, from the point of view of a partial
+derivative, a cell's SDF is not affected by the coordinates of another cell. Another way to put this is that the Jacobian and Hessian for a given cell $j$
+depend only on the attributes of that cell and all the other partial derivatives will vanish. This actually reduces the ammount to compute by a factor of $N^2$ because
+we only need to sum over the number of attributes per cell ($N_{\textrm{attrib}} = 5$ in our case) squared. A modern laptop can perform floating point
+operations in the order of tens of GFLOPS. Supposing the calculation of $I_{\alpha, \beta}^{l,m,n}$ requires $1000$ floating point operations per $(m,n)$ pair. If we try
+to push to $N = 1000$ yeast cells, then we will be looking at a second compute time per time step assuming the PC used operates at $1$ GFLOP. This is fine
+for small $N$ but the problem doesn't scale well. In any case, with the current optimisations, we have a tractable simulaton.
+\\
+It is worth noting that further optimisations can be made if we employ a spatial hash map or a AABB filter which avoids computing matrix elements 
+between cells which are not even nearby each other. For example, if cells $3$ and $22$ are further than $d$ apart where $d$ is the pair's maximum cell diameter
+then we can set the matrix element $I_{\alpha, \beta}^{l,3,22} =I_{\alpha, \beta}^{l,22,3} = 0$ straight away (Note sure about this). We carry the full computation 
+in the test phase and add the filter optimisation later.
+\\
+\\

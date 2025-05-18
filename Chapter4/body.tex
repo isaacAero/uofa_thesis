@@ -1,258 +1,402 @@
-\chapter{Discussion and limitations}
-\section{Evaluation of the model}
-The computational model \textbf{CellColonySimulator} incorporates
-design decisions based on a number of concerns. These include
-\begin{itemize}
-    \item The requirement for manageable run times on a gaming laptop.
-    \item Modelling both colony scale and cell scale morphology.
-    \item Capturing the process of mitosis in a natural but simple way.
-    \item Ensuring the model is amenable to statisitical analysis.
-    \item Providing a model ready for fitting to experimental micrographs of cell colonies.
-    \item Crystallising the model into a form that could be analysed in a conceptually 
-          rigorous setting, say within the context of functional analysis,
-          bifurcation theory or algebraic topology.
-\end{itemize}
-Whilst the computational model and conceptual apparatus devloped here take on these concerns,
-this section will explore to what extent these concerns were not met. In particualar, we comment on the
-fundamental limitations of the model. In subsection \ref{conceptLims}, the commentary begins 
-with an evaluation of the model regarding the primary conceptual goals.
-
-\subsection{Conceptual limitations} \label{conceptLims}
-The model was able to deploy the concept of algebraic curves with time dependent coefficients 
-to represent the cells. Indeed the implicit equation for a translated, rotated, and scaled ellispe 
-is a member of the ring of polynomials in two variables $\mathbb{R}[x,y]$ where coefficients are
-dependent on the underlying discrete network of nodes. In a previous version of the model, 
-the underlying network of nodes were initially collocated and via the elimination 
-of constraints the network was able to unfold over time. This was implemented with
-logical ``mask" matrices in MATLAB, but 
-brought practical problems. One such problem was that branches 
-could easily deplete their store of nodes, and indeed the number of nodes
-chosen at the beginning of the simulation had to be arbitrary. This meant that
-the previous model had prohibitive limits on the number of branches and the size
-of the branches. Another limitation, was that the ODE solver was slowed
-down by the need to simulate the evolution of collocated vertices.
+\chapter{Numerical experiments and simulation results}
+In this section the outputs of \codeword{CellColonySimulator}
+are presented. The figures \ref{fig:colony1}, \ref{fig:colony2},
+\ref{fig:colony3}, \ref{fig:colony4} and \ref{fig:colony5} show the 
+growth over time of the biomass field $b(x,y,t)$ and the nutrient 
+field $c(x,y,t)$ for various values of $\lambda_1$, ..., $\lambda_7$.
+As stated in Chapter 1, a nominal length of $L_0 = 7.5 \ \mu m$ is 
+used for all runs. Furthermore, the (unitless) time step and spatial step used are 
+$\Delta t = 0.02$ and $h = 0.1$. The domain half-width is always set 
+at $0.5 \times 7.5 \ \mu m \times 40 = 150 \ \mu m$. The total domain 
+width is $300 \ \mu m = 0.3 \ mm$ which is comparable to the diameter 
+of the tip of a ball point pen. The \codeword{maxNodeCount} used 
+is $500$ and the dislocation radius is $\delta = 0.01$. The summary statistics 
+are taken at $600$ sample times steps. Note that each run 
+of the simulation takes around $7$-$10$ minutes on an MSI laptop 
+with a 12th Gen Intel(R) Core(TM) i7-12650H processor
+and a Nvidia GeForce RTX 3050 6 GB Laptop GPU. Using 
+multi-threading via MATLAB's \codeword{parpool(`threads')} and a
+\codeword{parfor} loop, $6$ workers are employed for ensemble 
+averages.
 \\
 
-\textbf{CellColonySimulator} overcomes this issue by simply 
-adding new nodes to the network, just very close by ($\delta = 0.01 L_0$).
-As it turned out, this was not a consequential fault,
-since the distance $\delta$ can be made so small that 
-the daughter cell appears to bud from the parent cell, as 
-would be observed in the case of pseduo-hyphal growth of Baker's yeast.
-What I argue is that this is in fact a conceptual fault present in the model
-because it represents an arbitrary addition of a new variable,
-the budding angle $\theta_{b}$ not to mention the constant (but small) budding radius 
-$\delta$. What I intended  
-was a ``derivation'' of cells division within a broader model,
-as opposed to an imposition of more assumptions and parameters
-over time to achieve the mitosis.
+Throughout all runs, the values $\lambda_1 = 0.1$, $\lambda_2 = 5.0$, $\lambda_3 = 5.0$ and 
+$\lambda_4 = 0.5$ were kept fixed. The reason for these choices are 
+summarised in table \ref{table:L1_L2_L3_L4_choiceReasons}. That left $\lambda_5, \lambda_6$ and $\lambda_7$
+to be experimented with. In order to maintain a reasonable 
+scope, only two numerical experiments were carried out in this work, however this is perhaps only 
+scratching the surface in terms of interesting tests that could be done with \codeword{CellColonySimulator}.
+The two numerical studies carried out are detailed in sections \ref{sec:numExp1} and \ref{sec:numExp2}.
+
+\begin{table}[!htb]
+\begin{center}
+    \begin{tabular}{ |c|c|c| } 
+     \hline
+      \textbf{\makecell{Parameter \\ choice}} & \textbf{Reason} \\ 
+      \hline
+     $\lambda_1 = 0.1$  & \makecell{Diffusion constant small to maintain numerical stability, \\
+                                 but large enough to see appreciable spreading.} \\ 
+    \hline 
+     $\lambda_2 = 5.0$  & \makecell{Elasticity needed to be big enough to enforce the \\
+                        cell nominal length without being too stiff.} \\ 
+    \hline 
+     $\lambda_3 = 5.0$  & \makecell{Repusivity made large and comparable to elasticity \\ 
+                                    to enforce cell-cell exclusion as much as possible.} \\ 
+    \hline 
+     $\lambda_4 = 0.5$  & \makecell{Repulsion radius is set equal to cell nominal \\ semi-major axis length.} \\
+     \hline   
+    \end{tabular}   
+\end{center}
+\caption{The rationale behind the selection of $\lambda_1 = 0.1$, $\lambda_2 = 5.0$, $\lambda_3 = 5.0$, 
+$\lambda_4 = 0.5$}
+\label{table:L1_L2_L3_L4_choiceReasons}
+\end{table}
+
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter4/figures/t_all_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_1o00_L6_3o00_L7_0o50.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 3.0$, 
+             $\lambda_7 = 0.5$. 
+             On the left we have the biomass field, the nutrient field is on the right.}
+    \label{fig:colony1}
+\end{figure}
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter4/figures/t_all_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_0o10_L6_0o70_L7_0o73.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 0.1$, 
+             $\lambda_6 = 0.7$, 
+             $\lambda_7 = 0.73$. 
+             On the left we have the biomass field, the nutrient field is on the right. 
+             The aspect ratio is $\lambda_7 = 5.5/7.5 = 0.73$.}
+    \label{fig:colony2}
+\end{figure}
+
+\begin{figure}[!htb] 
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter4/figures/t_all_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_1o20_L6_0o70_L7_0o60.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.2$, 
+             $\lambda_6 = 0.7$, 
+             $\lambda_7 = 0.6$. 
+             Biomass on left and nutrient field on the right.}
+    \label{fig:colony3}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter4/figures/t_all_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_1o60_L6_0o90_L7_0o95.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.6$, 
+             $\lambda_6 = 0.9$, 
+             $\lambda_7 = 0.95$. 
+             Biomass on left and nutrient field on the right.}
+    \label{fig:colony4}
+\end{figure}
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width= 0.7\textwidth]{
+        chapter4/figures/t_all_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_1o60_L6_0o70_L7_0o50.pdf}
+    \caption{A cell colony with parameter values given by
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.6$, 
+             $\lambda_6 = 0.7$, 
+             $\lambda_7 = 0.5$. 
+             Biomass on left and nutrient field on the right.}
+    \label{fig:colony5}
+\end{figure}
+
+
+\section{First numerical experiment: \\ \textit{Compactness verus cell aspect ratio}}\label{sec:numExp1}
+In the first numerical experiment, we vary the cell aspect ratio, $\lambda_7$,
+whilst maintaining $\lambda_1 = 0.1$, $\lambda_2 = 5.0$, $\lambda_3 = 5.0$, $\lambda_4 = 0.5$, $\lambda_5 = 1.0$, 
+and $\lambda_6 = 1.0$. The goal is to explore how the cell aspect ratio, $\lambda_7$, affects the overall 
+colony compactness $C(t)$. The values of the mobility, $\lambda_5$, and metabolic rate, $\lambda_6$, are set to a standard 
+value of $1.0$, however, a comprehensive future study should investigate how these affect the relationship
+between compactness and cell aspect ratio.
 \\
 
-Unsatisfyingly, the budding angle is chosen to be uniformly distributed on $[0, 2 \pi]$
-and is the only source of randomness in the model. Of course the budding angle
-could be chosen to be in line with the nutrient gradient vector and this would 
-eliminate randomness from the model. Future work could seek to 
-reintroduce randomness in the form of a stochastic process, 
-such a langevin term in the the ODEs for the node positions (and even in the nutirent PDE).
+In figure \ref{fig:compactnessAndMu_varyAR}, the average compactness over time 
+is plotted in green for cell aspect ratios of $0.4$ (elongated), $0.5$, $0.7$ and $1.0$ (circular). 
+The yellow filled in area represents the $1.0 \sigma$ confidence interval for the sample 
+size of $N_{\textrm{ensemble}} = 6$. This means that, running the simulation at random,
+we would be approximately $68.2 \%$ sure that the compactness would lie in this range.
+Of course, this confidence interval could be tightened by 
+taking a larger ensemble size, $N_{\textrm{ensemble}} \gg 6$ if supercomputing 
+resources are available to the user. The value of $N_{\textrm{ensemble}} = 6$ is chosen 
+here due to the MSI laptop used having $6$ workers, but a larger value could 
+be selected even on this hardware at the cost of multiplying the run time.
 \\
 
-A model whaich I have prototyped, is one in which the nutrient field is 
-effectively ``converted into nodes''. That is, the nutrient field is not simply
-a scalar field of ``stuff'', but actually becomes a field of structure. The simplest
-version of this is to set the nutrient field as a collection of Brownian walkers that 
-can be taken up by a colony and added to the colony's network. In some sense this 
-would solve the problem, since no new nodes are ever added into the simulation,
-its just that the initially unstructured nodes take on a new behaviour within the cell network.
+As expected, the compactness more or less increases over time for all simulations, 
+however figure \ref{fig:averageCompactnessComparison_varyAR} shows that the ensemble average
+compactness,
+$\bar{C}(t)$, grows exponentially for higher aspect ratios (approaching circular), 
+and for lower aspect ratios it seems to taper off and reach a local maximum 
+in the case of $\lambda_7 = 0.4$. This suggests the counter-intutitive 
+conclusion that, for the parameter selection given, more circular cells 
+derive more a branched colony. This is 
+evinced in figures \ref{fig:compactnessSingleInstance1.0} and 
+\ref{fig:compactnessSingleInstance0.5}, which shows 
+the colony itself (as insetted plots) as the compactness increases for 
+$\lambda_7 = 1.0$ and $\lambda_7 = 0.5$, respectively. 
 \\
 
-Another conceptual direction is that of taking seriously the notion of 
-``cell as structured randomness''. Biochemistry tells us that
-cells are reducible to chemical reaction networks (CRNs), but of course to combine 
-CRNs into the workings of a single cell is not trivial. This means effictive
-models are required, which leave out most of the labrythine details of the cell's
-internal workings (see proteins, DNA, RNA, mitotic spindles, golgi apparatus) but allow
-for efficient computation. Even CRNs are limited by the fact that 
-they usually do not consider the shape of a protein which plays 
-a key role in its functionality. The model presented here brushes
-over all of these details in favour of an effective mathematical approach, 
-but future work could focus linking 
-nanoscopic molecular scale and microscopic cellular scale.
+In figure \ref{fig:compactnessSingleInstance1.0}, 
+at $t = 35$ hours, the compactness exceeds $20.0$ and 
+the colony takes on a branched shape. Conversely, in figure \ref{fig:compactnessSingleInstance0.5}, 
+the compactness never exceeds $10.0$. In fact, 
+a circular shaped colony with comparitively lower compactness appears 
+to emerge from the overall dynamics which is a suprising finding. 
+This appears to be supported by the ensemble averages shown in figure 
+\ref{fig:averageCompactnessComparison_varyAR}, in which
+colonies with lower aspect ratio ultimately
+reach a lower compactness perhaps due to emergent circularity.
 \\
 
-Regarding the shape of individual cells, 
-the ellipse with variable aspect ratio is chosen to represent eukaryotic
-fungal cells such as saccharomyces cerevisiae. Beyond changing 
-the cell aspect ratio, there is no mechanism in \
-\textbf{CellColonySimulator}
-to change to plant like cell shapes (for example) which are more blocky.
-Algebraic modelling of the cell membrane (in the case of plant cells) or
-a diverse range of cell wall shapes (fungal or even mammal cells)
-is implied here however. For insance, by chosing more elaborate
-polynomials, one can derive a taxonomy of cell shapes at the cost of 
-implementation simplicity and perhaps computational performance. 
-An avenue to explore is seeing whether bifurcations
-can be achieved in a different ring of continuous functions of $x$ and $y$.
-Indeed, can the whole colony be represented by (the level set of) one function at each time,
-such that the growth of the colony can be given by a homotopy 
-between two functions?
+This seems to go against the linear logic that a higher aspect ratio indicating circular cells 
+should lead to a more circular colony. The paradox can be resolved 
+when we interpret the model in terms of the nominal area of each cell. 
+The area of a circle of radius $0.5 \times 7.5 \ \mu m$ is about $44.2 \ \mu m^2$,
+whereas the area of an ellipse is $\pi pq = \pi \times 3.75 \ \mu m \times 0.4 \times 3.75 \ \mu m =
+17.7 \ \mu m^2$. The ratio of the areas is precisely $\lambda_7$ ($0.4$ in the most elongated case), which 
+means that the circular cell is $2.5$ times the area of the elongated cell.
+Note that we are talking about the fully grown size which I have previously characterised
+by the nominal cell length $L_0 = 7.5 \ \mu m$.
 \\
 
-[Old discussion to rework]
-The mechanism of mitosis is a sleight of hand, in the sense that
-each of the nodes (two nodes per cell) are already there at the simulation
-outset. The appearance of growth of the colony coincides with the nodes' progressive
-dislodgement from their equality constraints with one another. Of course,
-there is no reason why the model could not be modified to add nodes
-that were not there to begin with, though such a model would yield
-equivalent results.
+Interpreting this biologically, larger cell areas consume more nutrient leading
+to a nutrient deficit which induces more a more branched growth regime having higher 
+compactness. Conversely, lower cell areas consume less nutrient leading 
+to increased crowding and the emergence of colony scale circularity.
 \\
 
-To interpret the model mathematically, we recall that it was desireable to have
-a time parameter $t$ over which the state of the colony could vary. The main 
-goal of the thesis was to demonstrate that a system, in this case a yeast colony,
-which appears to acquire more dynamical variables (new coordinates for new cells for example)
-could be represented by a model with a fixed number of variables which are
-initially coincident.
+Another observation which suggests the need for further experimentation is 
+the qualitative difference between the ensemble average compactness of 
+$\lambda_7 = 0.4, 0.5, 0.7$ and $1.0$ demonstrated in figure \ref{fig:averageCompactnessComparison_varyAR}.
+The growth curve for $\lambda_7 = 1.0$ appears to be roughly exponential,
+whereas, the growth curve for $\lambda_7 = 0.4$ is almost logarithic.
+How we classify the curves qualitatively is arbitrary,
+but the comparison at the very least points to a qualitative 
+difference between the two ends of the scale of $\lambda_7$. A question 
+that could noew be posed to biologists is whether there is a critical 
+value at which this transition occurs. Given supercomputing 
+time, this model may indeed produce a hypthosis regarding a critical value of $\lambda_7$,
+which could be tested experimentally. It may also be the case that over a large enough 
+time scale we would see branching behaviour even for low values of $\lambda_7$
+which would indicate two turning points: a local maximum followed by a local minium after which 
+the compactness increases at an increasing rate. This ``double-ascent" if 
+it were found could also be operationalisable.
+
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width= \textwidth]{
+        chapter4/figures/Comp_all_ar_EnsembleSize_6o0_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_1o00_L6_1o00_L7_0o40.pdf}
+    \caption{The colony compactness and growth rate for 
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 1.0$, 
+             $\lambda_7 = 0.4, 0.5, 0.7, 1.0$ and an ensemble size of $6$.}
+    \label{fig:compactnessAndMu_varyAR}
+\end{figure}
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= \textwidth]{
+        chapter4/figures/Comp_average_actness_EnsembleSize_6o0_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_1o00_L6_1o00_L7_0o40.pdf}
+    \caption{The average colony compactness for
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 1.0$, 
+             $\lambda_7 = 0.4, 0.5, 0.7, 1.0$ and an ensemble size of $6$.}
+    \label{fig:averageCompactnessComparison_varyAR}
+\end{figure}
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= \textwidth]{
+        chapter4/figures/Inset_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_1o00_L6_1o00_L7_1o00.pdf}
+    \caption{Compactness for ensemble instance $e = 1$ and 
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 1.0$, 
+             $\lambda_7 = 1.0$. The inset plots show the biomass at three times for comparison 
+             with compactness.}
+    \label{fig:compactnessSingleInstance1.0}
+\end{figure}
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= \textwidth]{
+        chapter4/figures/Inset_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_1o00_L6_1o00_L7_0o50.pdf}
+    \caption{Compactness for ensemble instance $e = 1$ and 
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 1.0$, 
+             $\lambda_6 = 1.0$, 
+             $\lambda_7 = 0.5$. The inset plots show the biomass at three times for comparison 
+             with compactness.}
+    \label{fig:compactnessSingleInstance0.5}
+\end{figure}
+
+
+\section{Second numerical experiment: \\ \textit{Growth rate versus mobility}}\label{sec:numExp2}
+
+In the second numerical experiment, the growth rate $\mu(t)$ was investigated with respect 
+to its dependence on the mobility, $\lambda_5$. In all runs, the growth rate was found to be decreasing 
+during times when the number of cells was fixed. At times when new cells were added in,
+the growth rate would more or less instantaneously increase. 
 \\
 
-Philosophically, however, the model has some limitations. In reality, we know the growth
-of fungal species such as Baker's yeast, is strongly dependent on factors such as temperature
-and the environmental conditions that the colony is subjected to. This means 
-that the dynamics of cell growth (the collision and interaction as well as the morphology) in 
-any large colony system cannot be intrinsically defined. To put it succinctly, the dynamics of 
-the colony is strongly coupled to the local environmental conditions.
+As evinced in figure \ref{fig:MuSingleInstance5.0}, adding in new cells 
+could result in what appears to be a resurgence in growth rate. Of course,
+further studies could focus on developing more natural ways to continuously add new cells into the 
+simulation (see Chapter 4) which would allow for a smoother curve.
+The fact that cells are added in at discrete intervals is a limitation of the model.
 \\
 
-Does this mean that we can only model biological systems completely if all the conditions 
-are incorporated? As per the discussion in the introduction about mathematical modelling,
-we aim to consider the simplest viable model. This, in the case of the current work, 
-is a model that has two components: a cell colony as discussed in the preceeding section, and 
-a nutrient field. Indeed, their coupling determines the dynamics. 
+Predictably, figures \ref{fig:averageCompactnessComparison_varyMobility} 
+and \ref{fig:averageMuComparison_varyMobility} demonstrate 
+that the growth rate decreases more slowly for colonies with higher 
+mobilility, for instance $\lambda_5 = 2.5, 5.0$. Biologically,
+this is likely due to the fact that new daughter cells can move more
+quickly to positions of higher nutrient concentration due to a 
+higher magnitude of chemotaxis. Conversely, colonies with lower mobility
+deplete nutrient at the same rate however they are 
+unable to move away quickly enough to maintain higher growth rate.
 \\
 
-In the discussion, I will suggest ways to relax these limiting assumptions that
-are outside the scope of the current work but are nonetheless interesting to consider.
+Once again this study is somwhat limited by the hardware used. 
+Given more compute power, a simulation across longer time scales and 
+over larger ensembles could be 
+possible which could unveil more findings, in addition to 
+making the current findings more conclusive.
+
+
+\begin{figure}[!htb]
+    \centering
+    \includegraphics[width= \textwidth]{
+        chapter4/figures/Inset_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_5o00_L6_1o00_L7_0o70.pdf}
+    \caption{Specific growth rate $\mu(t)$ for ensemble instance $e = 1$ and 
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 5.0$, 
+             $\lambda_6 = 1.0$, 
+             $\lambda_7 = 0.7$.}
+    \label{fig:MuSingleInstance5.0}
+\end{figure}
+
+\begin{figure}[!htb] 
+    \centering
+    \includegraphics[width= \textwidth]{
+        chapter4/figures/Inset_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_0o10_L6_1o00_L7_0o70.pdf}
+    \caption{Specific growth rate $\mu(t)$ for ensemble instance $e = 1$ and 
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 0.1$, 
+             $\lambda_6 = 1.0$, 
+             $\lambda_7 = 0.7$.}
+    \label{fig:MuSingleInstance0.1}
+\end{figure}
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= \textwidth]{
+        chapter4/figures/Comp_all_ar_EnsembleSize_6o0_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_0o10_L6_1o00_L7_0o70.pdf}
+    \caption{Compactness $C(t)$ and specific growth rate $\mu(t)$ for 
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 0.1, 1.0, 2.5, 5.0$, 
+             $\lambda_6 = 1.0$, 
+             $\lambda_7 = 0.7$, and an ensemble of size $6$. Note that the bottom panels 
+             could only be simulated to $t = 20$ hours due to GPU out-of-memory issues.}
+    \label{fig:averageCompactnessComparison_varyMobility}
+\end{figure}
+
+\begin{figure}[!htb] %Change this to [p] maybe ?
+    \centering
+    \includegraphics[width= \textwidth]{
+        chapter4/figures/Average_mu_EnsembleSize_6o0_L1_0o10_L2_5o00_L3_5o00_L4_0o50_L5_0o10_L6_1o00_L7_0o70.pdf}
+    \caption{Average growth rate $\mu(t)$ for 
+             $\lambda_1 = 0.1$,  
+             $\lambda_2 = 5.0$, 
+             $\lambda_3 = 5.0$, 
+             $\lambda_4 = 0.5$, 
+             $\lambda_5 = 0.1, 1.0, 2.5, 5.0$, 
+             $\lambda_6 = 1.0$, 
+             $\lambda_7 = 0.7$, and an ensemble of size $6$. Note the plot 
+             for $\lambda_5 = 5.0$ could not be completed on the aviliable hardware
+             due to GPU out-of-memory.}
+    \label{fig:averageMuComparison_varyMobility}
+\end{figure}
+
+
+\section{Summary: \\ \textit{Uncovering different growth regimes}}
+
+Overall, the model has successfully demonstrated the ability 
+to image different growth regimes of Baker's yeast morphology.
+The primary strength of the model is its versalitlity:
+it can model yeast morphology in both a nutrient deficit (small $\lambda_6$)
+and a nutrient rich (large $\lambda_6$) case, wherein 
+different qualitative behaviour is derived. 
 \\
 
-This model, in which the colony appears as the ``unfolding" of a network of nodes
-follows on somewhat naturally from the theory of $L$-systems, in which the underlying 
-discrete structure of a system is allowed to evolve deterministically based on rules
-analogous to cellular automata. A criticism which has been leveled 
-(find relevant paper that I read a while ago) at $L$-systems and other deterministic models
-of plants for example, is what I call their intrinsic nature. That is, they effectively
-rely on the assumption that a biological system's rules for developement are somehow contained
-within it's structure (for instance, DNA). It is more fashionable nowadays, and indeed more 
-scientifically accurate, to think of a biological system as part of a complex network 
-of other organisms and environmental conditions which determine its morphology.
-\\
-
-Consider a minimalistic example of modelling the motion of a spherical ball rolling around on a table.
-Two spatial paramters $x$ and $y$, together as a tuple are enough to say where it is. However, 
-if the ball unexpectately falls from the table, then you would suddenly require
-another parameter to describe the state of the system. The value of this classical example
-is to demonstrate for $N$ particles and $M$ constraints that may suddenly change, 
-we can derive rich and unexpected dynamics.
-\\
-
-The best we can hope for is that our parametrisation is somehow dense in the space
-of all possible cell colony configurations that we see experimentally. There are even
-some exotic cases of cellular sytems in which a single cell can have nontrivial topologies (ask Ed 
-about the slime cells which optimise their topology based on nutrient). Therefore, future work 
-should focus on representations of dynamic cell geometries that are as free of assumptions as
-is conceivable. Once an abstract enough representation of a biological system and its environment
-becomes available in the theory, one can use it to study and predict novel morphologies that appear 
-in nature. Hopefully it is clear that the present work is just a suggestion of the numerous possibilities
-in the area of biolgical morphology viewed in the framework of ``growing geometry''.
-
-\subsection{Dynamical limitations}
-A (fixed node count) cell colony undergoes the dynamics of an overdamped spring network capable
-of internal collisions driven by
-an external nutrient field. The key concern is whether this dynamical structure is grounded in 
-biological evidence, and whether the model just metaphorical. Firstly, 
-it is worth noting that because we are in the overdamped regime,
-there are no intrinsic oscillations between connected nodes. This is because the node velocity 
-is proportional to the force as opposed to the case 
-of an underdamped harmonic oscillator, where the acceleration is proportial to force.
-In answer to the concern posed, the current model is an effective one however
-it is feasible that the model can be fitted to experimental micrograph data, 
-which is commented on in section \ref{expFitting}, and thus the seven input parameters 
-could be found from real data.
-\\
-
-The springs have a neutral position which is a cell length distant from the parent node.
-In other words, the spring force encodes a passage between equilibrium positions of the colony.
-The presence of an (external) chemotactic force coupled into the dynamics complicates 
-this by gradually moving the equilibrium position for a fixed node count colony outwards.
-One observation of the simulation results, was that internal cells grew beyond the nominal cell length
-due to the additional force of chemotaxis. In practice,
-this issue is alleviated by increasing the cell elasticity, $\lambda_2$, but this 
-is nonetheless a limitation.
-\\
-
-New nodes are added to the network nearby old nodes as stated in Chapter 1. The timing
-of the addition of new nodes is somewhat adhoc and provisional, but could in theory
-be elevated to something more sophisticated. Starting with the colony growth rate 
-$\mu(t)$ which is taken to be a fraction of the ideal growth rate $\mu^* = 0.4$ hour$^{-1}$.
-Cells are added in at discrete intervals of time, given by 
-\begin{equation*}
-    \Delta n = \bigg\lceil \frac{1}{\Delta t} \bigg\rceil.
-\end{equation*}
-The value $\Delta n$ is the number of time steps between two (global) mitosis events. For a
-time step of $\Delta t = 0.02$, this amounts to $\Delta n = 50$ time steps. The amount of 
-nodes added at this time step, denoted $n^*$ (a multiple of $\Delta n$), is given by 
-$(e^{\mu(t_{n^*})} -1) N_{\textrm{nodes}}(t_{n^*})$ where $\mu (t_{n^*})$ 
-is the average value of the nutrient field (recall that the nutrient field is assumed to 
-be $1.0$ at the simulation outset). The assumption that growth rate is defined
-in terms of the nutrient field makes sense, however the assumption of it being \textit{globally} 
-defined thus is somewhat dubious. A possible impovement is to draw up a coarse 
-grid in which each square can fit a dozen or more cells, and say that 
-the growth rate $\mu = \mu(x,y,t)$ is locally defined by averaging nutrient per grid square. 
-Of course, the reason 
-that a spatially independent growth rate, $\mu = \mu(t)$, was chosen was for 
-implementation simplicity.
-\\
-
-The periodic structure of adding cells in at simultaneous snapshots of time,
-is an artificial choice based on implementation simplicity alone. 
-A higher fidelty model could be constructed in which cells bud off at any time.
-One way to do this is to calibrate mitosis times per cell based on cell cycle data
-and allow a cell to undergo mitosis if a certain threshold of nutrient is locally
-available. This would not be difficult to implement, but 
-comes with a few conceptual caveats. One issue is that 
-a (discrete) logic would need to be introduced per cell,
-which opens up a fascinating area of study (``cell as computer program''), however 
-this is outside the scope of this work.
-\\
-
-Another limitation of the dynamical model is overly simplistic collisions.
-The collision mechanism is node based, as 
-opposed to edge based or even SDF based.
-An attempt to improve upon the expedient hard ball collision scheme, 
-is developed in Appendix \ref{collisionModel}. Therein,
-constrained dynamics techniques are employed to ensure no pairwise
-overlap of the biomass level sections. It is clear that constrained
-dynamics is the way to go, but my unique implementation is 
-not computationally efficient and therefore was not
-used in \textbf{CellColonySimulator}.
-\\
-
-Finally, the use of a reaction-diffusion PDE is traditional in mathematical biology, however
-in light of the insights developed here, future work could focus on modelling 
-random fluctuations in nutrient concentration, or even introducing multiple interacting 
-morphogens such as in Turing's morphogenesis paper (\cite{turing1990chemical}).
-
-
-
-\subsection{Computational limitations}
-
-
-\section{Readiness for experiemntal validation and fitting}\label{expFitting}
-
-
-
-
-
-
-
-
-
+The hope is that this type of algebraic modelling of cell colonies 
+can be generalised to cancer morphology. It is 
+my prediction that the model, when outfitted 
+to a 3D setting with access to nutrient sources such as blood 
+vessels could produce fascinating findings which 
+could motivate further \textit{in vitro} or perhaps even 
+\textit{in vivo} experiments. One possible application is 
+to tumour spheroids. In this instance, 
+the model could be promoted to a 3D model which 
+is not a conceptual leap but may prove to be 
+a formidable computational task. Furthermore, the model could even 
+be coupled to other fields,
+such as electromagnetic fields. 
