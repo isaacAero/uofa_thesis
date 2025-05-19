@@ -159,13 +159,76 @@ for modelling plant architecture based on a dynamic language.
 \\
 
 The key innovation of the present thesis work is to 
-bring into contact three distinct  of 
-mathematical biology into one interdepdedent framework. These three 
-areas of study,
+bring into contact three distinct areas of 
+study into one interdependent framework for studying mycology. These three 
+areas are,
 \begin{itemize}
-    \item Graph rewriting 
-    \item 
+    \item Graph rewriting as exemplified in botanical $L$-system work,
+    \item Constructive solid geometry (CSG) in computer vision,
+    \item Reaction-diffusion partial differential equations (PDEs),
+          as studied in mathematical biology \cite{turing1990chemical}.
 \end{itemize}
+The first and third of these areas have already been introduced in the work of 
+the algorithmic botany group and recent work from \cite{tronnolone2018diffusion}.
+
+\section{Implicit surfaces and constructive solid geometry (CSG)}
+
+The three most commom ways 
+of representing a 2D or 3D object mathematically are parametric, polygonal,
+or implicit techniques. For instance, a parametric representation of the 
+points of a circle is $(\cos{t}, \sin{t})$ where $t$
+is a real number. Alternatively, a polygonal representation of a circle
+would be a regular $n$-gon which could be made a better approximation 
+as $n \rightarrow \infty$. This sort of approach is effectively used 
+by \cite{van2020quantitative} and \cite{brown2021rigid} in their solid mechanics
+frameworks. Mesh based modelling has the advantage of locality in that 
+deformations to the shape can be made by moving a node in the mesh
+without changing it globally which gives more flexibility.
+A limitation which has already been mentioned is that mesh based models, 
+particualary in the context of growth, quickly lead to huge node numbers 
+which imply supercomputers as a necessity for large colony simulations.
+\\
+
+Conversely, implicit representations of smooth geometric shapes are defined 
+globally at the cost of local specificity. In three dimensions, one can 
+define the surface of a sphere as set of points in $\mathbb{R}^3$ 
+which satisfy the following equation,
+\begin{equation*}
+    x^2 + y^2 + z^2 - 1 = 0.
+\end{equation*}
+This is a special case of what is known as a quadric surface,
+which is defined as the set of points which satisfy $f(x,y,z) =0$, where
+\begin{equation*}
+\begin{split}
+    f(x,y,z) = p_1 x^2 + p_2 xy + p_3 xz + p_4 x + p_5 y^2 + p_6 yz + p_7 y + p_8 z^2 + p_9 z + p_{10},
+\end{split}
+\end{equation*}
+as introduced in \cite{blinn1982generalization}. The full generalisation to the notion 
+of implicit curves would require a precise notion of what space 
+the functions, $f$, belong to. In the case of quadric surfaces, 
+the functions belong to the ring of polynomials in $x$, $y$ and $z$, written as 
+$\mathbb{R}[x,y,z]$, but more exotic settings can be used.
+\\
+
+In many contexts where specificity and local shape control are essential, 
+implicit curves are not the best tool. Consider the quadric surface defined above.
+The only way to modify the surface is to tune the parameters $p_1, ..., p_{10}$ but 
+doing this results in a change to the whole surface which requires 
+advanced mathematical machinery to control. This is where constructive solid geometry (CSG) comes 
+in. 
+\\
+
+CSG is a technique used to build new implictely represented shapes from old ones.
+In multi-cellular modelling, where the individual cell geometry 
+is relatively fixed but there 
+are regular topological bifurcations corresponding to cell division,
+CSG is ideal and suprising has not been implementated in mycology agent 
+based models as far as the author is aware. The graphical technique used 
+in the current thesis is analogous to ``Metaballs'' or ``Blobby modelling'' which is 
+implemented in C++ by \cite{kommareddy20143d}. The individual balls, 
+modelled by quadric surfaces $f_1$ and $f_2$, are blended together 
+into a new quadric surface $f(x,y,z) = f_1(x,y,z) + f_1(x,y,z)$.
+\\
 
 
 
