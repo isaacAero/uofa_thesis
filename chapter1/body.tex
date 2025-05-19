@@ -1,6 +1,6 @@
-\chapter{Introduction and literature review}
+\chapter{Literature Review}
 
-\section{Kingdom Fungi}
+\section{Modelling Kingdom Fungi}
 
 Microfossils discovered in the Grassy Bay Formation 
 (Shaler Supergroup, Artic Canada) dating back to the Proterozoic Eon, $2500$ to $538.8$ million years ago, were 
@@ -67,7 +67,10 @@ morphology vastly differs from fission yeast.
  millet beer delayed on route from East Africa to Germany (\cite{hayles2018introduction}).
  \\
 
- In this work, a dynamic off-lattice agent based modelling framework for \textit{S. cerevisiae} colonial morphology 
+ \section{Agent based modelling in context}
+
+ In the current thesis, a dynamic off-lattice agent based modelling framework for \textit{S. cerevisiae} 
+ colonial morphology 
  is proposed and implemented. As opposed to fission yeast, \textit{S. cerevisiae} exhibits 
  budding and can be induced into a filamentous regime called pseudohyphal growth
  in which cells become elongated leading to overall branching patterns 
@@ -114,6 +117,32 @@ the computationally costly use of meshed cells is circumvented in the current wo
 an algebraic representation of cell geometry.
 \\
 
+\section{From algorithmic botany \\ 
+         to algorithmic mycology}
+
+The model defined in Chapter 2 of this thesis is underpinned by a ``growing network" which is an example 
+of a graph-rewriting system. The natural precursor 
+to this concept is the mathematical corpus of biologist Aristid Lindenmayer, whose work 
+on cellular interactions in plants and fungi based on \textit{sequential machines}, 
+\cite{lindenmayer1968mathematical}, developed 
+into the notion of an $L$-system, \cite{prusinkiewicz2012algorithmic}. An $L$-system
+is a string-rewriting system that applies a conversion rule to each letter in a word 
+simultaneously, \cite{prusinkiewicz2012algorithmic}. For example,
+the rules (or ``productions'') that sends $A \rightarrow AB$ and $B \rightarrow A$,
+would evolve the input word, $A$, as follows,
+\begin{equation*}
+\begin{split}
+&A \\
+&AB \\
+&ABA \\
+&ABAAB \\
+&ABAABABA, \\
+\end{split}
+\end{equation*}
+\\
+which could continue on indefinitely. Taken together,
+the alphabet, $\{A, B\}$, the productions, $\{ A \rightarrow AB, B \rightarrow A \}$, and 
+the intial word, $A$, comprise an $L$-system.
 
 
 

@@ -6,11 +6,19 @@
 \setcounter{secnumdepth}{2} % seting level of numbering (default for "report" is 3). With ''-1'' you have non number also for chapters
 \setcounter{tocdepth}{2}
 
+\usepackage[backend=bibtex]{biblatex}
+\addbibresource{reference_list.bib}
+\addcontentsline{toc}{chapter}{Bibliography}
+
+
+
+
 \usepackage{float}
 \usepackage{matlab-prettifier}
 
 
 % Any packages should go here
+
 \usepackage{lineno,setspace}
 \usepackage{caption}
 \usepackage{booktabs}
@@ -19,7 +27,7 @@
 \usepackage{textcomp}
 \usepackage{afterpage, emptypage}
 \usepackage{pdflscape}
-\usepackage{graphicx,natbib} 
+\usepackage{graphicx} 
 \usepackage{hyperref}
 \usepackage{geometry}
 \usepackage{layouts}
@@ -91,7 +99,7 @@ frame = single}
 % ADD HYPERLINKS TO DOCUMENT BUT MAINTAIN BLACK FONT
 \hypersetup{colorlinks=true,allcolors=}
 
-\title{An Off-lattice Computational Model for the Growth of Saccharomyces Cerevisiae}
+\title{A Novel Algebraic Agent Based Model for Pseudohyphal Baker's Yeast Colony Morphology}
 \titlesize{\huge} % recommend using any of \large, \Large, \LARGE, \huge, \HUGE, depening on length of title. 
 \author{Isaac Nakone}
 \degree{Bachelor of Mathematical Sciences - Honours}
@@ -102,7 +110,8 @@ frame = single}
 \graphicspath{
     {chapter1/figures/}
     {chapter2/figures/}
-    }
+    {chapter3/figures/}
+}
 
 % Use the includeonly command to work on individual chapters at a time.
 % Comment out this command to build the entire document.
@@ -133,17 +142,22 @@ frame = single}
 \include{conclusions}
 
 
+
 \begin{appendices}
 \renewcommand{\thesection}{A.\arabic{section}}
 \input{appendix} 
 \end{appendices}
 
 \backmatter
-% Add the bibliography to the table of contents
-\nocite{*} %remove when you begin to cite things in the main text
-\addcontentsline{toc}{chapter}{Bibliography}
-\bibliographystyle{apa} % choose whatever style you wish, I don't believe there is a requirement from the university
-\bibliography{reference_list} % this is a bibtext reference list. Use a reference manager such a Jabref to maintain your references and save to this directory.
+
+\include{useOfGenerativeAI}
+
+
+
+
+
+\printbibliography
+
 
 
 \end{document}
