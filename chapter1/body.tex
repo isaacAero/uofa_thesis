@@ -117,8 +117,7 @@ the computationally costly use of meshed cells is circumvented in the current wo
 an algebraic representation of cell geometry.
 \\
 
-\section{From algorithmic botany \\ 
-         to algorithmic mycology}
+\section{From algorithmic botany to algorithmic mycology}
 
 The model defined in Chapter 2 of this thesis is underpinned by a ``growing network" which is an example 
 of a graph-rewriting system. The natural precursor 
@@ -220,17 +219,74 @@ in.
 
 CSG is a technique used to build new implictely represented shapes from old ones.
 In multi-cellular modelling, where the individual cell geometry 
-is relatively fixed but there 
+is more or less fixed but there 
 are regular topological bifurcations corresponding to cell division,
-CSG is ideal and suprising has not been implementated in mycology agent 
-based models as far as the author is aware. The graphical technique used 
-in the current thesis is analogous to ``Metaballs'' or ``Blobby modelling'' which is 
-implemented in C++ by \cite{kommareddy20143d}. The individual balls, 
-modelled by quadric surfaces $f_1$ and $f_2$, are blended together 
-into a new quadric surface $f(x,y,z) = f_1(x,y,z) + f_1(x,y,z)$.
+CSG is ideal and suprisingly has not been implementated in mycology agent 
+based models as far as the author is aware.
+That being said, a recent paper from 2023 models the time-dependence of cells of bristle 
+worms (\textit{Platynereis dumerilii}) using signed distance fields (SDFs) which 
+are learnt from biomedical images using neural networks, \cite{wiesner2024generative}.
+As early as 2019, one could learn the continous SDF of arbitrary 3D geometry using 
+\textit{DeepSDF} created by \cite{park2019deepsdf}, which employs neural networks
+to learn from noisy imput data. \cite{wiesner2024generative} improve 
+on \textit{DeepSDF} by using \textit{sine} activation functions and 
+more hidden layers in their multi-layer perceptron (MLP) neural network. Whilst 
+\cite{wiesner2024generative} produce time-dependent implicit cell representations using 
+an impressive data-driven approach, my model focuses on developing 
+a mechanistic model that can bridge the gap between the cell and colony scales using 
+implicit curves.
 \\
 
+The graphical technique used in the current thesis has its origin in ``Metaballs'' or 
+``Blobby modelling'' which is in one case
+implemented in C++ by \cite{kommareddy20143d}. The individual balls, 
+modelled by quadric surfaces $f_1$ and $f_2$, are blended together 
+into a new quadric surface $f(x,y,z) = f_1(x,y,z) + f_2(x,y,z)$. The idea then 
+is to construct complex but smooth geometry from smaller algebraic components.
+\\
 
+\section{Algebraic topology meets mycology}
+
+\subsection{Topologically associating domains (TADs) in genomics}
+
+By 1997, \cite{guacci1997direct} and \cite{michaelis1997cohesins},
+had independently discovered \textit{cohesins}, proteins that 
+prevent ``premature splitting'' of sister chromatids due 
+to microtubules, facilitating the correct timing of mitosis. 
+Both teams used \textit{S. cerevisiae} cells and both
+used \textit{Fluorescence In Situ Hybridization} (FISH) in order to visualise 
+the budding yeast genome. Dekker et al. (2002) invented a higher 
+resolution genomic imaging technique called 3C (chromosome conformation capture)
+\cite{dekker2002capturing} providing a less invasive alternative 
+to FISH, and using \textit{S. cerevisiae} for this comparison.
+In 3C, formaldehyde fixation is used to cross-link nearby proteins.
+Relative frequencies at which distinct base-pairs (from different proteins)
+interact over the genome are counted by a sophisticated experimental
+process known as ``ligation'' which involves a polymerase chain reaction (PCR),
+\cite{dekker2002capturing}.
+\\
+
+The 3C, 4C (chromosome conformation capture-on-chip/circular chromosome conformation capture) and 5C 
+(chromosome conformation capture carbon-copy) techniques have culminated in Hi-C which 
+uses a combination of 3C and next generation sequencing (NGS) to image ``higher order" interations 
+in the cell nucleus, \cite{nora2012spatial}. Another pair of teams, \cite{nora2012spatial} and 
+\cite{dixon2012topological}, identifed topologically associating domains (TADs) in 2012. 
+They imaged mouse embryonic stem cell genomes using 5C.
+\\
+
+As indicated by the ``TAD caller'', de Wit (2019), 
+weakly interacting regions of genome content that interact strongly within themselves,
+called TADs (somewhat provisionally) evade clear definition, \cite{de2020tads}.
+TADs are an interpretation of the diagonal blocks on a Hi-C plot, a matrix of genomic 
+content proximities, \cite{de2020tads}. It is worth noting that there are 
+other Hi-C structures (blocks) that have inspired new names: ``loops'' or ``compartments'', ``subTADs'',
+``microTADs'', \cite{beagan2020existence}. In 2016, \cite{eser2017form} identified TADs 
+in baker's yeast. The question emerges: \textit{is any subcomponent of the living (fungal) cell essential to its
+growth? } De Wit (2019) suggests that \say{a more constructive path will be to explain TADs 
+in light of the mechanisms that form them, rather than describing TADs as we see them}.
+
+
+\begin{comment}
 
 In Keener and Sneyd's foundational textbook on cellular physiology 
 (\cite{keener2009mathematical}), the law of mass action is 
@@ -464,3 +520,5 @@ Now that the $g_{ij}$ are defined on the same domain, we can further restrict to
 \begin{equation*}
     \tilde{g}(t) = \sum_{j=1}^N \sum_{i=1}^{T} g_{ij} \varphi_i(t).
 \end{equation*}
+
+\end{comment}

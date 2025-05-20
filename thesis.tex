@@ -5,20 +5,13 @@
 
 \setcounter{secnumdepth}{2} % seting level of numbering (default for "report" is 3). With ''-1'' you have non number also for chapters
 \setcounter{tocdepth}{2}
-
+\usepackage{dirtytalk}
 \usepackage[backend=bibtex]{biblatex}
 \addbibresource{reference_list.bib}
 \addcontentsline{toc}{chapter}{Bibliography}
-
-
-
-
 \usepackage{float}
 \usepackage{matlab-prettifier}
-
-
-% Any packages should go here
-
+\usepackage{comment}
 \usepackage{lineno,setspace}
 \usepackage{caption}
 \usepackage{booktabs}
@@ -35,16 +28,12 @@
 \usepackage{epigraph} 
 \usepackage{xcolor}
 \usepackage{listings}
-
 \usepackage{makecell}
-
 \lstset{
 numbers=left, 
 numberstyle=\small, 
 numbersep=8pt, 
 frame = single}
-
-
 \usepackage{tikz}
 \usetikzlibrary{shapes.geometric}
 \usetikzlibrary{quotes,angles}
@@ -61,21 +50,9 @@ frame = single}
 \usepackage{pgfplots}
 \pgfplotsset{compat = newest}
 \usepackage{array}
-
-
-
-
-
-
-
-
 \usepackage{url}
 \usepackage{physics}
 \usepackage{matlab-prettifier}
-
-
-
-
 \usepackage{xparse}
 
 \NewDocumentCommand{\codeword}{v}{%
