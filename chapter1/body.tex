@@ -286,6 +286,15 @@ growth? } De Wit (2019) suggests that \say{a more constructive path will be to e
 in light of the mechanisms that form them, rather than describing TADs as we see them}.
 
 \subsection{A historical interlude}
+
+\textit{A note: In this subsection I comment on 
+some of the ethical dimensions of mathematical modelling in biology, 
+touching on the confronting subject of eugenics. I hope that by facing 
+such dehumanising content in a scientific context we 
+can identify the way mathematical forms have been historically shaped by 
+ideology.}
+\\
+
 Sir Ronald Alymer Fisher, whose ashes are buried in St. Peter's cathedral in Adelaide, Australia,
 declared in 1959 that more ``attention to the History of Science ... by biologists is needed'',
 as quoted by \cite{edwards2008gh} in an anecdotal commentary. Edwards, A (2008) cites
@@ -302,31 +311,101 @@ including ``alcholic, sexually immoral, criminalistic, ... insane, ... tramps''.
 It seems making Swahili \textit{pombe} is a more noble cause.
 \\
 
-R. A. Fisher found creative ways to propogate his ideas. In a batch of one-plus-three, 
-for example, Fisher, Andrey Kolmogorov, Ivan Petrovsky, and Nikolai Piskunov,
-developed an partial differential equation known as the KPP-Fisher or
+R. A. Fisher found creative ways to propogate his ideas. 
+For example, Fisher, independently of Andrey Kolmogorov, Ivan Petrovsky, and Nikolai Piskunov,
+developed a partial differential equation known as the KPP-Fisher or
 Fisher-kolmogorov equation, \cite{fisher1937wave}. At the \textit{Trinity High Table}
 , Hardy is paraphrased (by Edwards, A, 2008) to have said that ``if a system of axioms 
-for the deduction of a contradiction, then any proposition can be deduced from it".
+form the deduction of a contradiction, then any proposition can be deduced from it".
 The actual quote is from Fisher's 1958 anecdote \cite{edwards2008gh}, 
 in which the implication that ``McTaggart and the Pope are one'', 
 could be deduced if the contradiction ``two equal to one" could first be derived. 
-Nowadays, new mathematical machinary has emerged which 
+Nowadays, new mathematical machinery has emerged which 
 treat such matters with more nuance.
 \\
 
 \subsection{Grothendieck dreams}
 
-\say{For a seed to achieve its greatest expression, it must come completely undone. 
-The shell cracks, its insides come out and everything changes. 
-To someone who doesn't understand growth, it would look like complete destruction}. 
+\textit{Note: In this subsection, I name my mathematical role-model and hero, \\
+Alexander Grothendieck, who I believe exemplifies the living spirit of mathematics.}
+
+Grothendieck is quoted in \cite{mclarty2007rising} to have described 
+his mathematical process through anology.
 \\
-The poetry of Cynthia Occelli.
+
+\say{The first analogy that came to my mind is of
+immersing the nut in some softening liquid, and why not simply
+water? From time to time you rub so the liquid penetrates better,
+and otherwise you let time pass. The shell becomes more flexible
+through weeks and months—when the time is ripe, hand pressure
+is enough, the shell opens like a perfectly ripened avocado!}
+\\
+
+The question bubbles up: \textit{Does Grothendieck's \textit{yoga} of forms, 
+his pure mathematical methodology,
+transfer over to applied mathematics, or even mathematical biology?}
+Is not the mechanism by which \textit{cohesin} detaches from the cell's sister 
+chromatids during \textit{anaphase} allowing for the splitting of 
+spindle apparatus, an example of patience and precise timing? Instinct even?
+\\
+
+In this literature review, I have introduced some of the technical 
+and ethical dimensions of mathematical modelling in biology with a focus
+on \textit{S. cerevisiae}. If topologically associated domains (TADs)
+are to be taken seriously as a subject of foundational mathematical study then it 
+seems conceivable that the whole spatial arrangement of a cell could 
+be viewed as a TAD in itself, perhaps a ``superTAD'' to denote 
+that it contains TADs, subTADs, microTADs and so on.
+\\
+
+I currently lack the expertise to formalise 
+such a theory in a precise manner. That being said, 
+it is interesting to consider whether the \textit{whole}
+cell can be thought of as a topological space. A physical
+yeast cell on petri-dish is a messy and imperfect 
+entity which appears to be the \textit{furthest} thing from 
+a clean mathematical object, both in shape and function.
+With the advent of tools like \textit{DeepSDF}, and topological 
+data analysis (TDA), a clean mathematical description
+of \textit{best fit} can be derived, even if the cell itself 
+is a site of living texture. 
+\\
+
+The question of \textit{biological laws} 
+then becomes: \textit{can we predict the best-mathematical-fit
+for a biological assemblage, even if we cannot predict (or even 
+represent completely) the actual cell?}
+My hunch is that a simple ``form of best fit" really does emerge, 
+and with that idea taken on a reasoned faith I proceed. Somewhat 
+playfully, I supply the metaphysical interpretation that 
+there is no single factor: 
+\textit{Life's essence is the whole}.
+\\
+
+I represent cells as 
+level-sections of polynomials in two spatial 
+variables $x$, and $y$. By \textit{level-section} I mean the set of points 
+$(x,y) \in \mathbb{R}^2$ that satisfy,
+\begin{equation*}
+    f(x,y) \geq 0,
+\end{equation*}
+where $f(x,y)$ is a particular member of the ring of polynomials, $\mathbb{R}[x,y]$.
+In the case of an ellipse which is the polynomial, 
+\begin{equation*}
+    f(x,y) = 1 - \left[\left( \frac{x}{p}\right)^2 + \left( \frac{y}{q}\right)^2\right],
+\end{equation*}
+where $p,q \in \mathbb{R}$, there is a point of vanishing gradient at the origin. I call 
+that point the center of the ellipse, which could be translated 
+to new position, $(x_0,y_0)$, via the change of variables $x \mapsto x-x_0, y \mapsto y-y_0.$
+\\
+
+In Chapter 2, the mechanism of cell division is modelled by 
+combining polynomials of this form into a new one using MATLAB's \codeword{min}. 
+In section \ref{sec:turingPatterns}, 
+I introduce the modelling of Turing patterns.
 
 
-
-
-\section{Turing patterns and partial differential equations (PDEs)}
+\section{Turing patterns and partial differential equations (PDEs)} \label{sec:turingPatterns}
 
 
 
