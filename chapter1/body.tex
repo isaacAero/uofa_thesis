@@ -1,5 +1,10 @@
 \chapter{Literature Review}
 
+\section{An overview}
+This thesis models \textit{Saccharomyces cerevisiae} or baker's yeast, using algebraic curves 
+coupled with a nutrient partial differential equation. A review of the literature is supplied 
+to motivate the modelling choices from a range of perspectives.
+
 \section{Modelling Kingdom Fungi}
 
 Microfossils discovered in the Grassy Bay Formation 
@@ -308,12 +313,12 @@ a ``single mendelian factor" cabable of producing ``feebleness of mind'',
 Punnett's data table on the number of generations required to decrease 
 the proportion of ``defectives''. He subsitutes another table of 325 ``feebleminded cases'',
 including ``alcholic, sexually immoral, criminalistic, ... insane, ... tramps''.
-It seems making Swahili \textit{pombe} is a more noble cause.
+It seems making Swahili \textit{pombe} is a more noble scientific cause.
 \\
 
 R. A. Fisher found creative ways to propogate his ideas. 
 For example, Fisher, independently of Andrey Kolmogorov, Ivan Petrovsky, and Nikolai Piskunov,
-developed a partial differential equation known as the KPP-Fisher or
+developed a partial differential equation (PDE) known as the KPP-Fisher or
 Fisher-kolmogorov equation, \cite{fisher1937wave}. At the \textit{Trinity High Table}
 , Hardy is paraphrased (by Edwards, A, 2008) to have said that ``if a system of axioms 
 form the deduction of a contradiction, then any proposition can be deduced from it".
@@ -328,6 +333,7 @@ treat such matters with more nuance.
 
 \textit{Note: In this subsection, I name my mathematical role-model and hero, \\
 Alexander Grothendieck, who I believe exemplifies the living spirit of mathematics.}
+\\
 
 Grothendieck is quoted in \cite{mclarty2007rising} to have described 
 his mathematical process through anology.
@@ -346,7 +352,7 @@ his pure mathematical methodology,
 transfer over to applied mathematics, or even mathematical biology?}
 Is not the mechanism by which \textit{cohesin} detaches from the cell's sister 
 chromatids during \textit{anaphase} allowing for the splitting of 
-spindle apparatus, an example of patience and precise timing? Instinct even?
+spindle apparatus, an example of patience and precise timing?
 \\
 
 In this literature review, I have introduced some of the technical 
@@ -397,15 +403,47 @@ In the case of an ellipse which is the polynomial,
 where $p,q \in \mathbb{R}$, there is a point of vanishing gradient at the origin. I call 
 that point the center of the ellipse, which could be translated 
 to new position, $(x_0,y_0)$, via the change of variables $x \mapsto x-x_0, y \mapsto y-y_0.$
-\\
-
 In Chapter 2, the mechanism of cell division is modelled by 
 combining polynomials of this form into a new one using MATLAB's \codeword{min}. 
 In section \ref{sec:turingPatterns}, 
-I introduce the modelling of Turing patterns.
+I introduce the modelling of the diffusive nutrient.
 
 
-\section{Turing patterns and partial differential equations (PDEs)} \label{sec:turingPatterns}
+\section{The soil underneath: partial differential 
+equations (PDEs) for a nutrient source} \label{sec:turingPatterns}
+
+A reaction-diffusion PDE is employed to model the underlying 
+nutrient field, $c(x,y,t)$. The yeast colony biomass given by the field, 
+$b(x,y,t)$ (determined by the colony's algebraic representation), and interacts 
+with $c$ by a mechanism of aggregate 
+gradient sensing over long periods of time \cite{keller1971model}. 
+As per Keller and Segel's \textit{Model for Chemotaxis},
+I represent the external force applied to the biomass, by the nutrient 
+field's spatial gradient $\nabla c$, \cite{keller1971model}.
+\\
+
+The nutrient field is affected by the presence of the biomass,
+and this is summarised by the reaction-diffusion PDE, \cite{fisher1937wave},
+\begin{equation*}
+    \pdv{c}{t} = D \left( \frac{\partial^2 c}{\partial x^2} + \frac{\partial^2 c}{\partial y^2}\right) - r b c,
+\end{equation*}
+where the second spatial derivatives are called the diffusion term, 
+and the additional expression, $-rbc$, is a reaction between the biomass and nutrient at rate, $r$.
+If $b$ is large it means the yeast is more dense so the rate of nutrient depletion 
+is larger. But $c$ must be a coefficient to prevent the nutrient dropping to unphysical negative 
+numbers.
+\\
+
+I finish this literature review with a wonderful insight
+from the great D'Arcy Wentworth Thompson's \textit{On Growth and Form}, 
+\cite{thompson1992growth},
+\\
+
+\textit{
+``Still, all the while, like warp and woof, mechanism and teleology
+are interwoven together, and we must not cleave to the one nor
+despise the other; for their union is rooted in the very nature of
+totality."}
 
 
 
