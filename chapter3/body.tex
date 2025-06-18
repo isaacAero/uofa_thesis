@@ -230,7 +230,7 @@ listing \ref{lst:updateFood}, there are no \codeword{for} loops.
                    caption={A code listing for the \textbf{updateFood.m} script. The variable
                    name \textbf{CFL} refers to the Courant–Friedrichs–Lewy number 
                    which comes up in numerical schemes. This is called $\alpha$ in 
-                   Chapter 1.},
+                   Chapter 2.},
                    label={lst:updateFood}]
 function foodNew = updateFood(biomass, food, lambda, dt, h, X)
     N = size(X,1);
@@ -425,7 +425,7 @@ Both of these are calculated from the colony SDF changes sign.
 
 A black and white image 
 is produced at each time step using Matlab's function \codeword{bwboundaries} as per
-PhD student Kai Li's implementation. The area then is given by summing up the grid squares that are
+Li's implementation, \cite{li2024off}. The area then is given by summing up the grid squares that are
 inside the implicit shape given by the SDF and multiplying by $h^2$. The perimeter
 is obtained by using \codeword{bwboundaries}, which outputs an array of points on the boundary
 from which the Euclidean distance between neighbouring points is found and then summed over.
