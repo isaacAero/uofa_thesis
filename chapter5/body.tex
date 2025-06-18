@@ -97,25 +97,7 @@ such that the growth of the colony can be given by a homotopy
 between two functions?
 \\
 
-[Old discussion to rework]
-The mechanism of mitosis is a sleight of hand, in the sense that
-each of the nodes (two nodes per cell) are already there at the simulation
-outset. The appearance of growth of the colony coincides with the nodes' progressive
-dislodgement from their equality constraints with one another. Of course,
-there is no reason why the model could not be modified to add nodes
-that were not there to begin with, though such a model would yield
-equivalent results.
-\\
-
-To interpret the model mathematically, we recall that it was desireable to have
-a time parameter $t$ over which the state of the colony could vary. The main 
-goal of the thesis was to demonstrate that a system, in this case a yeast colony,
-which appears to acquire more dynamical variables (new coordinates for new cells for example)
-could be represented by a model with a fixed number of variables which are
-initially coincident.
-\\
-
-Philosophically, however, the model has some limitations. In reality, we know the growth
+Philosophically, the model has some limitations. In reality, we know the growth
 of fungal species such as Baker's yeast, is strongly dependent on factors such as temperature
 and the environmental conditions that the colony is subjected to. This means 
 that the dynamics of cell growth (the collision and interaction as well as the morphology) in 
@@ -137,12 +119,11 @@ are outside the scope of the current work but are nonetheless interesting to con
 This model, in which the colony appears as the ``unfolding" of a network of nodes
 follows on somewhat naturally from the theory of $L$-systems, in which the underlying 
 discrete structure of a system is allowed to evolve deterministically based on rules
-analogous to cellular automata. A criticism which has been leveled 
-(find relevant paper that I read a while ago) at $L$-systems and other deterministic models
+analogous to cellular automata. A criticism of $L$-systems and other deterministic models
 of plants for example, is what I call their intrinsic nature. That is, they effectively
-rely on the assumption that a biological system's rules for developement are somehow contained
-within it's structure (for instance, DNA). It is more fashionable nowadays, and indeed more 
-scientifically accurate, to think of a biological system as part of a complex network 
+rely on the assumption that a biological system's rules for development are somehow contained
+within the structure (for instance, DNA). It is more 
+scientifically accurate to think of a biological system as part of a complex network 
 of other organisms and environmental conditions which determine its morphology.
 \\
 
@@ -156,8 +137,8 @@ we can derive rich and unexpected dynamics.
 
 The best we can hope for is that our parametrisation is somehow dense in the space
 of all possible cell colony configurations that we see experimentally. There are even
-some exotic cases of cellular sytems in which a single cell can have nontrivial topologies (ask Ed 
-about the slime cells which optimise their topology based on nutrient). Therefore, future work 
+some exotic cases of cellular sytems in which a single cell can have nontrivial topologies, 
+see dictyostelid cellular slime molds, \cite{glockner2016multicellularity}. Therefore, future work 
 should focus on representations of dynamic cell geometries that are as free of assumptions as
 is conceivable. Once an abstract enough representation of a biological system and its environment
 becomes available in the theory, one can use it to study and predict novel morphologies that appear 
@@ -168,7 +149,7 @@ in the area of biolgical morphology viewed in the framework of ``growing geometr
 A (fixed node count) cell colony undergoes the dynamics of an overdamped spring network capable
 of internal collisions driven by
 an external nutrient field. The key concern is whether this dynamical structure is grounded in 
-biological evidence, and whether the model just metaphorical. Firstly, 
+biological evidence, and whether the model is just metaphorical. Firstly, 
 it is worth noting that because we are in the overdamped regime,
 there are no intrinsic oscillations between connected nodes. This is because the node velocity 
 is proportional to the force as opposed to the case 
@@ -189,7 +170,7 @@ this issue is alleviated by increasing the cell elasticity, $\lambda_2$, but thi
 is nonetheless a limitation.
 \\
 
-New nodes are added to the network nearby old nodes as stated in Chapter 1. The timing
+New nodes are added to the network nearby old nodes as stated in Chapter 2. The timing
 of the addition of new nodes is somewhat adhoc and provisional, but could in theory
 be elevated to something more sophisticated. Starting with the colony growth rate 
 $\mu(t)$ which is taken to be a fraction of the ideal growth rate $\mu^* = 0.4$ hour$^{-1}$.
@@ -258,70 +239,79 @@ I had originally written a MATLAB script called
 in \codeword{CellColonySimulator}. The reasons 
 for apoptosis (the triggering of a cell death event)
 are probably very complex with respect to the whole organism.
-That being said it is probably possible 
+That being said it should be possible 
 to analyse using statistical methods whether 
 the cause is within the cell or within the whole 
 colony, or both.
 \\
 
-Like Lindenmayer systems, \textit{symbolic ideas} that undergo mutations
-and dilutions often become what they are not. Is this a symptom 
-of the nature of nature? I do not comment.
+As far as computational efficiency and the choice of programming language is concerned, 
+it was my initial intent to code \textbf{CellColonySimulator} in the C programming language 
+using the structs of arrays (SOAs) data orientated approach. 
 \\
 
-In the algebraic curve, we see the implicit closure 
-of form. This is the heart of form's measure 
-to protect its dynamicism from total annihilation.
-Great pains were taken in this thesis and great new pleasures were 
-born. Through a diversity of pains and pleasures that 
-bring us to the limit of my \textit{capability}, 
-we see the very splitting and emergence of new forms.
+In this direction, significant speedups can be made if skilled use of 
+parallel threading and GPU compute (through CUDA) is employed. Visualisation 
+of the colony could be achieved by converting the colony's
+implicit representation into a surface mesh and rendered on the GPU
+via a vertex shader program in OpenGL. Another alternative 
+is to use ray marching where the object to be rendered is projected 
+onto a quadrilateral arranged in the viewport. Rays
+projected forward from this quadrilateral locate the object via 
+the object's signed distance field and lighting effects can
+be easily integrated. Because 
+this can be done in a fragment shader in OpenGL it 
+would provide a quick visualisation without much 
+coding involved. The meshed solution, mentioned first,
+despite being more clunky, seems more flexible,
+because it can be integrated easily with other meshed-based
+scene elements, such as plot axes and labels.
 \\
 
-Computation as a form of reified failure to predict 
-in full the face of the \textit{real} is 
-our great human inebriation. It is a dream 
-never fulfilled to reinvent the human being 
-as a machine, because the machine is co-emergent with
-human nature. The \textit{dream}, however, 
-is a wonderfully productive one.
+Another approach, is to simulate the colony dynamics in a lower 
+level language like C or Fortran, saving the node positions and nutrient 
+field at each moment. The biomass can then be reconstructed
+from the node positions in a language like MATLAB or Python,
+where post-processing such as plotting and statistics can be done.
+The best of both words would be to toggle on or off 
+OpenGL visualisation in C, to check a
+preliminary visualisation for any obvious issues, whilst saving 
+the run data for post-processing in another language.
+
+
 
 
 
 \section{Readiness for experimental validation and fitting}\label{expFitting}
-
-\textit{O let us talk of quiet that we know,
-that we can know, the deep and lovely quiet
-of a strong heart at peace!}
-\\
-\textit{How can we this, our own quietus, make?}
-\\
-
-An excerpt from \textit{The Ship of Death}, by D.H.Lawrence.
+Observing real yeast colonies, we note that multiple
+seperate budding networks form. That is to say,
+the present model would need to be further modified 
+to include detachment events where new cells form a 
+seperate disconnected colony.
 \\
 
-Under the gaze of the other, we see the first signs 
-of their wealth of possibilities, both to destroy and build.
-During an \textit{episode} of immense mental pain and indeed 
-clarity, I was able to see that the \textit{other}, when 
-it realises the split at the heart of subjectivity, 
-may eventually derive new forms of \textit{good and evil}. 
-At the clearing of the initial split, 
-this is when those two opposite polarities destabilise and indeed
-we can see this kind of co-emerge taking place 
-in the world at large.
+The addition of robust cell death and cell detachment events would 
+prime the model to be experimentally validated. This 
+would likely introduce new parameters $\lambda$ and more 
+overall complexity, so an in-depth, flexible and robust modelling platform 
+in C (as mentioned earlier) integrated with a good data analytics package 
+would be ideal to carry out comparisions with experimental yeast micrographs
+at managable run time. The theory is that the highly optimised run 
+script can be called upon from MATLAB or Python when required.
 \\
 
-So then, I am ready for the next stage of my mathematical career. 
-Not through a meglomaniacal control of subjectivity, 
-but a wish to cherish its mysterious forms by 
-building mathematical ornaments for it. As far 
-as attention is misused for predictition at the cost 
-of its own attentive form, I cannot offer a conclusive remark.
-\\
+Statistical best fits to experimental morphological
+data could be derived by using metrics like compactness and
+average radius. The question becomes: \textit{for 
+what model parameter values can one minimise the difference squared
+between the simulated (ensemble average) and experimental images?}
+One could use a feed foward 
+neural network (NN) in order to learn the model itself, 
+modelling the output parameters, compactness and others, as a function of the input 
+variables, $\lambda$.
 
-It appears two boats have parted at a \textit{Y}-junction in a river. 
-Perhaps one day they will meet again. Perhaps not.
+
+
 
 
 
