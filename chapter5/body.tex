@@ -6,20 +6,20 @@ design decisions based on a number of concerns. These include
     \item The requirement for manageable run times on a gaming laptop.
     \item Modelling both colony scale and cell scale morphology.
     \item Capturing the process of mitosis in a natural but simple way.
-    \item Ensuring the model is amenable to statisitical analysis.
+    \item Ensuring the model is amenable to statistical analysis.
     \item Providing a model ready for fitting to experimental micrographs of cell colonies.
     \item Crystallising the model into a form that could be analysed in a conceptually 
           rigorous setting, say within the context of functional analysis,
           bifurcation theory or algebraic topology.
 \end{itemize}
 Whilst the computational model and conceptual apparatus developed here take on these concerns,
-this section will explore to what extent these concerns were \textit{not} met. In particualar, we comment on the
+this section will explore to what extent these concerns were \textit{not} met. In particular, I comment on the
 fundamental limitations of the model. In subsection \ref{conceptLims}, the commentary begins 
 with an evaluation of the model regarding the primary conceptual goals.
 
 \subsection{Conceptual limitations} \label{conceptLims}
 The model was able to deploy the concept of algebraic curves with time dependent coefficients 
-to represent the cells. Indeed the implicit equation for a translated, rotated, and scaled ellispe 
+to represent the cells. Indeed the implicit equation for a translated, rotated, and scaled ellipse 
 is a member of the ring of polynomials in two variables $\mathbb{R}[x,y]$ where coefficients are
 dependent on the underlying discrete network of nodes. In a previous version of the model, 
 the underlying network of nodes were initially collocated and via the elimination 
@@ -38,12 +38,12 @@ adding new nodes to the network, just very close by ($\delta = 0.01 L_0$).
 As it turned out, this was not a consequential fault,
 since the distance $\delta$ can be made so small that 
 the daughter cell appears to bud from the parent cell, as 
-would be observed in the case of pseduohyphal growth of baker's yeast.
+would be observed in the case of pseudohyphal growth of baker's yeast.
 What I argue is that this is in fact a conceptual fault present in the model
 because it represents an arbitrary addition of a new variable,
 the budding angle $\theta_{b}$ not to mention the constant (but small) budding radius 
 $\delta$. What I intended  
-was a ``derivation'' of cells division within a broader model,
+was a ``derivation'' of cell division within a broader model,
 as opposed to an imposition of more assumptions and parameters
 over time to achieve the mitosis.
 \\
@@ -53,16 +53,16 @@ and is the only source of randomness in the model. Of course the budding angle
 could be chosen to be in line with the nutrient gradient vector and this would 
 eliminate randomness from the model. Future work could seek to 
 reintroduce randomness in the form of a stochastic process, 
-such a Langevin term in the the ODEs for the node positions (and even in the nutrient PDE).
+such as a Langevin term in the ODEs for the node positions (and even in the nutrient PDE).
 \\
 
 A model which I have prototyped, is one wherein the nutrient field is 
 effectively ``converted into nodes''. That is, the nutrient field is not simply
 a scalar field of ``stuff'', but actually becomes a field of structure. The simplest
 version of this is to set the nutrient field as a collection of Brownian walkers that 
-can be taken up by a colony and added to the colony's network. In some sense this 
+can be taken up by the colony and added to the colony's network. In some sense this 
 would solve the problem, since no new nodes are ever added into the simulation,
-its just that the initially unstructured nodes take on a new behaviour within the cell network.
+it is just that the initially unstructured nodes take on a new behaviour within the cell network.
 \\
 
 Another conceptual direction is that of taking seriously the notion of 
@@ -82,12 +82,11 @@ nanoscopic molecular scale and microscopic cellular scale.
 Regarding the shape of individual cells, 
 the ellipse with variable aspect ratio is chosen to represent eukaryotic
 fungal cells such as S. cerevisiae. Beyond changing 
-the cell aspect ratio, there is no mechanism in \
-\textbf{CellColonySimulator}
+the cell aspect ratio, there is no mechanism in \textbf{CellColonySimulator}
 to opt for plant like cell shapes (for example) which are more blocky.
-Algebraic modelling of the cell membrane (in the case of plant cells) or
-a modelling other cell wall shapes (fungal or even mammal cells)
-is implied here however. For instance, by chosing more elaborate
+Algebraic modelling of the cell membrane (in the case of plant cells) or 
+modelling of other cell wall shapes (fungal or even mammal cells)
+is implied here, however. For instance, by chosing more elaborate
 polynomials, one can derive a taxonomy of cell shapes at the cost of 
 implementation simplicity and perhaps computational performance. 
 An avenue to explore is seeing whether bifurcations
@@ -98,7 +97,7 @@ between two functions?
 \\
 
 Philosophically, the model has some limitations. In reality, we know the growth
-of fungal species such as Baker's yeast, is strongly dependent on factors such as temperature
+of fungal species such as baker's yeast is strongly dependent on factors such as temperature
 and the environmental conditions that the colony is subjected to. This means 
 that the dynamics of cell growth (the collision and interaction as well as the morphology) in 
 any large colony system cannot be intrinsically defined. To put it succinctly, the dynamics of 
@@ -107,7 +106,7 @@ the colony is strongly coupled to the local environmental conditions.
 
 Does this mean that we can only model biological systems completely if all the conditions 
 are incorporated? We aim to consider the simplest viable model. This, in the case of the current work, 
-is a model that has two components: a cell colony as discussed in the preceeding section, and 
+is a model that has two components: a cell colony and 
 a nutrient field. Indeed, their coupling determines the dynamics. 
 \\
 
@@ -140,7 +139,7 @@ should focus on representations of dynamic cell geometries that are as free of a
 is conceivable. Once an abstract enough representation of a biological system and its environment
 becomes available in the theory, one can use it to study and predict novel morphologies that appear 
 in nature. Hopefully it is clear that the present work is just a suggestion of the numerous possibilities
-in the area of biolgical morphology viewed in the framework of ``growing geometry''.
+in the area of biological morphology viewed in the framework of ``growing geometry''.
 
 \subsection{Dynamical limitations}
 A (fixed node count) cell colony undergoes the dynamics of an overdamped spring network capable
@@ -192,7 +191,7 @@ implementation simplicity.
 
 The periodic structure of adding cells in at simultaneous snapshots of time,
 is an artificial choice based on implementation simplicity alone. 
-A higher fidelty model could be constructed in which cells bud off at any time.
+A higher fidelity model could be constructed in which cells bud off at any time.
 One way to do this is to calibrate mitosis times per cell based on cell cycle data
 and allow a cell to undergo mitosis if a certain threshold of nutrient is locally
 available. This would not be difficult to implement, but 
@@ -255,8 +254,7 @@ via a vertex shader program in OpenGL. Another alternative
 is to use ray marching where the object to be rendered is projected 
 onto a quadrilateral arranged in the viewport. Rays
 projected forward from this quadrilateral locate the object via 
-the object's signed distance field and lighting effects can
-be easily integrated. Because 
+the object's SDF and lighting effects can easily be integrated. Because 
 this can be done in a fragment shader in OpenGL it 
 would provide a quick visualisation without much 
 coding involved. The meshed solution, mentioned first,
