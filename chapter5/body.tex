@@ -12,8 +12,8 @@ design decisions based on a number of concerns. These include
           rigorous setting, say within the context of functional analysis,
           bifurcation theory or algebraic topology.
 \end{itemize}
-Whilst the computational model and conceptual apparatus devloped here take on these concerns,
-this section will explore to what extent these concerns were not met. In particualar, we comment on the
+Whilst the computational model and conceptual apparatus developed here take on these concerns,
+this section will explore to what extent these concerns were \textit{not} met. In particualar, we comment on the
 fundamental limitations of the model. In subsection \ref{conceptLims}, the commentary begins 
 with an evaluation of the model regarding the primary conceptual goals.
 
@@ -38,7 +38,7 @@ adding new nodes to the network, just very close by ($\delta = 0.01 L_0$).
 As it turned out, this was not a consequential fault,
 since the distance $\delta$ can be made so small that 
 the daughter cell appears to bud from the parent cell, as 
-would be observed in the case of pseduo-hyphal growth of Baker's yeast.
+would be observed in the case of pseduohyphal growth of baker's yeast.
 What I argue is that this is in fact a conceptual fault present in the model
 because it represents an arbitrary addition of a new variable,
 the budding angle $\theta_{b}$ not to mention the constant (but small) budding radius 
@@ -53,10 +53,10 @@ and is the only source of randomness in the model. Of course the budding angle
 could be chosen to be in line with the nutrient gradient vector and this would 
 eliminate randomness from the model. Future work could seek to 
 reintroduce randomness in the form of a stochastic process, 
-such a langevin term in the the ODEs for the node positions (and even in the nutirent PDE).
+such a Langevin term in the the ODEs for the node positions (and even in the nutrient PDE).
 \\
 
-A model whaich I have prototyped, is one in which the nutrient field is 
+A model which I have prototyped, is one wherein the nutrient field is 
 effectively ``converted into nodes''. That is, the nutrient field is not simply
 a scalar field of ``stuff'', but actually becomes a field of structure. The simplest
 version of this is to set the nutrient field as a collection of Brownian walkers that 
@@ -68,9 +68,9 @@ its just that the initially unstructured nodes take on a new behaviour within th
 Another conceptual direction is that of taking seriously the notion of 
 ``cell as structured randomness''. Biochemistry tells us that
 cells are reducible to chemical reaction networks (CRNs), but of course to combine 
-CRNs into the workings of a single cell is not trivial. This means effictive
+CRNs into the workings of a single cell is not trivial. This means effective
 models are required, which leave out most of the labrythine details of the cell's
-internal workings (see proteins, DNA, RNA, mitotic spindles, golgi apparatus) but allow
+internal workings (such as proteins, DNA, RNA, mitotic spindles, golgi apparatus) but allow
 for efficient computation. Even CRNs are limited by the fact that 
 they usually do not consider the shape of a protein which plays 
 a key role in its functionality. The model presented here brushes
@@ -81,18 +81,18 @@ nanoscopic molecular scale and microscopic cellular scale.
 
 Regarding the shape of individual cells, 
 the ellipse with variable aspect ratio is chosen to represent eukaryotic
-fungal cells such as saccharomyces cerevisiae. Beyond changing 
+fungal cells such as S. cerevisiae. Beyond changing 
 the cell aspect ratio, there is no mechanism in \
 \textbf{CellColonySimulator}
-to change to plant like cell shapes (for example) which are more blocky.
+to opt for plant like cell shapes (for example) which are more blocky.
 Algebraic modelling of the cell membrane (in the case of plant cells) or
-a diverse range of cell wall shapes (fungal or even mammal cells)
-is implied here however. For insance, by chosing more elaborate
+a modelling other cell wall shapes (fungal or even mammal cells)
+is implied here however. For instance, by chosing more elaborate
 polynomials, one can derive a taxonomy of cell shapes at the cost of 
 implementation simplicity and perhaps computational performance. 
 An avenue to explore is seeing whether bifurcations
 can be achieved in a different ring of continuous functions of $x$ and $y$.
-Indeed, can the whole colony be represented by (the level set of) one function at each time,
+Indeed, can the whole colony be represented by (the level section of) one function at each time,
 such that the growth of the colony can be given by a homotopy 
 between two functions?
 \\
@@ -106,14 +106,9 @@ the colony is strongly coupled to the local environmental conditions.
 \\
 
 Does this mean that we can only model biological systems completely if all the conditions 
-are incorporated? As per the discussion in the introduction about mathematical modelling,
-we aim to consider the simplest viable model. This, in the case of the current work, 
+are incorporated? We aim to consider the simplest viable model. This, in the case of the current work, 
 is a model that has two components: a cell colony as discussed in the preceeding section, and 
 a nutrient field. Indeed, their coupling determines the dynamics. 
-\\
-
-In the discussion, I will suggest ways to relax these limiting assumptions that
-are outside the scope of the current work but are nonetheless interesting to consider.
 \\
 
 This model, in which the colony appears as the ``unfolding" of a network of nodes
@@ -127,7 +122,8 @@ scientifically accurate to think of a biological system as part of a complex net
 of other organisms and environmental conditions which determine its morphology.
 \\
 
-Consider a minimalistic example of modelling the motion of a spherical ball rolling around on a table.
+Physically, there are again more directions to follow up. Consider a minimalistic 
+example of modelling the motion of a spherical ball rolling around on a table.
 Two spatial paramters $x$ and $y$, together as a tuple are enough to say where it is. However, 
 if the ball unexpectately falls from the table, then you would suddenly require
 another parameter to describe the state of the system. The value of this classical example
@@ -135,7 +131,8 @@ is to demonstrate for $N$ particles and $M$ constraints that may suddenly change
 we can derive rich and unexpected dynamics.
 \\
 
-The best we can hope for is that our parametrisation is somehow dense in the space
+Regarding the possibilities of geometric modelling, the best we can hope for is that 
+our parametrisation is somehow dense in the space
 of all possible cell colony configurations that we see experimentally. There are even
 some exotic cases of cellular sytems in which a single cell can have nontrivial topologies, 
 see dictyostelid cellular slime molds, \cite{glockner2016multicellularity}. Therefore, future work 
@@ -173,8 +170,8 @@ is nonetheless a limitation.
 New nodes are added to the network nearby old nodes as stated in Chapter 2. The timing
 of the addition of new nodes is somewhat adhoc and provisional, but could in theory
 be elevated to something more sophisticated. Starting with the colony growth rate 
-$\mu(t)$ which is taken to be a fraction of the ideal growth rate $\mu^* = 0.4$ hour$^{-1}$.
-Cells are added in at discrete intervals of time, given by 
+$\mu(t)$ which is taken to be a fraction of the ideal growth rate $\mu^* = 0.4$ hour$^{-1}$,
+cells are added in at discrete intervals of time, given by 
 \begin{equation*}
     \Delta n = \bigg\lceil \frac{1}{\Delta t} \bigg\rceil.
 \end{equation*}
@@ -220,7 +217,7 @@ used in \textbf{CellColonySimulator}.
 Finally, the use of a reaction-diffusion PDE is traditional in mathematical biology, however
 in light of the insights developed here, future work could focus on modelling 
 random fluctuations in nutrient concentration, or even introducing multiple interacting 
-morphogens such as in Turing's morphogenesis paper (\cite{turing1990chemical}).
+morphogens such as in Turing's morphogenesis paper \cite{turing1990chemical}.
 
 
 
@@ -251,7 +248,7 @@ using the structs of arrays (SOAs) data orientated approach.
 \\
 
 In this direction, significant speedups can be made if skilled use of 
-parallel threading and GPU compute (through CUDA) is employed. Visualisation 
+parallel threading and GPU compute (through CUDA) are employed. Visualisation 
 of the colony could be achieved by converting the colony's
 implicit representation into a surface mesh and rendered on the GPU
 via a vertex shader program in OpenGL. Another alternative 
@@ -296,7 +293,7 @@ would likely introduce new parameters $\lambda$ and more
 overall complexity, so an in-depth, flexible and robust modelling platform 
 in C (as mentioned earlier) integrated with a good data analytics package 
 would be ideal to carry out comparisions with experimental yeast micrographs
-at managable run time. The theory is that the highly optimised run 
+at a managable run time. The theory is that the highly optimised run 
 script can be called upon from MATLAB or Python when required.
 \\
 

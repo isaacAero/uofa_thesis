@@ -377,7 +377,7 @@ A nutrient medium containing glucose is assumed to be given by a reaction-diffus
 partial differential equation. That is the nutrient concentration $c(x,y,t)$ is given by
 \begin{equation*}
     \pdv{c(x,y,t)}{t} = D \left( \frac{\partial^2 c(x,y,t)}{\partial x^2} + 
-                          \frac{\partial^2 c(x,y,t)}{\partial y^2} \right) - r c(x,y,t) b(x,y,t)
+                          \frac{\partial^2 c(x,y,t)}{\partial y^2} \right) - r c(x,y,t) b(x,y,t),
 \end{equation*}
 where $b(x,y,t)$ is the microscopic biomass density of the cell colony, $D$ is a diffusion
 coefficient and $r$ is a constant measuring the rate at which the cells consume nutrient.
@@ -414,7 +414,7 @@ $T = \frac{1}{\mu^*}$ the reciprocal of specific growth rate for yeast, that is 
 the formula for the total node count. The value chosen was $\mu^* = 0.46$ hour$^{-1}$
 from the value cited at \cite{salari2017investigation} which represents ideal conditions
 for saccharomyces cerevisiae growth on a synthetic culture medium containing glucose. 
-The value given by (\cite{salari2017investigation}) is a doubling rate of $90$ mins. In the model
+The value given by \cite{salari2017investigation} is a doubling rate of $90$ mins. In the model
 presented in this thesis, that amounted to $\mu^* = \frac{\log(2)}{1.5 \ \textrm{hours}} = 0.4621$ hour$^{-1}$ which
 was rounded down to $0.46$ hour$^{-1}$ as a conservative estimate.
 
@@ -469,8 +469,8 @@ which results in
       \left( \frac{r  B}{\mu^*}\right)  \hat{c}\hat{b}.
 \end{equation*}
 Call the dimensionless diffusion constant $\lambda_1 = \frac{D}{ \mu^* L_0^2}$ and 
-set $\frac{r  B}{\mu^*}=1$ which are free to do since $B$ is unset to begin with. This means 
-that the scaling for the biomass density is $B = \frac{\mu^*}{r}$. The reaction diffusion equation 
+set $\frac{r  B}{\mu^*}=1$ which we are free to do since $B$ is unset to begin with. This means 
+that the scaling for the biomass density is $B = \frac{\mu^*}{r}$. The reaction-diffusion equation 
 reduces to 
 \begin{equation*}
     \pdv{\hat{c}}{\hat{t}} = \lambda_1 \left(\pdv[2]{\hat{c}}{\hat{x}} + \pdv[2]{\hat{c}}{\hat{y}} \right) -
@@ -564,7 +564,7 @@ The model parameters are summarised in table \ref{table:VariableNames}.
 
 \subsection{Non-dimensional model equations of motion (EOMs)}
 
-Dropping the hats on variable symbols, we arive at the final system equations of motion which
+Dropping the hats on variable symbols, we arrive at the final system equations of motion which
 span from equation \ref{eqn:EOMs_PDE} to \ref{eqn:centerPos}.
 
 
@@ -636,7 +636,7 @@ Note that $i$ and $j$ index over node numbers, $k$ over cells, and $i_1$ and $i_
 that comprise cell $k$. Also note that $\Theta_e$, the orientation of the starting cell
 is chosen to be different for each ensemble instance $e$. In fact,
 this is chosen to be a uniform random number between $[0,2\pi]$ which
-is unpdated in the loop over the ensemble in \codeword{Master.m} as part of the \textbf{CellColonySimulator}
+is updated in the loop over the ensemble in \codeword{Master.m} as part of the \textbf{CellColonySimulator}
 MATLAB software.
 Finally the petri-dish domain is given by 
 
@@ -652,12 +652,14 @@ In order to advance the nutrient field in time, an efficient and stable numerica
 was required. Because of the fact that the nutrient field $c(x,y,t)$ is coupled 
 to the biomass field which is dependent on a discrete network that changes in connectivity and 
 node count, it was necessary to implement the method in-house, as opposed to 
-using a pre-existing MATLAB boundary value solver for instance. The Crank-Nicolson method (\cite{crank1947practical}) was 
+using a pre-existing MATLAB boundary value solver for instance. The Crank-Nicolson method \cite{crank1947practical} was 
 chosen for the practical reason that it led to faster simulations overall since a larger
 time step could be used as opposed to the explicit forward in time central in space (FTCS) scheme. This 
-is a direct consequence of the fact that the (implicit) Crank-Nicholson scheme is unconditionally numerically 
-stable. Let us begin by verifying this fact using the what is
-known as Von Neumann stability analysis (\cite{charney1950numerical}).
+is a direct consequence of the fact that the (implicit) Crank-Nicolson scheme is unconditionally numerically 
+stable. Let us begin by verifying this fact using what is
+known as Von Neumann stability analysis \cite{charney1950numerical}.
+\\
+
 \begin{figure}[!htb]
     \centering
 \begin{tikzpicture}
@@ -732,7 +734,7 @@ Firstly, we
 define the nutrient field as $c_{l,m}^{n} = c(x_l, y_m, t_n)$, where $x_l = -\frac{1}{2}L_{\textrm{petri-dish}} + h l$, 
 $y_m = -\frac{1}{2}L_{\textrm{petri-dish}} + h m$ and similarly for $b_{l,m}^{n}$,
 the biomass. The values  $c_{l,m}^{n}$ precisely satisfy the discretised equations which follow.
-Let  $\bar{c}_{l,m}^{n}$ be the solution achieved with finite precison arithmetic 
+Let  $\bar{c}_{l,m}^{n}$ be the solution achieved with finite precision arithmetic 
 operations which does not necessarily satisfy the equations, up to some error term,
 \begin{equation*}
     \epsilon_{l,m}^n = \bar{c}_{l,m}^{n} - c_{l,m}^{n}.
@@ -743,7 +745,7 @@ Carrying out the Crank-Nicolson discretisation with the values $c_{l,m}^{n}$, we
     \frac{\lambda_1}{2} \left( \nabla^2 c_{l,m}^{n+1} + \nabla^2 c_{l,m}^{n} \right) -
      \frac{1}{2} b_{l,m}^{n} (c_{l,m}^{n+1} + c_{l,m}^{n}).
 \end{equation*}
-The laplacian terms here are calculated with a five-point stencil at the current and subsequent 
+The Laplacian terms here are calculated with a five-point stencil at the current and subsequent 
 time steps as shown in figure \ref{fig:CrankNicolsonScheme}. This results in the following discretisation,
 
 \begin{equation*}
@@ -838,8 +840,11 @@ equation,
     |\xi| = \left| \frac{1 -\alpha(2 - \left[ \cos(\nu_x h) + \cos(\nu_y h) \right]) }
                         {1 +\alpha(2 - \left[ \cos(\nu_x h) + \cos(\nu_y h)\right])} \right|,
 \end{equation*}
-Which has a numerator less than or equal to $1$ because $\alpha > 0$ and 
-$0 \leq 2 - \left[ \cos(\nu_x h) + \cos(\nu_y h) \right] \leq 4$. The denominator is 
+which has a numerator less than or equal to $1$ because $\alpha > 0$ and 
+\begin{equation*}
+0 \leq 2 - \left[ \cos(\nu_x h) + \cos(\nu_y h) \right] \leq 4.
+\end{equation*}
+The denominator is 
 always greater than or equal to $1$, which is enough to prove that
 the Crank-Nicolson scheme for the standard heat equation is numerically stable.
 \\
