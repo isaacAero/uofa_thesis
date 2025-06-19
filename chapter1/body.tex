@@ -1,7 +1,7 @@
 \chapter{Literature Review}
 
 \section{An overview}
-This thesis models \textit{Saccharomyces cerevisiae} or baker's yeast, using algebraic curves 
+This thesis models \textit{Saccharomyces cerevisiae} (baker's yeast), using algebraic curves 
 coupled with a nutrient partial differential equation. A review of the literature is supplied 
 to motivate the modelling choices from a range of perspectives.
 
@@ -9,18 +9,18 @@ to motivate the modelling choices from a range of perspectives.
 
 Microfossils discovered in the Grassy Bay Formation 
 (Shaler Supergroup, Artic Canada) dating back to the Proterozoic Eon, $2500$ to $538.8$ million years ago, were 
-found to have fungal affinity (\cite{loron2019early}). Curiously, it took until 1969 for Fungi to be 
+found to have fungal affinity \cite{loron2019early}. Curiously, it took until 1969 for Fungi to be 
 recognised in plant ecologist Robert Whittaker's work as part of a taxonomic kingdom, Kingdom Fungi,
-which is distinct from Kingdom Plantae (\cite{whittaker1969new}). Today, locating fungal species 
+which is distinct from Kingdom Plantae \cite{whittaker1969new}. Today, locating fungal species 
 in phylogenetic lineages is facilitated through colonial morphology imaging as a first 
 estimate. More advanced experimental techniques such as transmission 
 electron microscopy (TEM) can provide  
-conclusive identification (\cite{loron2019early}) of fungal samples.
+conclusive identification \cite{loron2019early} of fungal samples.
 \\
 
-Nonetheless, morphological features observed in fungal strains such as fission yeast 
+Morphological features observed in fungal strains such as fission yeast 
 (\textit{Schizosaccharomyces pombe}) are sometimes cited as the reason 
-why yeast is broadly considered a ``model organism'' (\cite{hayles2018introduction}).
+why yeast is broadly considered a ``model organism'' \cite{hayles2018introduction}.
 Cell Biologist Murdoch Mitchison was able to study the fission yeast cell cycle in 1957 for instance,
 because the length of the rod shaped cells of \textit{S. pombe} reflected their stage in the cell cycle.
 It happens to be an \textit{S. pombe} spore grown on malt extract agar that was imaged in exquisite detail via 
@@ -42,59 +42,58 @@ of a mathematical model is always limited by the bias implicit (or explicit) in 
 \\
 
 Biology is inherently multi-scale and the problem 
-of bridging between scales is named the ``translational challenge'' (\cite{an2009agent}).
+of bridging between scales is named the ``translational challenge'' \cite{an2009agent}.
 The interplay between the phenotypical properties of a filamentous yeast colony and 
 its genotype, is one such challenge. Indeed, the eukaryote \textit{S. pombe}, has a similar 
 cytoskeletal organisation to a human tissue cell as well as analogous DNA transcription mechanisms 
-(\cite{hoffman2015ancient}) and yet human tissue 
+\cite{hoffman2015ancient} and yet human tissue 
 morphology vastly differs from fission yeast.
 \\
 
 \cite{an2009agent} position agent-based models (ABMs), dating back to cellular automata, as well suited to the 
- translational challenge for a number of reasons. These include the ability 
- for ABMs to model morphological emergence from simple and modular rules. These rules 
- are constructed from a qualitative understanding of the underlying mechanisms of for instance 
- \textit{S. pombe} intracellular stresses which could be based on some basic assumptions
- about cellular elasticity. Importantly, ABMs are easy to deploy acting 
- as a cheap alternative to \textit{in vitro} experiments with fungal species.
- \\
+translational challenge for a number of reasons. These include the ability 
+for ABMs to model morphological emergence from simple and modular rules. These rules 
+are constructed from a qualitative understanding of the underlying mechanisms of for instance 
+\textit{S. pombe} intracellular stresses which could be based on some basic assumptions
+about cellular elasticity. Importantly, ABMs are easy to deploy acting 
+as a cheap alternative to \textit{in vitro} experiments with fungal species.
+\\
 
- Multi-cellular agent based modelling of \textit{S. pombe} or baker's yeast 
- (\textit{Saccharomyces cerevisiae}) is of interest to number of scientific  
- communities. On the one hand, due to the molecular similarity of yeast to human 
- cells it can serve as a model organism that can ethically be grown, and on 
- the other it is of intrinsic interest to philogeneticists who study the origin 
- of life on Earth. Morphological studies using ABMs can also provide breweries and 
- food processing industries with practically useful findings to 
- set up ideal growth conditions for cultures prior to expensive 
- industrial implemenatations. Indeed \textit{pombe} is Swahili 
- for ``booze'', being originally observed in contaminated 
- millet beer delayed on route from East Africa to Germany (\cite{hayles2018introduction}).
- \\
+Multi-cellular agent based modelling of \textit{S. pombe} or
+\textit{Saccharomyces cerevisiae} (baker's yeast) is of interest to a number of scientific  
+communities. On the one hand, due to the molecular similarity of yeast to human 
+cells, it can serve as a model organism that can ethically be grown, and on 
+the other, it is of intrinsic interest to philogeneticists who study the origin 
+of life on Earth. Morphological studies using ABMs can also provide breweries and 
+food processing industries with practically useful findings to 
+set up ideal growth conditions for cultures prior to expensive 
+industrial implemenatations. Indeed \textit{pombe} is Swahili 
+for ``booze'', being originally observed in contaminated 
+millet beer delayed on route from East Africa to Germany \cite{hayles2018introduction}.
+\\
 
- \section{Agent based modelling in context}
+\section{Agent based modelling in context}
+In the current thesis, a dynamic off-lattice agent based modelling framework for \textit{S. cerevisiae} 
+colonial morphology 
+is proposed and implemented. As opposed to fission yeast, \textit{S. cerevisiae} exhibits 
+budding and can be induced into a filamentous regime called pseudohyphal growth
+in which cells become elongated leading to overall branching patterns 
+in the colonial morphology. The off-lattice ABM developed in \cite{li2024off} 
+inspired the modelling of the pseudohyphal \textit{S. cerevisiae} regime 
+presented here, though it uses a vastly different computational methodology.
+\\
 
- In the current thesis, a dynamic off-lattice agent based modelling framework for \textit{S. cerevisiae} 
- colonial morphology 
- is proposed and implemented. As opposed to fission yeast, \textit{S. cerevisiae} exhibits 
- budding and can be induced into a filamentous regime called pseudohyphal growth
- in which cells become elongated leading to overall branching patterns 
- in the colonial morphology. The off-lattice ABM developed in \cite{li2024off} 
- inspired the modelling of the pseudohyphal \textit{S. cerevisiae} regime 
- presented here, though it uses a vastly different computational methodology.
- \\
-
- \cite{li2024off} use approximate bayesian computatation (ABC)
- to infer model parameters within the context of a probabilistic (and spatial) branching simulation, 
- yielding remarkable fits to micrographs of filamentous yeast. Building 
- from the experimental observations of pseudohyphal growth presented in 
- \cite{gimeno1992unipolar}, Li et al. dispense with diffusion limited growth (DLG) which is
-shown by \cite{tronnolone2018diffusion} to only be a peripheral mechanism in filamentous 
+\cite{li2024off} use approximate bayesian computatation (ABC)
+to infer model parameters within the context of a probabilistic (and spatial) branching simulation, 
+yielding remarkable fits to micrographs of filamentous yeast. Building 
+from the experimental observations of pseudohyphal growth presented in 
+\cite{gimeno1992unipolar}, Li et al. dispense with diffusion limited growth (DLG) which is
+shown by \cite{tronnolone2018diffusion} to be just a peripheral mechanism in filamentous 
 colony shape.
 \\
 
 Whilst pseudohyphal growth dynamics
-have proved to be the dominant growth mechanism (\cite{tronnolone2018diffusion}) for 
+have proved to be the dominant growth mechanism \cite{tronnolone2018diffusion} for 
 \textit{S. cerevisiae} in nutrient poor environments, it is the aim of the present 
 work to reintroduce a diffusive nutrient medium in the hope of defining 
 \textit{to what extent} these two phenomena intertwine.
@@ -107,13 +106,13 @@ settings through the addition of new nodes and edges to each polygonal cell.
 In contrast, \cite{li2024off}, use static ellipsoidal cells that are added into the simulation
 abruptly. \cite{li2024off} instead focus on the ability to fit their model 
 to experimental micrographs of \textit{S. cerevisiae} using statistical methods.
-In fact, this choice seems to reflect a gap in the multi-cellular modelling literature:
+Interestly, this choice seems to reflect a gap in the multi-cellular modelling literature:
 \textit{how can cell division be represented without the artificial inclusion of new parameters?}
 \\
 
 In both the work of \cite{van2020quantitative}, and the ABM of 
 \cite{brown2021rigid}, the dynamics of the colony 
-are derived from the dynamcis of individual cells which are represented
+are derived from the dynamics of individual cells which are represented
 by meshes with time-dependent topology as well as geometry. However ingenious this idea may be, 
 computation quickly becomes intractible for large colonies
 due to the increasing size of the underlying system of ordinary differential equation (ODEs)
@@ -172,8 +171,10 @@ areas are,
     \item Reaction-diffusion partial differential equations (PDEs),
           as studied in mathematical biology \cite{turing1990chemical}.
 \end{itemize}
-The first and third of these areas have already been introduced in the work of 
-the algorithmic botany group and recent work from \cite{tronnolone2018diffusion}.
+The first and third of these areas have already been mentioned here earlier when 
+referring to the work of the algorithmic botany group and the recent paper from 
+\cite{tronnolone2018diffusion}. The following section addresses the second 
+dot point.
 
 \section{Implicit surfaces and constructive solid geometry (CSG)}
 
@@ -189,8 +190,8 @@ frameworks. Mesh based modelling has the advantage of locality in that
 deformations to the shape can be made by moving a node in the mesh
 without changing it globally which gives more flexibility.
 A limitation which has already been mentioned is that mesh based models, 
-particualary in the context of growth, quickly lead to huge node numbers 
-which imply supercomputers as a necessity for large colony simulations.
+particularly in the context of growth, quickly lead to huge node numbers 
+which imply the necessity of supercomputers for large colony simulations.
 \\
 
 Conversely, implicit representations of smooth geometric shapes are defined 
@@ -207,8 +208,8 @@ which is defined as the set of points which satisfy $f(x,y,z) =0$, where
     f(x,y,z) = p_1 x^2 + p_2 xy + p_3 xz + p_4 x + p_5 y^2 + p_6 yz + p_7 y + p_8 z^2 + p_9 z + p_{10},
 \end{split}
 \end{equation*}
-as introduced in \cite{blinn1982generalization}. The full generalisation to the notion 
-of implicit curves would require a precise notion of what space 
+as introduced in \cite{blinn1982generalization}. The full generalisation of 
+implicit curves would require a precise notion of what space 
 the functions, $f$, belong to. In the case of quadric surfaces, 
 the functions belong to the ring of polynomials in $x$, $y$ and $z$, written as 
 $\mathbb{R}[x,y,z]$, but more exotic settings can be used.
@@ -222,22 +223,22 @@ advanced mathematical machinery to control. This is where constructive solid geo
 in. 
 \\
 
-CSG is a technique used to build new implictely represented shapes from old ones.
+CSG is a technique used to build new implicitly represented shapes from old ones.
 In multi-cellular modelling, where the individual cell geometry 
 is more or less fixed but there 
 are regular topological bifurcations corresponding to cell division,
-CSG is ideal and suprisingly has not been implementated in mycology agent 
+CSG is ideal and suprisingly has not been implemented in mycology agent 
 based models as far as the author is aware.
 That being said, a recent paper from 2023 models the time-dependence of cells of bristle 
 worms (\textit{Platynereis dumerilii}) using signed distance fields (SDFs) which 
 are learnt from biomedical images using neural networks, \cite{wiesner2024generative}.
 As early as 2019, one could learn the continous SDF of arbitrary 3D geometry using 
 \textit{DeepSDF} created by \cite{park2019deepsdf}, which employs neural networks
-to learn from noisy imput data. \cite{wiesner2024generative} improve 
+to learn from noisy input data. \cite{wiesner2024generative} improve 
 on \textit{DeepSDF} by using \textit{sine} activation functions and 
 more hidden layers in their multi-layer perceptron (MLP) neural network. Whilst 
 \cite{wiesner2024generative} produce time-dependent implicit cell representations using 
-an impressive data-driven approach, my model focuses on developing 
+an impressive data-driven approach, this thesis focuses on developing 
 a mechanistic model that can bridge the gap between the cell and colony scales using 
 implicit curves.
 \\
@@ -273,7 +274,7 @@ process known as ``ligation'' which involves a polymerase chain reaction (PCR),
 
 The 3C, 4C (chromosome conformation capture-on-chip/circular chromosome conformation capture) and 5C 
 (chromosome conformation capture carbon-copy) techniques have culminated in Hi-C which 
-uses a combination of 3C and next generation sequencing (NGS) to image ``higher order" interations 
+uses a combination of 3C and next generation sequencing (NGS) to image ``higher order" interactions 
 in the cell nucleus, \cite{nora2012spatial}. Another pair of teams, \cite{nora2012spatial} and 
 \cite{dixon2012topological}, identifed topologically associating domains (TADs) in 2012. 
 They imaged mouse embryonic stem cell genomes using 5C.
@@ -305,15 +306,15 @@ declared in 1959 that more ``attention to the History of Science ... by biologis
 as quoted by \cite{edwards2008gh} in an anecdotal commentary. Edwards, A (2008) cites
 a selection of interesting anecdotes from Godfrey Harold Hardy and Wilhelm Weinberg who 
 independently discovered the Hardy-Weinberg equilibrium and were both met by Fisher.
-Fisher, who discovered the statistical tecnhique called ANOVA, for analysis of variance, in 
-\cite{fisher1919xv} (1919), who quoted ``a considerable body of pedigree evidence'' for 
+Fisher, who discovered the statistical technique called ANOVA, for analysis of variance, in 
+\cite{fisher1919xv} (1919), quoted ``a considerable body of pedigree evidence'' for 
 a ``single mendelian factor" cabable of producing ``feebleness of mind'', 
 \cite{fisher1924elimination}. Fisher attempts to refute Reginald Punnett's, 
 ``anti-eugenic propoganda'', \cite{fisher1924elimination}, by critiquing
 Punnett's data table on the number of generations required to decrease 
 the proportion of ``defectives''. He subsitutes another table of 325 ``feebleminded cases'',
-including ``alcholic, sexually immoral, criminalistic, ... insane, ... tramps''.
-It seems making Swahili \textit{pombe} is a more noble scientific cause.
+including ``alcoholic, sexually immoral, criminalistic, ... insane, ... tramps''.
+It seems making East African \textit{pombe} is a more noble scientific cause.
 \\
 
 R. A. Fisher found creative ways to propogate his ideas. 
@@ -352,7 +353,7 @@ his pure mathematical methodology,
 transfer over to applied mathematics, or even mathematical biology?}
 Is not the mechanism by which \textit{cohesin} detaches from the cell's sister 
 chromatids during \textit{anaphase} allowing for the splitting of 
-spindle apparatus, an example of patience and precise timing?
+the spindle apparatus, an example of patience and precise timing?
 \\
 
 In this literature review, I have introduced some of the technical 
@@ -368,7 +369,7 @@ I currently lack the expertise to formalise
 such a theory in a precise manner. That being said, 
 it is interesting to consider whether the \textit{whole}
 cell can be thought of as a topological space. A physical
-yeast cell on petri-dish is a messy and imperfect 
+yeast cell on a petri-dish is a messy and imperfect 
 entity which appears to be the \textit{furthest} thing from 
 a clean mathematical object, both in shape and function.
 With the advent of tools like \textit{DeepSDF}, and topological 
@@ -414,7 +415,7 @@ equations (PDEs) for a nutrient source} \label{sec:turingPatterns}
 
 A reaction-diffusion PDE is employed to model the underlying 
 nutrient field, $c(x,y,t)$. The yeast colony biomass given by the field, 
-$b(x,y,t)$ (determined by the colony's algebraic representation), and interacts 
+$b(x,y,t)$ (determined by the colony's algebraic representation) interacts 
 with $c$ by a mechanism of aggregate 
 gradient sensing over long periods of time \cite{keller1971model}. 
 As per Keller and Segel's \textit{Model for Chemotaxis},

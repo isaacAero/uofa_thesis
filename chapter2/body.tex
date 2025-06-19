@@ -27,15 +27,15 @@ the equations for two ellipses which
 begin as coincident and move apart as the parameter $d$ becomes larger. 
 The equations that represent the individual cells are
 \begin{equation*}
-    f_1(x,y,z) = \left( \frac{x+d}{p} \right)^2 + \left( \frac{y}{q} \right)^2 - 1,
+    f_1(x,y) = \left( \frac{x+d}{p} \right)^2 + \left( \frac{y}{q} \right)^2 - 1,
 \end{equation*}
 \begin{equation*}
-    f_2(x,y,z) = \left( \frac{x-d}{p} \right)^2 + \left( \frac{y}{q} \right)^2 - 1,
+    f_2(x,y) = \left( \frac{x-d}{p} \right)^2 + \left( \frac{y}{q} \right)^2 - 1,
 \end{equation*}
 where $p=1.0 L_0$ and $q=0.9 L_0$ are the semi-major radius and semi-minor radius
 of the ellipses, respectively, 
 and $d$ is the distance bewteen their centers. The aspect ratio is $q/p = 0.9$ and $L_0 = 7.5 \ \mu m$
-is the average length of a  saccharomyces cerevisiae (Baker's yeast) cell in ideal conditions as per
+is the average length of a baker's yeast cell in ideal conditions as per
 \cite{chavez2024cell}.
 \\
 
@@ -45,12 +45,12 @@ be called the colony SDF from now on, we build the following.
 This is done using what is called a ``union" in computer graphics. 
 This is simply the pointwise minimum,
 \begin{equation*}
-    f_{\textrm{union}}(x,y,z) = \min(f_1(x,y,z), f_2(x,y,z)).
+    f_{\textrm{union}}(x,y) = \min(f_1(x,y), f_2(x,y)).
 \end{equation*} 
 To get a smooth transition between the cells as they come apart we could alternatively use 
-the $\textrm{smoothmin}$ which is defined by a smoothness parameter $s$, as in
+the $\textrm{smoothmin}$ which is defined by a smoothness parameter $s$ as in
 \begin{equation*}
-    \textrm{smoothmin}(f_1(x,y,z), f_2(x,y,z); s) = -s \log(e^{-f_1(x,y,z)/s} + e^{-f_2(x,y,z)/s}).
+    \textrm{smoothmin}(f_1(x,y), f_2(x,y); s) = -s \log(e^{-f_1(x,y)/s} + e^{-f_2(x,y)/s}).
 \end{equation*}
 \begin{figure}[!htb]
     \centering
@@ -61,7 +61,7 @@ the $\textrm{smoothmin}$ which is defined by a smoothness parameter $s$, as in
     \label{fig:compareSmoothness}
 \end{figure}
 Figure \ref{fig:compareSmoothness} shows the effect of using different values of smoothness
-$s$. Ultimately, using smoothmin was abandoned in favour or the computationally quicker \codeword{min},
+$s$. Ultimately, using smoothmin was abandoned in favour of the computationally quicker \codeword{min},
 which does not require the costly evaluation of the natural log and exponential functions.
 \\
 
@@ -71,7 +71,7 @@ smoothing parameter. In order to ensure that only the interior
 of the SDF level section was plotted, I set positive entries to \codeword{nan},
 which is MATLAB code for \textit{not a number}. The surface plots in figure \ref{fig:mitosisplot}
 were produced via the use of MATLAB's \codeword{surf} function which ignores \codeword{nan} entries
-in the underlying $Z$ matrix. One additional transformation made before plotting, was to multiply by 
+in the underlying height matrix. One additional transformation made before plotting, was to multiply by 
 $-1$ to reflect the SDF about the level plane, achieving a positive value inside the biomass.
 \begin{figure}[!htb]
     \centering
@@ -82,7 +82,7 @@ $-1$ to reflect the SDF about the level plane, achieving a positive value inside
 \end{figure}
 \\
 
-A signed distance field for an ellipse is used to model Baker's yeast cells which
+A signed distance field for an ellipse is used to model baker's yeast cells which
 are in a pseudo-hyphal growth regime.
 An ellipse centered at the origin with semi-major dimension $p$ (the $x$ intercept) and
 semi-minor dimension $q$ (the $y$ intercept) has an SDF given by
@@ -106,7 +106,7 @@ elliptical shape all the same. We can also translate and rotate the ellipse, usi
 \end{equation*}
 where $\Delta \vb{x} = (x-x_c) \hat{\vb{i}} + (y-y_c)\hat{\vb{j}} $ and $(x_c,y_c)$ is the
 center of the ellipse. We call the components of $\Delta \vb{x} = \Delta x \hat{\vb{i}} +
-\Delta y \hat{\vb{j}} $. The above trasnformation is a passive rotation because 
+\Delta y \hat{\vb{j}} $. The above transformation is a passive rotation because 
 it rotates the whole SDF. The following equation
 \begin{equation*}
     f(x,y) = \left[\frac{ (x-x_c)\cos{\theta} + (y-y_c) \sin{\theta}}{p} \right]^2 
@@ -129,11 +129,11 @@ Cell colonies can also be built up by combining the SDFs of the individual cells
 using a cumulative $\textrm{smoothmin}$.
 \\
 
-Some significant optimsations were made to make sure that the evalution of 
+Some significant optimisations were made to ensure that the evaluation of 
 the colony SDF (evaluated via calling \codeword{ellipse.m}) was as fast as 
 possible within the capabilities of MATLAB. These 
 optimisations, which were crucial because \codeword{ellipse.m} is called per time step, 
-are commented on in Chapter 2, subsection \ref{ssec:ellipse}.
+are commented on in Chapter 3, subsection \ref{ssec:ellipse}.
 
 \section{Cell colony dynamics with an underlying discrete network}
 Now that we have introduced a robust mechanism to represent cell colony 
@@ -150,9 +150,9 @@ as shown in figure \ref{fig:yeastMicrograph}.
 To represent the branching dynamics of pseudo-hyphal yeast growth, 
 an underlying discrete network which can change node count has been developed.
 A colony for which the node count $N_{\textrm{nodes}}$ remains fixed is given 
-by a undirected graph with adjacency matrix $A_{ij}$ where the edges are symbolically
+by an undirected graph with adjacency matrix $A_{ij}$ where the edges are symbolically
 represented by springs which model the elasticity of the cells. 
-A diagram of this is shon in figure \ref{fig:yeastAsSpringNetwork}. 
+A diagram of this is shown in figure \ref{fig:yeastAsSpringNetwork}. 
 \begin{figure}[!htb]
     \centering
     \begin{tikzpicture}
@@ -222,7 +222,7 @@ associated with the cell indexed $k$, comprised of nodes $i_1$ and $i_2$ are sum
      $\vb{x}_{c,k}$ & $\frac{1}{2} \left(\vb{x}_{i_1} + \vb{x}_{i_2}\right)$     & Center \\ 
      $p_k$          & $\frac{1}{2}||\vb{x}_{i_1} - \vb{x}_{i_2}||$                     & Semi-major radius \\ 
      $q_k$          & $\frac{\lambda_7}{2}||\vb{x}_{i_1} - \vb{x}_{i_2}||$                                      & Semi-minor radius \\         
-     $\theta_k$     & $\atan (y_{i_1} - y_{i_2},x_{i_1} - x_{i_2} )$                   & Orintation angle \\         
+     $\theta_k$     & $\atan (y_{i_1} - y_{i_2},x_{i_1} - x_{i_2} )$                   & Orientation angle \\         
      \hline   
     \end{tabular}   
 \end{center}
@@ -232,10 +232,10 @@ associated with the cell indexed $k$, comprised of nodes $i_1$ and $i_2$ are sum
 \end{table}
 
 \section{The colony adjacency matrix, $A$}
-In the software \codeword{CellColonySimulator} developed, the maximum 
+In the software \codeword{CellColonySimulator} developed in this work, the maximum 
 number of nodes which the simulation can take is set to 
 \codeword{maxNodeCount = 500}. This number is of course arbitrary and 
-can be chosen to be much larger if the supercomputing time is available. 
+can be chosen to be much larger if supercomputing time is available. 
 In the case of figure \ref{fig:yeastAsSpringNetwork}, suppose
 \codeword{maxNodeCount = 5}. Since there are only $4$ active nodes,
 we would have an adjacency matrix of 
@@ -294,7 +294,7 @@ determine the motion of each node.
 \end{equation}
 where $F$ is the magnitude of the contact force, and $\gamma$ is the magnitude of chemotaxis. In equation 
 \ref{eqn:forcesNode_i} we have used the kinematic relationship $\vb{v}_i = \frac{d \vb{x}_i}{dt}$ and 
-$H$ denotes a step function which is $0$ for a negative argument and $1$ for an arguemnt in 
+$H$ denotes a step function which is $0$ for a negative argument and $1$ for an argument in 
 $\mathbb{R}_{\geq 0}$.
 
 
@@ -306,14 +306,14 @@ at time indices $n$ that are a multiple of
 \begin{equation*}
     \Delta n = \bigg\lceil \frac{1}{\Delta t} \bigg\rceil,
 \end{equation*}
-where $\Delta t$ is the (non-dminesionalised) simulation time step, taken to be $0.01$ in \\
+where $\Delta t$ is the (non-dimensionalised) simulation time step, taken to be $0.01$ in \\
  \codeword{CellColonySimulator}.
 The number of cells added at each global mitosis event reflects the exponential growth equation,
 \begin{equation*}
     N_{\textrm{nodes}} = N_{0, \textrm{cell}} e^{t \mu(t)},
 \end{equation*}
 where the time-dependent growth rate $\mu$ is discussed 
-in more detail in Chapter 2, subsection \ref{ssec:runSimulation}. The growth rate 
+in more detail in Chapter 3, subsection \ref{ssec:runSimulation}. The growth rate 
 itself is given to be proportional to the average nutrient concentration over the node indices, and 
 is given by equation \ref{eqn:growthRate}. This reflects the fact that if the nutrient has been depleted,
 no new cells should be added, whereas if the nutrient has a uniform concentration of $1.0 \ \mu m^{-2}$ 
@@ -348,7 +348,7 @@ then the colony will grow at the ideal growth rate, given by $\mu^*$.
         \end{scope}
     \end{tikzpicture}
     \caption{A mitosis event occurs via the addition of new nodes connected to old nodes.
-             The nodes are added very close (distance $\delta \ll 1$) by the original nodes (exaggerated here)
+             The nodes are added very close (distance $\delta \ll 1$) beside the original nodes (exaggerated here)
              so that the spring force can be defined. After this point, 
              the initially compressed cell ``grows" outwards to achieve its nominal length, under 
              the influence of elasticity, contact and chemotactic forces.}
@@ -393,7 +393,7 @@ In the case of the plotting of $b(x,y,t)$ we use \codeword{nan} instead of $0$.
 
 The PDE is subjected to the Dirichlet condition
 that the nutrient density takes a value of $1.0$ at the boundary. In order to simulate the nutrient field
-numerically a foward time centered space (FTCS) scheme was prototyped on the square grid 
+numerically a forward time centered space (FTCS) scheme was prototyped on the square grid 
 covering the domain. However, this scheme was found to be numerically unstable
 for small spatial steps $h$ and large time steps $\Delta t$ and was discarded
 in favour of the unconditionally numerically stable Crank-Nicholson scheme detailed
@@ -482,8 +482,8 @@ Now, for the EOM for the nodes, we have
 \begin{equation*}
     \begin{split}
         \frac{d \vb{x}_i}{dt} &= 
-        \frac{K}{ \eta}\sum_{j = 1}^N   \left[ - A_{ij} \left( ||\vb{x}_i - \vb{x}_j|| - L_0\right) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||} \right]\\
-         &+ \frac{F}{ \eta}\sum_{j = 1}^N \left[ H(R - ||\vb{x}_i - \vb{x}_j||) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||}     \right]\\ 
+        \frac{K}{ \eta}\sum_{j = 1, j \neq i}^N   \left[ - A_{ij} \left( ||\vb{x}_i - \vb{x}_j|| - L_0\right) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||} \right]\\
+         &+ \frac{F}{ \eta}\sum_{j = 1, j \neq i}^N \left[ H(R - ||\vb{x}_i - \vb{x}_j||) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||}     \right]\\ 
          &+ \frac{\gamma}{\eta} \nabla c (\vb{x}_i, t).
     \end{split}
 \end{equation*}
@@ -582,8 +582,8 @@ span from equation \ref{eqn:EOMs_PDE} to \ref{eqn:centerPos}.
     \boxed{
     \begin{split}
         \frac{d \vb{x}_i}{d t} 
-         &= \lambda_2 \sum_{j=1}^{N_{\textrm{nodes}}} \left[ A_{ij}\left( 1- ||\vb{x}_i - \vb{x}_j|| \right) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||} \right]\\
-         &+ \lambda_3 \sum_{j=1}^{N_{\textrm{nodes}}} \left[H(\lambda_4 - ||\vb{x}_i - \vb{x}_j||) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||}     \right]\\ 
+         &= \lambda_2 \sum_{j=1, j \neq i}^{N_{\textrm{nodes}}} \left[ A_{ij}\left( 1- ||\vb{x}_i - \vb{x}_j|| \right) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||} \right]\\
+         &+ \lambda_3 \sum_{j=1, j \neq i}^{N_{\textrm{nodes}}} \left[H(\lambda_4 - ||\vb{x}_i - \vb{x}_j||) \frac{\vb{x}_i - \vb{x}_j}{||\vb{x}_i - \vb{x}_j||}     \right]\\ 
          &+ \lambda_5 \nabla c (\vb{x}_i, t), \ \textrm{for} \ i \in \{ 1, ...,N_{\textrm{nodes}} \},  
     \end{split}}
 \end{equation}
